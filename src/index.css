@@ -721,3 +721,110 @@ body {
   background: #eef2ff;
   border-color: #243260;
 }
+
+.mx-block {
+  margin-bottom: 22px;
+}
+
+.mx-rec-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+  margin: 14px 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mx-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+}
+
+.mx-table {
+  border-collapse: collapse;
+  width: 100%;
+  background: var(--surface);
+  font-size: 12px;
+  min-width: 480px;
+}
+
+.mx-table th,
+.mx-table td {
+  border: 1px solid var(--border);
+  padding: 9px 12px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.mx-table thead th {
+  background: #243260;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .3px;
+}
+
+.mx-table thead th:first-child {
+  background: #1a2744;
+  text-align: left;
+}
+
+.mx-table tbody th {
+  background: #eef2ff;
+  color: var(--navy);
+  font-weight: 700;
+  text-align: left;
+  font-size: 12px;
+}
+
+.mx-act {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.mx-act.green {
+  color: #16a34a;
+}
+
+.mx-act.amber {
+  color: #d97706;
+}
+
+.mx-act.red {
+  color: #dc2626;
+}
+
+.mx-act.muted {
+  color: #94a3b8;
+}
+
+.mx-plan {
+  font-size: 10px;
+  color: #94a3b8;
+  display: block;
+  margin-top: 1px;
+}
+
+.mx-pct {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.mx-pct.green {
+  color: #16a34a;
+}
+
+.mx-pct.amber {
+  color: #d97706;
+}
+
+.mx-pct.red {
+  color: #dc2626;
+}

@@ -52,40 +52,40 @@ export default function Department({ department: d }) {
           });
 
           return (
-            <div key={rec} className="metric-table-container" style={{ marginBottom: 24, padding: 20 }}>
-              <h4 style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>👤 {rec}</h4>
+            <div key={rec} className="mx-block">
+              <div className="mx-rec-title">👤 {rec}</div>
               {!positions.length ? (
-                <div style={{ padding: 20, textAlign: 'center', color: 'var(--muted)', fontSize: 13 }}>No positions added yet for {rec}. Add them in Data Entry.</div>
+                <div style={{ padding: 20, textAlign: 'center', color: 'var(--muted)', fontSize: 13, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10 }}>No positions added yet for {rec}. Add them in Data Entry.</div>
               ) : (
-                <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: 8 }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12, textAlign: 'center' }}>
+                <div className="mx-scroll">
+                  <table className="mx-table">
                     <thead>
                       <tr>
-                        <th style={{ padding: 12, background: 'var(--navy2)', color: '#fff', textAlign: 'left' }}>Stage \\ Position</th>
-                        {positions.map(p => <th key={p} style={{ padding: 12, background: 'var(--navy)', color: '#fff' }}>{p}</th>)}
+                        <th>Stage \\ Position</th>
+                        {positions.map(p => <th key={p}>{p}</th>)}
                       </tr>
                     </thead>
                     <tbody>
                       {STAGES.map(st => (
-                        <tr key={st[1]} style={{ borderTop: '1px solid var(--border)' }}>
-                          <th style={{ padding: 12, background: 'rgba(239, 246, 255, 0.5)', textAlign: 'left', color: 'var(--navy)' }}>{st[0]}</th>
+                        <tr key={st[1]}>
+                          <th>{st[0]}</th>
                           {positions.map(p => {
                             const m = mine.find(x => {
                               const pMatch = (x.sub || '').match(/Position:\s*([^·]+)/i);
                               const stMatch = (x.sub.split('·').pop() || '').trim();
                               return pMatch && pMatch[1].trim() === p && stMatch === st[1];
                             });
-                            if (!m || !curWk) return <td key={p} style={{ padding: 12, color: 'var(--muted)' }}>—</td>;
+                            if (!m || !curWk) return <td key={p} className="muted">—</td>;
                             const pv = m.plan[curWk.id], av = m.actual[curWk.id], sc = calculateScore(pv, av, m.dir);
                             return (
-                              <td key={p} style={{ padding: 12, borderLeft: '1px solid var(--border)' }}>
-                                <div style={{ fontSize: 14, fontWeight: 700, color: `var(--${sc.color === 'amber' ? 'amber' : sc.color})` }}>
+                              <td key={p}>
+                                <span className={`mx-act ${sc.color === 'gray' ? 'muted' : sc.color}`}>
                                   {av === '' || av == null ? '—' : formatNum(av)}
-                                </div>
-                                <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>/ {pv === '' || pv == null ? '—' : formatNum(pv)}</div>
-                                <div style={{ fontSize: 11, fontWeight: 600, color: `var(--${sc.color === 'amber' ? 'amber' : sc.color})`, marginTop: 4 }}>
+                                </span>
+                                <span className="mx-plan">/ {pv === '' || pv == null ? '—' : formatNum(pv)}</span>
+                                <span className={`mx-pct ${sc.color === 'gray' ? 'muted' : sc.color}`}>
                                   {sc.label}
-                                </div>
+                                </span>
                               </td>
                             );
                           })}
