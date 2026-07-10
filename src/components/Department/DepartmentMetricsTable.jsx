@@ -43,6 +43,7 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
                 const a = m.actual[w.id];
                 const sc = calculateScore(p, a, m.dir);
                 const prom = m.promised ? m.promised[w.id] : '';
+                const actColor = d.id === 'crm' ? 'green' : sc.color;
 
                 return (
                   <React.Fragment key={w.id}>
@@ -50,7 +51,7 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
                       <span className="plan-num">{p === '' || p == null ? '—' : formatNum(p)}</span>
                     </div>
                     <div className="t-cell center">
-                      <span className={`val-actual ${sc.color}`}>{a === '' || a == null ? '—' : formatNum(a)}</span>
+                      <span className={`val-actual ${actColor}`}>{a === '' || a == null ? '—' : formatNum(a)}</span>
                     </div>
                     <div className="t-cell center">
                       <span className={`score-pill ${sc.color}`}>{sc.label}</span>
@@ -69,7 +70,7 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
               {/* MTD Cell */}
               <div className="t-cell center" style={{ borderLeft: '1px solid var(--border)', background: 'rgba(240, 253, 244, 0.3)' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                  <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatNum(mt.actual)}</span>
+                  <span className={`val-actual ${d.id === 'crm' ? 'green' : msc.color}`}>{mt.actual === null ? '—' : formatNum(mt.actual)}</span>
                   <span style={{ fontSize: 10, color: 'var(--muted)' }}>Plan: {mt.plan === null ? '—' : formatNum(mt.plan)}</span>
                   <span className={`score-pill ${msc.color}`}>{msc.label}</span>
                 </div>

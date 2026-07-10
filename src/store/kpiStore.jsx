@@ -35,7 +35,7 @@ export function calculateScore(plan, actual, dir) {
   if (p === null || p === 0) return { pct: null, color: 'muted', label: '—' };
   let pct = dir === 'lower' ? ((p - a) / p) * 100 : ((a - p) / p) * 100;
   const r = Math.round(pct * 10) / 10;
-  let color = r >= -1 ? 'green' : (r >= -10 ? 'amber' : 'red');
+  let color = r >= -20 ? 'green' : (r >= -30 ? 'amber' : 'red');
   const sign = r > 0 ? '+' : '';
   const tick = color === 'green' ? ' ✓' : '';
   return { pct: r, color, label: sign + r + '%' + tick };

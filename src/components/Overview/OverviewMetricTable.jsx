@@ -44,13 +44,14 @@ export default function OverviewMetricTable({ departments, weeks }) {
                       const p = m.plan[w.id];
                       const a = m.actual[w.id];
                       const sc = calculateScore(p, a, m.dir);
+                      const actColor = d.id === 'crm' ? 'green' : sc.color;
                       return (
                         <React.Fragment key={w.id}>
                           <div className="t-cell center" style={{ borderLeft: '1px solid var(--border)' }}>
                             <span className="plan-num">{p === '' || p === null || p === undefined ? '—' : formatNum(p)}</span>
                           </div>
                           <div className="t-cell center">
-                            <span className={`val-actual ${sc.color}`}>{a === '' || a === null || a === undefined ? '—' : formatNum(a)}</span>
+                            <span className={`val-actual ${actColor}`}>{a === '' || a === null || a === undefined ? '—' : formatNum(a)}</span>
                           </div>
                         </React.Fragment>
                       );
@@ -60,7 +61,7 @@ export default function OverviewMetricTable({ departments, weeks }) {
                       <span className="plan-num">{mt.plan === null ? '—' : formatNum(mt.plan)}</span>
                     </div>
                     <div className="t-cell center" style={{ background: 'rgba(240, 253, 244, 0.3)' }}>
-                      <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatNum(mt.actual)}</span>
+                      <span className={`val-actual ${d.id === 'crm' ? 'green' : msc.color}`}>{mt.actual === null ? '—' : formatNum(mt.actual)}</span>
                     </div>
                     <div className="t-cell center" style={{ background: 'rgba(240, 253, 244, 0.3)' }}>
                       <span className={`score-pill ${msc.color}`}>{msc.label}</span>
