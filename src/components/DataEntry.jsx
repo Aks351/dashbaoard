@@ -286,7 +286,7 @@ export default function DataEntry() {
                             <div className="pos-empty">No positions yet. Click "＋ Add Position" below.</div>
                           ) : (
                             positions.map(pos => {
-                              const order = { 'Applications': 0, 'Final Rounds': 1, 'Offer Given To': 2, 'Onboarded': 3 };
+                              const order = { 'Applications': 0, 'Final Rounds': 1, 'Offer Given To': 2 };
                               byPos[pos].sort((a, b) => {
                                 const aStage = (a.sub.split('·').pop() || '').trim();
                                 const bStage = (b.sub.split('·').pop() || '').trim();
