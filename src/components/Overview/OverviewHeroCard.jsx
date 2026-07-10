@@ -20,7 +20,7 @@ export default function OverviewHeroCard({ department: d, weeks }) {
   
   const mt = mtd(worst, weeks);
   const cls = worstSc.color === 'green' ? 'good' : (worstSc.color === 'amber' ? 'warning' : 'danger');
-  const heroActColor = d.id === 'crm' ? 'green' : cls;
+  const heroActColor = (d.id === 'crm' && (worst.id.includes('dispatch') || worst.id.includes('payment'))) ? 'green' : cls;
   
   const valActual = (mt.actual === null || mt.actual === '') ? '—' : formatNum(mt.actual) + (worst.unit ? ` ${worst.unit}` : '');
   const valPlan = (mt.plan === null || mt.plan === '') ? '—' : formatNum(mt.plan) + (worst.unit ? ` ${worst.unit}` : '');
