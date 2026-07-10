@@ -306,7 +306,7 @@ export default function DataEntry() {
                                       }}
                                     >✕</span>
                                   </div>
-                                  <div className="de-row head" style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr' }}>
+                                  <div className="de-row head">
                                     <div className="de-cell head">Stage</div>
                                     <div className="de-cell head" style={{ textAlign: 'center' }}>Plan</div>
                                     <div className="de-cell head" style={{ textAlign: 'center' }}>Actual</div>
@@ -318,7 +318,7 @@ export default function DataEntry() {
                                     const sc = calculateScore(p, a, m.dir);
                                     const stage = (m.sub.split('·').pop() || '').trim();
                                     return (
-                                      <div key={m.id} className="de-row" style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr' }}>
+                                      <div key={m.id} className="de-row">
                                         <div className="de-cell"><div className="de-metric-name">{stage}</div></div>
                                         <div className="de-cell">
                                           <input className={`de-input ${p !== '' ? 'filled' : ''}`} type="number" step="any" value={p} placeholder="plan" 

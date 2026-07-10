@@ -1030,11 +1030,45 @@ export const KpiContext = createContext();
 
 export function KpiProvider({ children }) {
   const [model, setModel] = useState(() => {
+    let initialData = null;
     try {
       const s = localStorage.getItem(STORAGE_KEY);
-      if (s) return JSON.parse(s);
+      if (s) initialData = JSON.parse(s);
     } catch (e) { console.error(e); }
-    return JSON.parse(JSON.stringify(SEED));
+    if (!initialData) initialData = JSON.parse(JSON.stringify(SEED));
+
+    // MIGRATION: Ensure 'Offer Given To' exists in Hiring and is placed before 'Onboarded'
+    const hiring = initialData.departments.find(d => d.id === 'hiring');
+    if (hiring) {
+      const newMetrics = [];
+      const seen = new Set(hiring.metrics.map(m => m.id));
+      hiring.metrics.forEach(m => {
+        // Init empty plan/actual objects for any new metric
+        const emptyData = {};
+        initialData.weeks.forEach(w => emptyData[w.id] = '');
+        
+        // Insert global offer before onboard if missing
+        if (m.id === 'onboard' && !seen.has('offer')) {
+          newMetrics.push({id:'offer', name:'Offer Given To', sub:'All positions', unit:'', dir:'higher', total:false, plan:{...emptyData}, actual:{...emptyData}});
+        }
+        // Insert recruiter offer before recruiter onboard if missing
+        const recMatch = m.id.match(/^rec_([^_]+)_onboard$/);
+        if (recMatch && !seen.has(`rec_${recMatch[1]}_offer`)) {
+          const recName = (m.sub.match(/Recruiter:\s*([^·]+)/i) || [])[1]?.trim() || recMatch[1];
+          newMetrics.push({id:`rec_${recMatch[1]}_offer`, name:`${recName} — Offer Given To`, sub:`Recruiter: ${recName}`, unit:'', dir:'higher', total:false, plan:{...emptyData}, actual:{...emptyData}});
+        }
+        // Insert pos offer before pos onboard if missing
+        const posMatch = m.id.match(/^pos_([^_]+)_([^_]+)_onboard$/);
+        if (posMatch && !seen.has(`pos_${posMatch[1]}_${posMatch[2]}_offer`)) {
+          const recName = (m.sub.match(/Recruiter:\s*([^·]+)/i) || [])[1]?.trim() || posMatch[1];
+          const posName = (m.sub.match(/Position:\s*([^·]+)/i) || [])[1]?.trim() || posMatch[2];
+          newMetrics.push({id:`pos_${posMatch[1]}_${posMatch[2]}_offer`, name:`${posName} — Offer Given To`, sub:`Recruiter: ${recName} · Position: ${posName} · Offer Given To`, unit:'', dir:'higher', total:false, plan:{...emptyData}, actual:{...emptyData}});
+        }
+        newMetrics.push(m);
+      });
+      hiring.metrics = newMetrics;
+    }
+    return initialData;
   });
 
   const [connState, setConnState] = useState('offline'); // offline, online, syncing, error
