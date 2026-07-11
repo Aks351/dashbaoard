@@ -42,12 +42,12 @@ export default function Navigation({ activeTab, setActiveTab }) {
       </div>
 
       <div className="nav-right">
-        <div className="nav-period">KPI Review · {model.meta.period}</div>
+        <div className="nav-period">KPI Review · {new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}</div>
         <button 
           className="btn-refresh" 
           onClick={handleRefresh}
           disabled={isRefreshing}
-          style={{ background: 'transparent', border: '1px solid var(--border)', padding: '4px 10px', borderRadius: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text2)' }}
+          style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '4px 10px', borderRadius: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'rgba(255, 255, 255, 0.85)', transition: 'all 0.2s' }}
         >
           <RefreshCw size={14} className={isRefreshing ? 'spin' : ''} />
           {isRefreshing ? 'Refreshing...' : 'Refresh'}

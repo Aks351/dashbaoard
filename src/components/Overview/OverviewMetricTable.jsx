@@ -44,7 +44,7 @@ export default function OverviewMetricTable({ departments, weeks }) {
                       const p = m.plan[w.id];
                       const a = m.actual[w.id];
                       const sc = calculateScore(p, a, m.dir);
-                      const actColor = (d.id === 'crm' && (m.id === 'otd' || m.id === 'paycoll' || m.id === 'otd_ontime' || m.id === 'paycoll_ontime')) ? 'green' : sc.color;
+                      const actColor = sc.color;
                       return (
                         <React.Fragment key={w.id}>
                           <div className="t-cell center" style={{ borderLeft: '1px solid var(--border)' }}>
@@ -61,7 +61,7 @@ export default function OverviewMetricTable({ departments, weeks }) {
                       <span className="plan-num">{mt.plan === null ? '—' : formatNum(mt.plan)}</span>
                     </div>
                     <div className="t-cell center" style={{ background: 'rgba(240, 253, 244, 0.3)' }}>
-                      <span className={`val-actual ${(d.id === 'crm' && (m.id === 'otd' || m.id === 'paycoll' || m.id === 'otd_ontime' || m.id === 'paycoll_ontime')) ? 'green' : msc.color}`}>{mt.actual === null ? '—' : formatNum(mt.actual)}</span>
+                      <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatNum(mt.actual)}</span>
                     </div>
                     <div className="t-cell center" style={{ background: 'rgba(240, 253, 244, 0.3)' }}>
                       <span className={`score-pill ${msc.color}`}>{msc.label}</span>
