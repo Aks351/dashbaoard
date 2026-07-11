@@ -71,7 +71,7 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
                   {showPromised && (
                     <div className="d-cell center" style={{ background: bg }}>
                       <span className="score-pill" style={{ background: '#eff6ff', color: '#3b82f6' }}>
-                        {prom === '' || prom == null ? '—' : `${prom}%`}
+                        {prom === '' || prom == null ? '—' : `${Number(prom) - 100 > 0 ? '+' : ''}${Number(prom) - 100}%`}
                       </span>
                     </div>
                   )}

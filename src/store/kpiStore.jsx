@@ -43,9 +43,12 @@ export function calculateScore(plan, actual, dir = 'higher') {
   let pct = Math.round((a / p) * 100);
   if (dir === 'lower') pct = a === 0 ? 100 : Math.round((p / a) * 100);
 
-  if (pct >= 100) return { label: `${pct}%`, color: 'green', pct };
-  if (pct >= 90) return { label: `${pct}%`, color: 'amber', pct };
-  return { label: `${pct}%`, color: 'red', pct };
+  const variance = pct - 100;
+  const prefix = variance > 0 ? '+' : '';
+
+  if (pct >= 100) return { label: `${prefix}${variance}%`, color: 'green', pct };
+  if (pct >= 90) return { label: `${prefix}${variance}%`, color: 'amber', pct };
+  return { label: `${prefix}${variance}%`, color: 'red', pct };
 }
 
 export function mtd(metric, weeks) {
