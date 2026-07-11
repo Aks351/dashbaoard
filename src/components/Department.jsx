@@ -17,13 +17,22 @@ export default function Department({ department: d }) {
   if (d.id === 'hiring') {
     // Top table: strictly company overall metrics (using strict IDs instead of text matching)
     const topIds = ['apps', 'final', 'offer'];
-    baseMetrics = d.metrics.filter(m => topIds.includes(m.id));
+    baseMetrics = d.metrics.filter(m => topIds.includes(m.id)).sort((a, b) => topIds.indexOf(a.id) - topIds.indexOf(b.id));
     
     // Position metrics: specifically assigned to a position
     posMetrics = d.metrics.filter(m => m.id.startsWith('pos_'));
     
     // Recruiter metrics: overall totals assigned to a recruiter, but not a position
-    recruiterMetrics = d.metrics.filter(m => m.id.startsWith('rec_'));
+    const recOrder = { 'apps': 0, 'final': 1, 'offer': 2 };
+    recruiterMetrics = d.metrics.filter(m => m.id.startsWith('rec_')).sort((a, b) => {
+       const stageA = a.id.split('_').pop();
+       const stageB = b.id.split('_').pop();
+       // First sort by recruiter name alphabetically, then by stage order
+       const nameA = a.id.split('_')[1];
+       const nameB = b.id.split('_')[1];
+       if (nameA !== nameB) return nameA.localeCompare(nameB);
+       return (recOrder[stageA] ?? 99) - (recOrder[stageB] ?? 99);
+    });
   }
 
   const link = SOLUTION_LINKS[d.id];

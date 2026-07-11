@@ -49,12 +49,20 @@ export function calculateScore(plan, actual, dir = 'higher') {
 }
 
 export function mtd(metric, weeks) {
-  let plan = 0, act = 0, hasAct = false, hasPlan = false;
+  let plan = 0, act = 0, planCount = 0, actCount = 0;
   weeks.forEach(w => {
-    const p = num(metric.plan[w.id]); if (p !== null) { plan += p; hasPlan = true; }
-    const a = num(metric.actual[w.id]); if (a !== null) { act += a; hasAct = true; }
+    const p = num(metric.plan[w.id]); if (p !== null) { plan += p; planCount++; }
+    const a = num(metric.actual[w.id]); if (a !== null) { act += a; actCount++; }
   });
-  return { plan: hasPlan ? plan : null, actual: hasAct ? act : null };
+  
+  if (metric.id === 'oilmt') {
+    return {
+      plan: planCount > 0 ? plan / planCount : null,
+      actual: actCount > 0 ? act / actCount : null
+    };
+  }
+
+  return { plan: planCount > 0 ? plan : null, actual: actCount > 0 ? act : null };
 }
 
 export const KpiContext = createContext();
