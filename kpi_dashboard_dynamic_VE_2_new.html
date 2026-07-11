@@ -1473,7 +1473,7 @@
       html += `<div class="legend-bar"><span style="font-weight:600;color:var(--text2)">Score:</span><span>🟢 on/above target</span><span>🟡 within 10%</span><span>🔴 behind</span><span style="color:#3b82f6">🔵 promised score by employee</span></div>`;
       return html;
     }
-function renderDept(d) {
+    function renderDept(d) {
       const weeks = MODEL.weeks;
       const isCrm = d.id === 'crm';
       const showPromised = ['purchase', 'production'].includes(d.id);
@@ -1843,11 +1843,11 @@ function renderDept(d) {
 
       const id = 'w' + Date.now().toString(36);
       MODEL.weeks.push({ id, label, range });
-      MODEL.departments.forEach(d => d.metrics.forEach(m => { 
-        m.plan[id] = ''; 
-        m.actual[id] = ''; 
-        if(m.promised) m.promised[id] = '';
-        if(d.id === 'crm') { m.ontime = m.ontime || {}; m.ontime[id] = ''; }
+      MODEL.departments.forEach(d => d.metrics.forEach(m => {
+        m.plan[id] = '';
+        m.actual[id] = '';
+        if (m.promised) m.promised[id] = '';
+        if (d.id === 'crm') { m.ontime = m.ontime || {}; m.ontime[id] = ''; }
       }));
       deActiveWeek = id;
       save(); renderAll(); showPage('data');

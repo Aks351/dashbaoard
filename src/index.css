@@ -978,3 +978,59 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+
+/* ── HIRING ADDITIONS ── */
+.week-toggle { display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap; }
+.wtab { padding: 7px 16px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; border: 1.5px solid var(--border); background: var(--surface); color: var(--muted); transition: all .2s; font-family: 'Inter', sans-serif; }
+.wtab.active { border-color: var(--navy); color: var(--navy); background: #eef2ff; font-weight: 700; }
+.section-label { font-family: 'Space Grotesk', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--navy); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.mx-block { margin-bottom: 22px; }
+.mx-rec-title { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; color: var(--navy); margin: 14px 0 8px; display: flex; align-items: center; gap: 8px; }
+.mx-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+.mx-table { border-collapse: collapse; width: 100%; background: var(--surface); font-size: 12px; min-width: 480px; }
+.mx-table th, .mx-table td { border: 1px solid var(--border); padding: 9px 12px; text-align: center; white-space: nowrap; }
+.mx-table thead th { background: #243260; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .3px; }
+.mx-table thead th:first-child { background: #1a2744; text-align: left; }
+.mx-table tbody th { background: #eef2ff; color: var(--navy); font-weight: 700; text-align: left; font-size: 12px; }
+.mx-act { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 14px; }
+.mx-act.green { color: #16a34a; }
+.mx-act.amber { color: #d97706; }
+.mx-act.red { color: #dc2626; }
+.mx-act.muted { color: #94a3b8; }
+.mx-plan { font-size: 10px; color: #94a3b8; display: block; margin-top: 1px; }
+.mx-pct { display: block; margin-top: 3px; font-size: 10px; font-weight: 700; }
+.mx-pct.green { color: #16a34a; }
+.mx-pct.amber { color: #d97706; }
+.mx-pct.red { color: #dc2626; }
+.mx-pct.muted { color: #cbd5e1; }
+.mx-empty { padding: 16px; text-align: center; color: #94a3b8; font-size: 12px; background: var(--surface); border: 1px dashed var(--border); border-radius: 10px; }
+
+/* ── TABLE BASE ── */
+.metric-table { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, .04) }
+.metric-name { font-size: 13px; font-weight: 600; color: var(--text) }
+.metric-sub { font-size: 11px; color: var(--muted); margin-top: 1px }
+.val-actual { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700 }
+.val-actual.red { color: var(--red) }
+.val-actual.amber { color: var(--amber) }
+.val-actual.green { color: var(--green) }
+.score-pill { padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; white-space: nowrap }
+.score-pill.red { background: #fee2e2; color: var(--red) }
+.score-pill.amber { background: #fef3c7; color: var(--amber) }
+.score-pill.green { background: #dcfce7; color: var(--green) }
+.score-pill.muted { background: #f1f5f9; color: var(--muted) }
+.dept-sep { background: #f1f5f9 }
+.dept-sep-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--navy); padding: 7px 14px; display: block }
+.plan-num { font-size: 13px; font-weight: 700; color: var(--text2) }
+.unit-sm { font-size: 9px; color: var(--muted) }
+
+/* ── DEPT TABLE (dynamic columns) ── */
+.dept-tbl { display: grid; border-bottom: 1px solid var(--border) }
+.dept-tbl:last-child { border-bottom: none }
+.dept-tbl:hover:not(.head-row) { background: #f8fafc }
+.d-cell { padding: 11px 12px; font-size: 12px; display: flex; align-items: center }
+.d-cell.head { font-size: 9px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); font-weight: 700; padding: 8px 12px; background: #f1f5f9 }
+.d-cell.center { justify-content: center; text-align: center; flex-direction: column; gap: 2px }
+.mtd-cell { display: flex; flex-direction: column; gap: 3px; align-items: center }
+.legend-bar { font-size: 11px; color: var(--muted); margin-top: 6px; padding: 7px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: inline-flex; gap: 16px; flex-wrap: wrap }
+

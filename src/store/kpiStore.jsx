@@ -14,7 +14,12 @@ export const SOLUTION_LINKS = {
 };
 
 export const RECRUITERS = ['Dipesh', 'Madhu'];
-export const STAGES = [['Applications', 'Applications'], ['Final Rounds', 'Final Rounds'], ['Offer Given To', 'Offer Given To']];
+export const STAGES = [
+  ['Applications', 'Applications'],
+  ['Final Rounds', 'Final Rounds'],
+  ['Offer Given To', 'Offer Given To'],
+  ['Onboarded', 'Onboarded']
+];
 
 export function num(v) { return (v === null || v === undefined || v === '') ? null : Number(v); }
 

@@ -12,9 +12,17 @@ export default function Department({ department: d }) {
 
   let baseMetrics = d.metrics;
   let posMetrics = [];
+  let recruiterMetrics = [];
+  
   if (d.id === 'hiring') {
-    baseMetrics = d.metrics.filter(m => !/·\s*Position:/i.test(m.sub || ''));
+    // Top table: strictly company overall metrics
+    baseMetrics = d.metrics.filter(m => (m.sub || '').trim() === 'All positions');
+    // Position metrics: specifically assigned to a position
     posMetrics = d.metrics.filter(m => /·\s*Position:/i.test(m.sub || ''));
+    // Recruiter metrics: overall totals assigned to a recruiter, but not a position
+    recruiterMetrics = d.metrics.filter(m => 
+      (m.sub || '').includes('Recruiter:') && !/·\s*Position:/i.test(m.sub || '')
+    );
   }
 
   const link = SOLUTION_LINKS[d.id];
@@ -43,6 +51,7 @@ export default function Department({ department: d }) {
         department={d}
         weeks={weeks}
         posMetrics={posMetrics}
+        recruiterMetrics={recruiterMetrics}
         hireMxWeek={hireMxWeek}
         setHireMxWeek={setHireMxWeek}
       />

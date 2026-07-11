@@ -90,15 +90,13 @@ export default function DataEntry() {
                 <span style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.7)' }}>{wk.label} · {wk.range}</span>
               </div>
               
-              {d.id !== 'hiring' && (
-                <DataEntryDepartmentRow 
-                  department={d} 
-                  wk={wk} 
-                  canEdit={canEdit} 
-                  updateValue={updateValue} 
-                  baseMetrics={baseMetrics} 
-                />
-              )}
+              <DataEntryDepartmentRow 
+                department={d} 
+                wk={wk} 
+                canEdit={canEdit} 
+                updateValue={updateValue} 
+                baseMetrics={baseMetrics} 
+              />
               
               {d.id === 'hiring' && (
                 <DataEntryHiringGrid 

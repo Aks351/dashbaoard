@@ -1,26 +1,32 @@
 import React from 'react';
 import { calculateScore, RECRUITERS, STAGES, formatNum } from '../../store/kpiStore';
+import DepartmentMetricsTable from './DepartmentMetricsTable';
 
 export default function DepartmentHiringMatrix({
   department: d,
   weeks,
   posMetrics,
+  recruiterMetrics,
   hireMxWeek,
   setHireMxWeek
 }) {
   if (d.id !== 'hiring' || !posMetrics.length) return null;
   
-  const curWk = weeks.find(w => w.id === hireMxWeek) || weeks[weeks.length - 1];
+  const curId = hireMxWeek || (weeks.length ? weeks[weeks.length - 1].id : null);
+  const curWk = weeks.find(w => w.id === curId);
   
   return (
-    <div className="mx-container" style={{ marginTop: 32 }}>
-      <h3 style={{ fontSize: 14, color: 'var(--navy)', marginBottom: 12 }}>Position Breakdown by Recruiter — {curWk ? curWk.label : ''} (Actual / Plan · %)</h3>
+    <div className="mx-container">
+      <div className="section-label" style={{ marginTop: 32, marginBottom: 16, fontSize: 14, color: '#0f172a' }}>
+        Recruiter Performance Dashboards
+      </div>
       
-      <div className="week-bar" style={{ marginBottom: 16 }}>
+      <div className="week-toggle" style={{ marginTop: 8, marginBottom: 20 }}>
+        <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)', marginRight: 12, alignSelf: 'center' }}>Breakdown Week:</span>
         {weeks.map(w => (
           <div 
             key={w.id} 
-            className={`week-chip ${w.id === hireMxWeek ? 'active' : ''}`}
+            className={`wtab ${w.id === curId ? 'active' : ''}`}
             onClick={() => setHireMxWeek(w.id)}
           >
             {w.label} · {w.range}
@@ -29,7 +35,9 @@ export default function DepartmentHiringMatrix({
       </div>
 
       {RECRUITERS.map(rec => {
+        const recTotals = recruiterMetrics.filter(m => (m.sub || '').trim() === `Recruiter: ${rec}`);
         const mine = posMetrics.filter(m => (m.sub || '').match(/Recruiter:\s*([^·]+)/i)?.[1].trim() === rec);
+        
         let positions = [];
         mine.forEach(m => {
           const pMatch = (m.sub || '').match(/Position:\s*([^·]+)/i);
@@ -37,16 +45,31 @@ export default function DepartmentHiringMatrix({
         });
 
         return (
-          <div key={rec} className="mx-block">
-            <div className="mx-rec-title">👤 {rec}</div>
+          <div key={rec} className="mx-block" style={{ marginBottom: 40, background: '#fff', border: '1px solid var(--border)', borderRadius: 12, padding: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
+            <div className="mx-rec-title" style={{ fontSize: 16, marginBottom: 16 }}>👤 {rec} — Overall Totals</div>
+            
+            {recTotals.length > 0 ? (
+              <div style={{ marginBottom: 24 }}>
+                <DepartmentMetricsTable 
+                  department={d} 
+                  weeks={weeks} 
+                  baseMetrics={recTotals} 
+                />
+              </div>
+            ) : (
+              <div className="mx-empty" style={{ marginBottom: 24 }}>No overall metrics tracked for {rec}.</div>
+            )}
+
+            <div className="section-label" style={{ marginTop: 18 }}>{rec}'s Position Breakdown — {curWk ? curWk.label : ''}</div>
+            
             {!positions.length ? (
-              <div style={{ padding: 20, textAlign: 'center', color: 'var(--muted)', fontSize: 13, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 10 }}>No positions added yet for {rec}. Add them in Data Entry.</div>
+              <div className="mx-empty">No positions added yet for {rec}. Add them in the Data Entry tab.</div>
             ) : (
               <div className="mx-scroll">
                 <table className="mx-table">
                   <thead>
                     <tr>
-                      <th>Stage \\ Position</th>
+                      <th>Stage \ Position</th>
                       {positions.map(p => <th key={p}>{p}</th>)}
                     </tr>
                   </thead>
@@ -60,17 +83,18 @@ export default function DepartmentHiringMatrix({
                             const stMatch = (x.sub.split('·').pop() || '').trim();
                             return pMatch && pMatch[1].trim() === p && stMatch === st[1];
                           });
-                          if (!m || !curWk) return <td key={p} className="muted">—</td>;
-                          const pv = m.plan[curWk.id], av = m.actual[curWk.id], sc = calculateScore(pv, av, m.dir);
+                          
+                          if (!m || !curWk) return <td key={p}><span className="mx-act muted">—</span></td>;
+                          
+                          const pv = m.plan[curId];
+                          const av = m.actual[curId];
+                          const sc = calculateScore(pv, av, m.dir);
+                          
                           return (
                             <td key={p}>
-                              <span className={`mx-act ${sc.color === 'gray' ? 'muted' : sc.color}`}>
-                                {av === '' || av == null ? '—' : formatNum(av)}
-                              </span>
-                              <span className="mx-plan">/ {pv === '' || pv == null ? '—' : formatNum(pv)}</span>
-                              <span className={`mx-pct ${sc.color === 'gray' ? 'muted' : sc.color}`}>
-                                {sc.label}
-                              </span>
+                              <span className={`mx-act ${sc.color}`}>{av === '' || av == null ? '—' : av}</span>
+                              <span className="mx-plan">/ {pv === '' || pv == null ? '—' : pv}</span>
+                              <span className={`mx-pct ${sc.color}`}>{sc.label}</span>
                             </td>
                           );
                         })}
@@ -83,6 +107,14 @@ export default function DepartmentHiringMatrix({
           </div>
         );
       })}
+
+      <div className="legend-bar">
+        <span style={{ fontWeight: 600, color: 'var(--text2)' }}>Score:</span>
+        <span>🟢 on/above target</span>
+        <span>🟡 within 10%</span>
+        <span>🔴 behind</span>
+        <span style={{ color: '#3b82f6' }}>🔵 promised score by employee</span>
+      </div>
     </div>
   );
 }
