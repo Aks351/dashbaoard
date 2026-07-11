@@ -16,8 +16,7 @@ export const RECRUITERS = ['Dipesh', 'Madhu'];
 export const STAGES = [
   ['Applications', 'Applications'],
   ['Final Rounds', 'Final Rounds'],
-  ['Offer Given To', 'Offer Given To'],
-  ['Onboarded', 'Onboarded']
+  ['Offer Given To', 'Offer Given To']
 ];
 
 export function num(v) { return (v === null || v === undefined || v === '') ? null : Number(v); }
@@ -112,7 +111,54 @@ export function KpiProvider({ children }) {
     pullFromCloud();
   }, []);
 
-  const saveToLocal = (newModel) => {
+  const saveToLocal = (modelData) => {
+    const newModel = JSON.parse(JSON.stringify(modelData)); // Deep copy to safely mutate
+    
+    // Inject missing CRM metrics securely
+    const crm = newModel.departments.find(d => d.id === 'crm');
+    if (crm) {
+      const missingMetrics = [
+        { id: 'otd_ontime', name: 'On-time Disptach', sub: '', unit: '', dir: 'higher', total: false, plan: {}, actual: {}, promised: {} },
+        { id: 'paycoll_ontime', name: 'on-time Payment', sub: '', unit: '', dir: 'higher', total: false, plan: {}, actual: {}, promised: {} }
+      ];
+      missingMetrics.forEach(newM => {
+        if (!crm.metrics.some(m => m.id === newM.id)) {
+           const parentIndex = crm.metrics.findIndex(m => m.id === (newM.id === 'otd_ontime' ? 'otd' : 'paycoll'));
+           if (parentIndex !== -1) {
+              crm.metrics.splice(parentIndex + 1, 0, newM);
+           } else {
+              crm.metrics.push(newM);
+           }
+        }
+      });
+    }
+
+    // Repair broken hiring position sub strings (in case they were manually modified in Google Sheets)
+    const hiring = newModel.departments.find(d => d.id === 'hiring');
+    if (hiring) {
+      hiring.metrics.filter(m => m.id.startsWith('pos_')).forEach(m => {
+        if (!/Position:/i.test(m.sub || '')) {
+          // It is a position metric but missing the Position string. Try to infer the name.
+          // e.g. pos_dipesh_tenderexecutive_apps
+          const parts = m.id.split('_');
+          if (parts.length >= 4) {
+             const rec = parts[1].charAt(0).toUpperCase() + parts[1].slice(1);
+             const stage = parts[parts.length - 1]; // apps, final, offer
+             let stageName = stage === 'apps' ? 'Applications' : stage === 'final' ? 'Final Rounds' : 'Offer Given To';
+             // We can't perfectly recover the spaces in Tender Executive from 'tenderexecutive', 
+             // but we can try to copy the position name from a sibling metric!
+             const sibling = hiring.metrics.find(sib => sib.id.startsWith(`pos_${parts[1]}_${parts[2]}_`) && sib.id !== m.id && /Position:/i.test(sib.sub || ''));
+             let posName = parts[2];
+             if (sibling) {
+                const pMatch = sibling.sub.match(/Position:\s*([^·]+)/i);
+                if (pMatch) posName = pMatch[1].trim();
+             }
+             m.sub = `Recruiter: ${rec} · Position: ${posName} · ${stageName}`;
+          }
+        }
+      });
+    }
+
     setModel(newModel);
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(newModel)); } catch (e) { }
   };
@@ -317,45 +363,95 @@ export function KpiProvider({ children }) {
     // Create a deep copy to avoid mutating the React state directly
     const newModel = JSON.parse(JSON.stringify(model));
     const hiring = newModel.departments.find(d => d.id === 'hiring');
-    if (!hiring) return newModel;
-
-    const posMetrics = hiring.metrics.filter(m => /·\s*Position:/i.test(m.sub || ''));
-    const isTopOrRec = m => !/·\s*Position:/i.test(m.sub || '');
-    
-    // Clear out plan and actual for aggregate metrics
-    hiring.metrics.filter(isTopOrRec).forEach(m => {
-      m.plan = {};
-      m.actual = {};
-    });
-
-    newModel.weeks.forEach(w => {
-      const wid = w.id;
-      posMetrics.forEach(pm => {
-         const pMatch = (pm.sub || '').match(/Position:\s*([^·]+)/i);
-         const rMatch = (pm.sub || '').match(/Recruiter:\s*([^·]+)/i);
-         const stMatch = (pm.sub.split('·').pop() || '').trim();
-
-         if (pMatch && rMatch && stMatch) {
-            const rec = rMatch[1].trim();
-            const stageId = pm.id.split('_').pop(); // apps, final, offer, onboard
-
-            const recM = hiring.metrics.find(m => m.id === `rec_${rec.toLowerCase()}_${stageId}`);
-            const topM = hiring.metrics.find(m => m.id === stageId);
-
-            const pVal = pm.plan[wid];
-            const aVal = pm.actual[wid];
-
-            if (recM) {
-               if (pVal !== '' && pVal != null && !isNaN(pVal)) recM.plan[wid] = (recM.plan[wid] || 0) + Number(pVal);
-               if (aVal !== '' && aVal != null && !isNaN(aVal)) recM.actual[wid] = (recM.actual[wid] || 0) + Number(aVal);
-            }
-            if (topM) {
-               if (pVal !== '' && pVal != null && !isNaN(pVal)) topM.plan[wid] = (topM.plan[wid] || 0) + Number(pVal);
-               if (aVal !== '' && aVal != null && !isNaN(aVal)) topM.actual[wid] = (topM.actual[wid] || 0) + Number(aVal);
-            }
-         }
+    if (hiring) {
+      const posMetrics = hiring.metrics.filter(m => m.id.startsWith('pos_'));
+      
+      // Ensure core top-level metrics exist (in case they were deleted from Google Sheets)
+      const CORE_STAGES = [
+        { id: 'apps', name: 'Applications' },
+        { id: 'final', name: 'Final Round Interviews' },
+        { id: 'offer', name: 'Offer Given To' }
+      ];
+      
+      CORE_STAGES.forEach(stg => {
+        if (!hiring.metrics.some(m => m.id === stg.id)) {
+          hiring.metrics.unshift({
+            id: stg.id,
+            name: stg.name,
+            sub: 'All positions',
+            unit: '',
+            dir: 'higher',
+            total: false,
+            plan: {},
+            actual: {},
+            promised: {}
+          });
+        }
       });
-    });
+
+      const RECRUITERS_LIST = ['Dipesh', 'Madhu'];
+      RECRUITERS_LIST.forEach(rec => {
+        CORE_STAGES.forEach(stg => {
+          const rId = `rec_${rec.toLowerCase()}_${stg.id}`;
+          if (!hiring.metrics.some(m => m.id === rId)) {
+            hiring.metrics.push({
+              id: rId,
+              name: `${rec} — ${stg.name === 'Final Round Interviews' ? 'Final Rounds' : stg.name}`,
+              sub: `Recruiter: ${rec}`,
+              unit: '',
+              dir: 'higher',
+              total: false,
+              plan: {},
+              actual: {},
+              promised: {}
+            });
+          }
+        });
+      });
+
+      const isTopOrRec = m => !m.id.startsWith('pos_');
+      
+      // Clear out plan and actual for aggregate metrics
+      hiring.metrics.filter(isTopOrRec).forEach(m => {
+        m.plan = {};
+        m.actual = {};
+      });
+
+      newModel.weeks.forEach(w => {
+        const wid = w.id;
+        posMetrics.forEach(pm => {
+           // ID format: pos_dipesh_tenderexecutive_apps
+           const parts = pm.id.split('_');
+           if (parts.length >= 4) {
+              const rec = parts[1]; // dipesh
+              const stageId = parts[parts.length - 1]; // apps, final, offer
+
+              const recM = hiring.metrics.find(m => m.id === `rec_${rec.toLowerCase()}_${stageId}`);
+              const topM = hiring.metrics.find(m => m.id === stageId);
+
+              const pVal = pm.plan[wid];
+              const aVal = pm.actual[wid];
+
+              if (recM) {
+                 if (pVal !== '' && pVal != null && !isNaN(pVal)) recM.plan[wid] = (recM.plan[wid] || 0) + Number(pVal);
+                 if (aVal !== '' && aVal != null && !isNaN(aVal)) recM.actual[wid] = (recM.actual[wid] || 0) + Number(aVal);
+              }
+              if (topM) {
+                 if (pVal !== '' && pVal != null && !isNaN(pVal)) topM.plan[wid] = (topM.plan[wid] || 0) + Number(pVal);
+                 if (aVal !== '' && aVal != null && !isNaN(aVal)) topM.actual[wid] = (topM.actual[wid] || 0) + Number(aVal);
+              }
+           }
+        });
+      });
+    }
+
+    const crm = newModel.departments.find(d => d.id === 'crm');
+    if (crm) {
+      crm.metrics.forEach(m => {
+        if (m.id === 'otd') m.name = 'Total dispatch';
+        if (m.id === 'paycoll') m.name = 'Total Payement collection';
+      });
+    }
 
     return newModel;
   }, [model]);

@@ -81,7 +81,7 @@ export default function DataEntry() {
           if (d.id === 'hiring') {
             // baseMetrics are now computed, so we don't show them in Data Entry anymore!
             baseMetrics = []; 
-            posMetrics = d.metrics.filter(m => /·\s*Position:/i.test(m.sub || ''));
+            posMetrics = d.metrics.filter(m => m.id.startsWith('pos_'));
           }
 
           return (

@@ -278,7 +278,7 @@
             "metrics": [
                 {
                     "id": "otd",
-                    "name": "On-Time Dispatch",
+                    "name": "Total dispatch",
                     "sub": "",
                     "unit": "",
                     "dir": "higher",
@@ -303,7 +303,7 @@
                 },
                 {
                     "id": "paycoll",
-                    "name": "Payment Collections",
+                    "name": "Total Payement collection",
                     "sub": "No. received",
                     "unit": "",
                     "dir": "higher",
@@ -485,27 +485,6 @@
                     }
                 },
                 {
-                    "id": "onboard",
-                    "name": "Onboarded",
-                    "sub": "All positions",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 14,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 0,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {}
-                },
-                {
                     "id": "rec_dipesh_apps",
                     "name": "Dipesh — Applications",
                     "sub": "Recruiter: Dipesh",
@@ -566,27 +545,6 @@
                         "wmqyswxhs": "",
                         "wmr8vcgjt": ""
                     }
-                },
-                {
-                    "id": "rec_dipesh_onboard",
-                    "name": "Dipesh — Onboarded",
-                    "sub": "Recruiter: Dipesh",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 6,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 0,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {}
                 },
                 {
                     "id": "rec_madhu_apps",
@@ -651,27 +609,6 @@
                     }
                 },
                 {
-                    "id": "rec_madhu_onboard",
-                    "name": "Madhu — Onboarded",
-                    "sub": "Recruiter: Madhu",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 8,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 0,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {}
-                },
-                {
                     "id": "pos_dipesh_tenderexecutive_apps",
                     "name": "Tender Executive — Applications",
                     "sub": "Recruiter: Dipesh · Position: Tender Executive · Applications",
@@ -728,26 +665,6 @@
                         "wmqo21ah6": 1,
                         "wmqoudofq": 1,
                         "wmqyswxhs": 3,
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_dipesh_tenderexecutive_onboard",
-                    "name": "Tender Executive — Onboarded",
-                    "sub": "Recruiter: Dipesh · Position: Tender Executive · Onboarded",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 1,
-                        "wmqyswxhs": 1,
-                        "wmr8vcgjt": 1
-                    },
-                    "actual": {
-                        "wmqo21ah6": 0,
-                        "wmqoudofq": 1,
-                        "wmqyswxhs": 1,
                         "wmr8vcgjt": ""
                     }
                 },
@@ -812,26 +729,6 @@
                     }
                 },
                 {
-                    "id": "pos_dipesh_plantoperationsmanager_onboard",
-                    "name": "Plant Operations Manager — Onboarded",
-                    "sub": "Recruiter: Dipesh · Position: Plant Operations Manager · Onboarded",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 1,
-                        "wmqyswxhs": 1,
-                        "wmr8vcgjt": 1
-                    },
-                    "actual": {
-                        "wmqo21ah6": 0,
-                        "wmqoudofq": 0,
-                        "wmqyswxhs": 0,
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
                     "id": "pos_madhu_pc_apps",
                     "name": "PC — Applications",
                     "sub": "Recruiter: Madhu · Position: PC · Applications",
@@ -882,26 +779,6 @@
                         "wmqo21ah6": 1,
                         "wmqoudofq": 4,
                         "wmqyswxhs": 2,
-                        "wmr8vcgjt": 2
-                    },
-                    "actual": {
-                        "wmqo21ah6": 0,
-                        "wmqoudofq": 0,
-                        "wmqyswxhs": 0,
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_madhu_pc_onboard",
-                    "name": "PC — Onboarded",
-                    "sub": "Recruiter: Madhu · Position: PC · Onboarded",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 1,
-                        "wmqyswxhs": 1,
                         "wmr8vcgjt": 2
                     },
                     "actual": {
@@ -972,26 +849,6 @@
                     }
                 },
                 {
-                    "id": "pos_madhu_crmsales_onboard",
-                    "name": "CRM/Sales — Onboarded",
-                    "sub": "Recruiter: Madhu · Position: CRM/Sales · Onboarded",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 2,
-                        "wmqoudofq": 1,
-                        "wmqyswxhs": 2,
-                        "wmr8vcgjt": 2
-                    },
-                    "actual": {
-                        "wmqo21ah6": 0,
-                        "wmqoudofq": 0,
-                        "wmqyswxhs": 1,
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
                     "id": "pos_madhu_senioraccountant_apps",
                     "name": "Senior Accountant — Applications",
                     "sub": "Recruiter: Madhu · Position: Senior Accountant · Applications",
@@ -1052,26 +909,6 @@
                     }
                 },
                 {
-                    "id": "pos_madhu_senioraccountant_onboard",
-                    "name": "Senior Accountant — Onboarded",
-                    "sub": "Recruiter: Madhu · Position: Senior Accountant · Onboarded",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 1,
-                        "wmqyswxhs": 1,
-                        "wmr8vcgjt": 2
-                    },
-                    "actual": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 0,
-                        "wmqyswxhs": 0,
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
                     "id": "pos_dipesh_accountantdausa_apps",
                     "name": "Accountant -Dausa — Applications",
                     "sub": "Recruiter: Dipesh · Position: Accountant -Dausa · Applications",
@@ -1115,26 +952,6 @@
                     "id": "pos_dipesh_accountantdausa_final",
                     "name": "Accountant -Dausa — Final Rounds",
                     "sub": "Recruiter: Dipesh · Position: Accountant -Dausa · Final Rounds",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": 2
-                    },
-                    "actual": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_dipesh_accountantdausa_onboard",
-                    "name": "Accountant -Dausa — Onboarded",
-                    "sub": "Recruiter: Dipesh · Position: Accountant -Dausa · Onboarded",
                     "unit": "",
                     "dir": "higher",
                     "total": false,

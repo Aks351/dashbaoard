@@ -15,14 +15,15 @@ export default function Department({ department: d }) {
   let recruiterMetrics = [];
   
   if (d.id === 'hiring') {
-    // Top table: strictly company overall metrics
-    baseMetrics = d.metrics.filter(m => (m.sub || '').trim() === 'All positions');
+    // Top table: strictly company overall metrics (using strict IDs instead of text matching)
+    const topIds = ['apps', 'final', 'offer'];
+    baseMetrics = d.metrics.filter(m => topIds.includes(m.id));
+    
     // Position metrics: specifically assigned to a position
-    posMetrics = d.metrics.filter(m => /·\s*Position:/i.test(m.sub || ''));
+    posMetrics = d.metrics.filter(m => m.id.startsWith('pos_'));
+    
     // Recruiter metrics: overall totals assigned to a recruiter, but not a position
-    recruiterMetrics = d.metrics.filter(m => 
-      (m.sub || '').includes('Recruiter:') && !/·\s*Position:/i.test(m.sub || '')
-    );
+    recruiterMetrics = d.metrics.filter(m => m.id.startsWith('rec_'));
   }
 
   const link = SOLUTION_LINKS[d.id];
