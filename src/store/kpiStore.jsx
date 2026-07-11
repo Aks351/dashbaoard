@@ -32,17 +32,17 @@ export function calculateScore(plan, actual, dir = 'higher') {
   if (plan === '' || actual === '' || plan == null || actual == null) return { label: '—', color: 'gray', pct: null };
   const p = Number(plan);
   const a = Number(actual);
-  
+
   if (dir === 'zero') {
     if (a === 0) return { pct: 0, color: 'green', label: '0 ✓' };
     return { pct: null, color: (a <= 1 ? 'amber' : 'red'), label: a + (a === 1 ? ' issue' : ' issues') };
   }
-  
+
   if (p === 0) return a > 0 ? { label: '+∞%', color: 'green', pct: 9999 } : { label: '0%', color: 'gray', pct: 0 };
-  
+
   let pct = Math.round((a / p) * 100);
   if (dir === 'lower') pct = a === 0 ? 100 : Math.round((p / a) * 100);
-  
+
   if (pct >= 100) return { label: `${pct}%`, color: 'green', pct };
   if (pct >= 90) return { label: `${pct}%`, color: 'amber', pct };
   return { label: `${pct}%`, color: 'red', pct };
@@ -54,7 +54,7 @@ export function mtd(metric, weeks) {
     const p = num(metric.plan[w.id]); if (p !== null) { plan += p; planCount++; }
     const a = num(metric.actual[w.id]); if (a !== null) { act += a; actCount++; }
   });
-  
+
   if (metric.id === 'oilmt') {
     return {
       plan: planCount > 0 ? plan / planCount : null,
@@ -121,22 +121,22 @@ export function KpiProvider({ children }) {
 
   const saveToLocal = (modelData) => {
     const newModel = JSON.parse(JSON.stringify(modelData)); // Deep copy to safely mutate
-    
+
     // Inject missing CRM metrics securely
     const crm = newModel.departments.find(d => d.id === 'crm');
     if (crm) {
       const missingMetrics = [
         { id: 'otd_ontime', name: 'On-time Disptach', sub: '', unit: '', dir: 'higher', total: false, plan: {}, actual: {}, promised: {} },
-        { id: 'paycoll_ontime', name: 'on-time Payment', sub: '', unit: '', dir: 'higher', total: false, plan: {}, actual: {}, promised: {} }
+        { id: 'paycoll_ontime', name: 'On-time Payment', sub: '', unit: '', dir: 'higher', total: false, plan: {}, actual: {}, promised: {} }
       ];
       missingMetrics.forEach(newM => {
         if (!crm.metrics.some(m => m.id === newM.id)) {
-           const parentIndex = crm.metrics.findIndex(m => m.id === (newM.id === 'otd_ontime' ? 'otd' : 'paycoll'));
-           if (parentIndex !== -1) {
-              crm.metrics.splice(parentIndex + 1, 0, newM);
-           } else {
-              crm.metrics.push(newM);
-           }
+          const parentIndex = crm.metrics.findIndex(m => m.id === (newM.id === 'otd_ontime' ? 'otd' : 'paycoll'));
+          if (parentIndex !== -1) {
+            crm.metrics.splice(parentIndex + 1, 0, newM);
+          } else {
+            crm.metrics.push(newM);
+          }
         }
       });
     }
@@ -150,18 +150,18 @@ export function KpiProvider({ children }) {
           // e.g. pos_dipesh_tenderexecutive_apps
           const parts = m.id.split('_');
           if (parts.length >= 4) {
-             const rec = parts[1].charAt(0).toUpperCase() + parts[1].slice(1);
-             const stage = parts[parts.length - 1]; // apps, final, offer
-             let stageName = stage === 'apps' ? 'Applications' : stage === 'final' ? 'Final Rounds' : 'Offer Given To';
-             // We can't perfectly recover the spaces in Tender Executive from 'tenderexecutive', 
-             // but we can try to copy the position name from a sibling metric!
-             const sibling = hiring.metrics.find(sib => sib.id.startsWith(`pos_${parts[1]}_${parts[2]}_`) && sib.id !== m.id && /Position:/i.test(sib.sub || ''));
-             let posName = parts[2];
-             if (sibling) {
-                const pMatch = sibling.sub.match(/Position:\s*([^·]+)/i);
-                if (pMatch) posName = pMatch[1].trim();
-             }
-             m.sub = `Recruiter: ${rec} · Position: ${posName} · ${stageName}`;
+            const rec = parts[1].charAt(0).toUpperCase() + parts[1].slice(1);
+            const stage = parts[parts.length - 1]; // apps, final, offer
+            let stageName = stage === 'apps' ? 'Applications' : stage === 'final' ? 'Final Rounds' : 'Offer Given To';
+            // We can't perfectly recover the spaces in Tender Executive from 'tenderexecutive', 
+            // but we can try to copy the position name from a sibling metric!
+            const sibling = hiring.metrics.find(sib => sib.id.startsWith(`pos_${parts[1]}_${parts[2]}_`) && sib.id !== m.id && /Position:/i.test(sib.sub || ''));
+            let posName = parts[2];
+            if (sibling) {
+              const pMatch = sibling.sub.match(/Position:\s*([^·]+)/i);
+              if (pMatch) posName = pMatch[1].trim();
+            }
+            m.sub = `Recruiter: ${rec} · Position: ${posName} · ${stageName}`;
           }
         }
       });
@@ -367,20 +367,20 @@ export function KpiProvider({ children }) {
 
   const computedModel = useMemo(() => {
     if (!model) return model;
-    
+
     // Create a deep copy to avoid mutating the React state directly
     const newModel = JSON.parse(JSON.stringify(model));
     const hiring = newModel.departments.find(d => d.id === 'hiring');
     if (hiring) {
       const posMetrics = hiring.metrics.filter(m => m.id.startsWith('pos_'));
-      
+
       // Ensure core top-level metrics exist (in case they were deleted from Google Sheets)
       const CORE_STAGES = [
         { id: 'apps', name: 'Applications' },
         { id: 'final', name: 'Final Round Interviews' },
         { id: 'offer', name: 'Offer Given To' }
       ];
-      
+
       CORE_STAGES.forEach(stg => {
         if (!hiring.metrics.some(m => m.id === stg.id)) {
           hiring.metrics.unshift({
@@ -418,7 +418,7 @@ export function KpiProvider({ children }) {
       });
 
       const isTopOrRec = m => !m.id.startsWith('pos_');
-      
+
       // Clear out plan and actual for aggregate metrics
       hiring.metrics.filter(isTopOrRec).forEach(m => {
         m.plan = {};
@@ -428,27 +428,27 @@ export function KpiProvider({ children }) {
       newModel.weeks.forEach(w => {
         const wid = w.id;
         posMetrics.forEach(pm => {
-           // ID format: pos_dipesh_tenderexecutive_apps
-           const parts = pm.id.split('_');
-           if (parts.length >= 4) {
-              const rec = parts[1]; // dipesh
-              const stageId = parts[parts.length - 1]; // apps, final, offer
+          // ID format: pos_dipesh_tenderexecutive_apps
+          const parts = pm.id.split('_');
+          if (parts.length >= 4) {
+            const rec = parts[1]; // dipesh
+            const stageId = parts[parts.length - 1]; // apps, final, offer
 
-              const recM = hiring.metrics.find(m => m.id === `rec_${rec.toLowerCase()}_${stageId}`);
-              const topM = hiring.metrics.find(m => m.id === stageId);
+            const recM = hiring.metrics.find(m => m.id === `rec_${rec.toLowerCase()}_${stageId}`);
+            const topM = hiring.metrics.find(m => m.id === stageId);
 
-              const pVal = pm.plan[wid];
-              const aVal = pm.actual[wid];
+            const pVal = pm.plan[wid];
+            const aVal = pm.actual[wid];
 
-              if (recM) {
-                 if (pVal !== '' && pVal != null && !isNaN(pVal)) recM.plan[wid] = (recM.plan[wid] || 0) + Number(pVal);
-                 if (aVal !== '' && aVal != null && !isNaN(aVal)) recM.actual[wid] = (recM.actual[wid] || 0) + Number(aVal);
-              }
-              if (topM) {
-                 if (pVal !== '' && pVal != null && !isNaN(pVal)) topM.plan[wid] = (topM.plan[wid] || 0) + Number(pVal);
-                 if (aVal !== '' && aVal != null && !isNaN(aVal)) topM.actual[wid] = (topM.actual[wid] || 0) + Number(aVal);
-              }
-           }
+            if (recM) {
+              if (pVal !== '' && pVal != null && !isNaN(pVal)) recM.plan[wid] = (recM.plan[wid] || 0) + Number(pVal);
+              if (aVal !== '' && aVal != null && !isNaN(aVal)) recM.actual[wid] = (recM.actual[wid] || 0) + Number(aVal);
+            }
+            if (topM) {
+              if (pVal !== '' && pVal != null && !isNaN(pVal)) topM.plan[wid] = (topM.plan[wid] || 0) + Number(pVal);
+              if (aVal !== '' && aVal != null && !isNaN(aVal)) topM.actual[wid] = (topM.actual[wid] || 0) + Number(aVal);
+            }
+          }
         });
       });
     }
