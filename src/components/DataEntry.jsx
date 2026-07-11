@@ -79,7 +79,8 @@ export default function DataEntry() {
           let baseMetrics = d.metrics;
           let posMetrics = [];
           if (d.id === 'hiring') {
-            baseMetrics = d.metrics.filter(m => !/·\s*Position:/i.test(m.sub || ''));
+            // baseMetrics are now computed, so we don't show them in Data Entry anymore!
+            baseMetrics = []; 
             posMetrics = d.metrics.filter(m => /·\s*Position:/i.test(m.sub || ''));
           }
 

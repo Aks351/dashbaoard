@@ -1,10 +1,9 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import SEED from '../../seed.json';
 
 const STORAGE_KEY = 've_kpi_model_react_v1';
 const BACKEND_URL = "https://script.google.com/macros/s/AKfycbzS6DhQjUl440_wwJZaClcIwV03LHS_tq3ntMkiIPSbR_ovfYZ51L-wUFXU7MgfDHnh/exec";
 const EDIT_KEY = "vinayak2026";
-
-export const SEED = { "meta": { "company": "Vinayak Enterprises", "period": "June 2026" }, "weeks": [{ "id": "wmqo21ah6", "label": "Week 3", "range": "15-21 Jun" }, { "id": "wmqoudofq", "label": "Week 4", "range": "22-28 Jun" }, { "id": "wmqyswxhs", "label": "Week 5", "range": "29 - 5 july" }, { "id": "wmr8vcgjt", "label": "Week 5", "range": "06 July - 12 July" }], "departments": [{ "id": "purchase", "name": "Purchase", "emoji": "📦", "metrics": [{ "id": "ing97", "name": "Ingot 97%", "sub": "", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 1, "wmqoudofq": 7, "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 1, "wmqoudofq": 3, "wmqyswxhs": "", "wmr8vcgjt": "" }, "promised": { "wmqoudofq": -33 } }, { "id": "ing975", "name": "Ingot 97.5%", "sub": "", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 6, "wmqoudofq": 7, "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 2, "wmqoudofq": 0, "wmqyswxhs": "", "wmr8vcgjt": "" }, "promised": { "wmqoudofq": -33 } }, { "id": "ing98", "name": "Ingot 98%", "sub": "", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 1, "wmqoudofq": 7, "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 1, "wmqoudofq": 7, "wmqyswxhs": "", "wmr8vcgjt": "" }, "promised": { "wmqoudofq": -33 } }, { "id": "ing985", "name": "Ingot 98.5%", "sub": "", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 6, "wmqoudofq": 7, "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 3, "wmqoudofq": 0, "wmqyswxhs": "", "wmr8vcgjt": "" }, "promised": { "wmqoudofq": -33 } }, { "id": "totdel", "name": "Total Delivery", "sub": "", "unit": "", "dir": "higher", "total": true, "plan": { "wmqo21ah6": 14, "wmqoudofq": 28, "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 7, "wmqoudofq": 15, "wmqyswxhs": "", "wmr8vcgjt": "" }, "promised": { "wmqoudofq": -33 } }, { "id": "ontime", "name": "On-Time Delivery", "sub": "No. on time", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 33, "wmqoudofq": 24, "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 16, "wmqoudofq": 15, "wmqyswxhs": "", "wmr8vcgjt": "" }, "promised": { "wmqoudofq": -20 } }, { "id": "qret", "name": "Quality Returns", "sub": "Rejections", "unit": "", "dir": "zero", "total": false, "plan": { "wmqo21ah6": "", "wmqoudofq": 0, "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": "", "wmqoudofq": 3, "wmqyswxhs": "", "wmr8vcgjt": "" }, "promised": { "wmqoudofq": 1, "wmqo21ah6": "" } }] }, { "id": "production", "name": "Production", "emoji": "🏭", "metrics": [{ "id": "fg", "name": "Finished Goods", "sub": "MT total", "unit": "MT", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 342, "wmqoudofq": 420, "wmqyswxhs": 420, "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 261.765, "wmqoudofq": 404, "wmqyswxhs": 384, "wmr8vcgjt": "" }, "promised": { "wmqoudofq": 420 } }, { "id": "hrslost", "name": "Hours Lost", "sub": "hrs · lower is better", "unit": "hrs", "dir": "lower", "total": false, "plan": { "wmqo21ah6": 15, "wmqoudofq": 18, "wmqyswxhs": 18, "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 50.26, "wmqoudofq": 20.25, "wmqyswxhs": 23.54, "wmr8vcgjt": "" }, "promised": { "wmqoudofq": 18 } }, { "id": "oilmt", "name": "Oil / MT", "sub": "L/MT · lower is better", "unit": "L/MT", "dir": "lower", "total": false, "plan": { "wmqo21ah6": 50, "wmqoudofq": 58, "wmqyswxhs": 60, "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 69.56, "wmqoudofq": 62.21, "wmqyswxhs": 64.93, "wmr8vcgjt": "" }, "promised": { "wmqoudofq": 58 } }] }, { "id": "crm", "name": "CRM", "emoji": "🤝", "metrics": [{ "id": "planned_dispatch", "name": "Planned Dispatch", "sub": "", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 39, "wmqoudofq": 31, "wmqyswxhs": 57, "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 13, "wmqoudofq": 25, "wmqyswxhs": 43, "wmr8vcgjt": "" }, "promised": { "wmqoudofq": -30, "wmqyswxhs": -20, "wmr8vcgjt": -20 } }, { "id": "ontime_dispatch", "name": "On-Time Dispatch", "sub": "", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 39, "wmqoudofq": 31, "wmqyswxhs": 57, "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 13, "wmqoudofq": 25, "wmqyswxhs": 43, "wmr8vcgjt": "" }, "promised": { "wmqoudofq": -30, "wmqyswxhs": -20, "wmr8vcgjt": -20 } }, { "id": "planned_payment", "name": "Planned Payment", "sub": "No. received", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 28, "wmqoudofq": 35, "wmqyswxhs": 44, "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 4, "wmqoudofq": 12, "wmqyswxhs": 38, "wmr8vcgjt": "" }, "promised": { "wmqoudofq": -50, "wmqyswxhs": -40, "wmr8vcgjt": -20 } }, { "id": "ontime_payment", "name": "On-Time Payment", "sub": "No. received", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 28, "wmqoudofq": 35, "wmqyswxhs": 44, "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 4, "wmqoudofq": 12, "wmqyswxhs": 38, "wmr8vcgjt": "" }, "promised": { "wmqoudofq": -50, "wmqyswxhs": -40, "wmr8vcgjt": -20 } }, { "id": "complaints", "name": "Complaints", "sub": "", "unit": "", "dir": "zero", "total": false, "plan": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 6, "wmqoudofq": 2, "wmqyswxhs": 1, "wmr8vcgjt": "" }, "promised": { "wmqoudofq": 0, "wmqyswxhs": "" } }, { "id": "delclient", "name": "Delayed Dispatch — Client", "sub": "Target = 0", "unit": "", "dir": "zero", "total": false, "plan": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 8, "wmqoudofq": 1, "wmqyswxhs": 9, "wmr8vcgjt": "" }, "promised": {} }, { "id": "delfactory", "name": "Delayed Dispatch — Factory", "sub": "Target = 0", "unit": "", "dir": "zero", "total": false, "plan": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 14, "wmqoudofq": 2, "wmqyswxhs": 4, "wmr8vcgjt": "" }, "promised": {} }, { "id": "matret", "name": "Material Returns", "sub": "Target = 0", "unit": "", "dir": "zero", "total": false, "plan": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 1, "wmqoudofq": 0, "wmqyswxhs": 1, "wmr8vcgjt": "" }, "promised": { "wmqoudofq": 0 } }] }, { "id": "hiring", "name": "Hiring", "emoji": "👥", "metrics": [{ "id": "apps", "name": "Applications", "sub": "All positions", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 31, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 17, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "promised": {} }, { "id": "final", "name": "Final Round Interviews", "sub": "All positions", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 21, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 4, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "promised": {} }, { "id": "offer", "name": "Offer Given To", "sub": "All positions", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" } }, { "id": "onboard", "name": "Onboarded", "sub": "All positions", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 14, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 0, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "promised": {} }, { "id": "rec_dipesh_apps", "name": "Dipesh — Applications", "sub": "Recruiter: Dipesh", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 19, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 8, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "promised": {} }, { "id": "rec_dipesh_final", "name": "Dipesh — Final Rounds", "sub": "Recruiter: Dipesh", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 12, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 3, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "promised": {} }, { "id": "rec_dipesh_offer", "name": "Dipesh — Offer Given To", "sub": "Recruiter: Dipesh", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" } }, { "id": "rec_dipesh_onboard", "name": "Dipesh — Onboarded", "sub": "Recruiter: Dipesh", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 6, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 0, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "promised": {} }, { "id": "rec_madhu_apps", "name": "Madhu — Applications", "sub": "Recruiter: Madhu", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 12, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 9, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "promised": {} }, { "id": "rec_madhu_final", "name": "Madhu — Final Rounds", "sub": "Recruiter: Madhu", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 9, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 1, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "promised": {} }, { "id": "rec_madhu_offer", "name": "Madhu — Offer Given To", "sub": "Recruiter: Madhu", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" } }, { "id": "rec_madhu_onboard", "name": "Madhu — Onboarded", "sub": "Recruiter: Madhu", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 8, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": 0, "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "promised": {} }, { "id": "pos_dipesh_tenderexecutive_apps", "name": "Tender Executive — Applications", "sub": "Recruiter: Dipesh · Position: Tender Executive · Applications", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 3, "wmqoudofq": 8, "wmqyswxhs": 8, "wmr8vcgjt": 6 }, "actual": { "wmqo21ah6": 1, "wmqoudofq": 6, "wmqyswxhs": 3, "wmr8vcgjt": "" } }, { "id": "pos_dipesh_tenderexecutive_offer", "name": "Tender Executive — Offer Given To", "sub": "Recruiter: Dipesh · Position: Tender Executive · Offer Given To", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" } }, { "id": "pos_dipesh_tenderexecutive_final", "name": "Tender Executive — Final Rounds", "sub": "Recruiter: Dipesh · Position: Tender Executive · Final Rounds", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 2, "wmqoudofq": 4, "wmqyswxhs": 2, "wmr8vcgjt": 2 }, "actual": { "wmqo21ah6": 1, "wmqoudofq": 1, "wmqyswxhs": 3, "wmr8vcgjt": "" } }, { "id": "pos_dipesh_tenderexecutive_onboard", "name": "Tender Executive — Onboarded", "sub": "Recruiter: Dipesh · Position: Tender Executive · Onboarded", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 1, "wmqoudofq": 1, "wmqyswxhs": 1, "wmr8vcgjt": 1 }, "actual": { "wmqo21ah6": 0, "wmqoudofq": 1, "wmqyswxhs": 1, "wmr8vcgjt": "" } }, { "id": "pos_dipesh_plantoperationsmanager_apps", "name": "Plant Operations Manager — Applications", "sub": "Recruiter: Dipesh · Position: Plant Operations Manager · Applications", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 3, "wmqoudofq": 5, "wmqyswxhs": 6, "wmr8vcgjt": 5 }, "actual": { "wmqo21ah6": 0, "wmqoudofq": 1, "wmqyswxhs": 2, "wmr8vcgjt": "" } }, { "id": "pos_dipesh_plantoperationsmanager_offer", "name": "Plant Operations Manager — Offer Given To", "sub": "Recruiter: Dipesh · Position: Plant Operations Manager · Offer Given To", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" } }, { "id": "pos_dipesh_plantoperationsmanager_final", "name": "Plant Operations Manager — Final Rounds", "sub": "Recruiter: Dipesh · Position: Plant Operations Manager · Final Rounds", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 1, "wmqoudofq": 3, "wmqyswxhs": 2, "wmr8vcgjt": 2 }, "actual": { "wmqo21ah6": 1, "wmqoudofq": 0, "wmqyswxhs": 0, "wmr8vcgjt": "" } }, { "id": "pos_dipesh_plantoperationsmanager_onboard", "name": "Plant Operations Manager — Onboarded", "sub": "Recruiter: Dipesh · Position: Plant Operations Manager · Onboarded", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 1, "wmqoudofq": 1, "wmqyswxhs": 1, "wmr8vcgjt": 1 }, "actual": { "wmqo21ah6": 0, "wmqoudofq": 0, "wmqyswxhs": 0, "wmr8vcgjt": "" } }, { "id": "pos_madhu_pc_apps", "name": "PC — Applications", "sub": "Recruiter: Madhu · Position: PC · Applications", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 2, "wmqoudofq": 8, "wmqyswxhs": 5, "wmr8vcgjt": 5 }, "actual": { "wmqo21ah6": 2, "wmqoudofq": 2, "wmqyswxhs": 9, "wmr8vcgjt": "" } }, { "id": "pos_madhu_pc_offer", "name": "PC — Offer Given To", "sub": "Recruiter: Madhu · Position: PC · Offer Given To", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" } }, { "id": "pos_madhu_pc_final", "name": "PC — Final Rounds", "sub": "Recruiter: Madhu · Position: PC · Final Rounds", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 1, "wmqoudofq": 4, "wmqyswxhs": 2, "wmr8vcgjt": 2 }, "actual": { "wmqo21ah6": 0, "wmqoudofq": 0, "wmqyswxhs": 0, "wmr8vcgjt": "" } }, { "id": "pos_madhu_pc_onboard", "name": "PC — Onboarded", "sub": "Recruiter: Madhu · Position: PC · Onboarded", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 1, "wmqoudofq": 1, "wmqyswxhs": 1, "wmr8vcgjt": 2 }, "actual": { "wmqo21ah6": 0, "wmqoudofq": 0, "wmqyswxhs": 0, "wmr8vcgjt": "" } }, { "id": "pos_madhu_crmsales_apps", "name": "CRM/Sales — Applications", "sub": "Recruiter: Madhu · Position: CRM/Sales · Applications", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 2, "wmqoudofq": 8, "wmqyswxhs": 6, "wmr8vcgjt": 6 }, "actual": { "wmqo21ah6": 1, "wmqoudofq": 1, "wmqyswxhs": 5, "wmr8vcgjt": "" } }, { "id": "pos_madhu_crmsales_offer", "name": "CRM/Sales — Offer Given To", "sub": "Recruiter: Madhu · Position: CRM/Sales · Offer Given To", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" } }, { "id": "pos_madhu_crmsales_final", "name": "CRM/Sales — Final Rounds", "sub": "Recruiter: Madhu · Position: CRM/Sales · Final Rounds", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 2, "wmqoudofq": 4, "wmqyswxhs": 4, "wmr8vcgjt": 2 }, "actual": { "wmqo21ah6": 0, "wmqoudofq": 0, "wmqyswxhs": 2, "wmr8vcgjt": "" } }, { "id": "pos_madhu_crmsales_onboard", "name": "CRM/Sales — Onboarded", "sub": "Recruiter: Madhu · Position: CRM/Sales · Onboarded", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 2, "wmqoudofq": 1, "wmqyswxhs": 2, "wmr8vcgjt": 2 }, "actual": { "wmqo21ah6": 0, "wmqoudofq": 0, "wmqyswxhs": 1, "wmr8vcgjt": "" } }, { "id": "pos_madhu_senioraccountant_apps", "name": "Senior Accountant — Applications", "sub": "Recruiter: Madhu · Position: Senior Accountant · Applications", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 2, "wmqoudofq": 4, "wmqyswxhs": 5, "wmr8vcgjt": 5 }, "actual": { "wmqo21ah6": 2, "wmqoudofq": 3, "wmqyswxhs": 2, "wmr8vcgjt": "" } }, { "id": "pos_madhu_senioraccountant_offer", "name": "Senior Accountant — Offer Given To", "sub": "Recruiter: Madhu · Position: Senior Accountant · Offer Given To", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" } }, { "id": "pos_madhu_senioraccountant_final", "name": "Senior Accountant — Final Rounds", "sub": "Recruiter: Madhu · Position: Senior Accountant · Final Rounds", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 1, "wmqoudofq": 3, "wmqyswxhs": 2, "wmr8vcgjt": 2 }, "actual": { "wmqo21ah6": 1, "wmqoudofq": 1, "wmqyswxhs": 0, "wmr8vcgjt": "" } }, { "id": "pos_madhu_senioraccountant_onboard", "name": "Senior Accountant — Onboarded", "sub": "Recruiter: Madhu · Position: Senior Accountant · Onboarded", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": 1, "wmqoudofq": 1, "wmqyswxhs": 1, "wmr8vcgjt": 2 }, "actual": { "wmqo21ah6": 1, "wmqoudofq": 0, "wmqyswxhs": 0, "wmr8vcgjt": "" } }, { "id": "pos_dipesh_accountantdausa_apps", "name": "Accountant -Dausa — Applications", "sub": "Recruiter: Dipesh · Position: Accountant -Dausa · Applications", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": 5 }, "actual": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" } }, { "id": "pos_dipesh_accountantdausa_offer", "name": "Accountant -Dausa — Offer Given To", "sub": "Recruiter: Dipesh · Position: Accountant -Dausa · Offer Given To", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" }, "actual": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" } }, { "id": "pos_dipesh_accountantdausa_final", "name": "Accountant -Dausa — Final Rounds", "sub": "Recruiter: Dipesh · Position: Accountant -Dausa · Final Rounds", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": 2 }, "actual": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" } }, { "id": "pos_dipesh_accountantdausa_onboard", "name": "Accountant -Dausa — Onboarded", "sub": "Recruiter: Dipesh · Position: Accountant -Dausa · Onboarded", "unit": "", "dir": "higher", "total": false, "plan": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": 2 }, "actual": { "wmqo21ah6": "", "wmqoudofq": "", "wmqyswxhs": "", "wmr8vcgjt": "" } }] }] };
 
 export const SOLUTION_LINKS = {
   purchase: "https://docs.google.com/document/d/1VI-ROkFGQ3n909IWbJKWBMw_aYepOLUOsfh9EgyGo3s/edit?tab=t.0",
@@ -30,20 +29,24 @@ export function formatNum(v) {
   return Number(n.toFixed(3)).toString();
 }
 
-export function calculateScore(plan, actual, dir) {
-  const p = num(plan), a = num(actual);
-  if (a === null) return { pct: null, color: 'muted', label: '—' };
+export function calculateScore(plan, actual, dir = 'higher') {
+  if (plan === '' || actual === '' || plan == null || actual == null) return { label: '—', color: 'gray', pct: null };
+  const p = Number(plan);
+  const a = Number(actual);
+  
   if (dir === 'zero') {
     if (a === 0) return { pct: 0, color: 'green', label: '0 ✓' };
     return { pct: null, color: (a <= 1 ? 'amber' : 'red'), label: a + (a === 1 ? ' issue' : ' issues') };
   }
-  if (p === null || p === 0) return { pct: null, color: 'muted', label: '—' };
-  let pct = dir === 'lower' ? ((p - a) / p) * 100 : ((a - p) / p) * 100;
-  const r = Math.round(pct * 10) / 10;
-  let color = r >= -20 ? 'green' : (r >= -30 ? 'amber' : 'red');
-  const sign = r > 0 ? '+' : '';
-  const tick = color === 'green' ? ' ✓' : '';
-  return { pct: r, color, label: sign + r + '%' + tick };
+  
+  if (p === 0) return a > 0 ? { label: '+∞%', color: 'green', pct: 9999 } : { label: '0%', color: 'gray', pct: 0 };
+  
+  let pct = Math.round((a / p) * 100);
+  if (dir === 'lower') pct = a === 0 ? 100 : Math.round((p / a) * 100);
+  
+  if (pct >= 100) return { label: `${pct}%`, color: 'green', pct };
+  if (pct >= 90) return { label: `${pct}%`, color: 'amber', pct };
+  return { label: `${pct}%`, color: 'red', pct };
 }
 
 export function mtd(metric, weeks) {
@@ -308,9 +311,58 @@ export function KpiProvider({ children }) {
     if (canEdit) pushToCloud(newModel);
   };
 
+  const computedModel = useMemo(() => {
+    if (!model) return model;
+    
+    // Create a deep copy to avoid mutating the React state directly
+    const newModel = JSON.parse(JSON.stringify(model));
+    const hiring = newModel.departments.find(d => d.id === 'hiring');
+    if (!hiring) return newModel;
+
+    const posMetrics = hiring.metrics.filter(m => /·\s*Position:/i.test(m.sub || ''));
+    const isTopOrRec = m => !/·\s*Position:/i.test(m.sub || '');
+    
+    // Clear out plan and actual for aggregate metrics
+    hiring.metrics.filter(isTopOrRec).forEach(m => {
+      m.plan = {};
+      m.actual = {};
+    });
+
+    newModel.weeks.forEach(w => {
+      const wid = w.id;
+      posMetrics.forEach(pm => {
+         const pMatch = (pm.sub || '').match(/Position:\s*([^·]+)/i);
+         const rMatch = (pm.sub || '').match(/Recruiter:\s*([^·]+)/i);
+         const stMatch = (pm.sub.split('·').pop() || '').trim();
+
+         if (pMatch && rMatch && stMatch) {
+            const rec = rMatch[1].trim();
+            const stageId = pm.id.split('_').pop(); // apps, final, offer, onboard
+
+            const recM = hiring.metrics.find(m => m.id === `rec_${rec.toLowerCase()}_${stageId}`);
+            const topM = hiring.metrics.find(m => m.id === stageId);
+
+            const pVal = pm.plan[wid];
+            const aVal = pm.actual[wid];
+
+            if (recM) {
+               if (pVal !== '' && pVal != null && !isNaN(pVal)) recM.plan[wid] = (recM.plan[wid] || 0) + Number(pVal);
+               if (aVal !== '' && aVal != null && !isNaN(aVal)) recM.actual[wid] = (recM.actual[wid] || 0) + Number(aVal);
+            }
+            if (topM) {
+               if (pVal !== '' && pVal != null && !isNaN(pVal)) topM.plan[wid] = (topM.plan[wid] || 0) + Number(pVal);
+               if (aVal !== '' && aVal != null && !isNaN(aVal)) topM.actual[wid] = (topM.actual[wid] || 0) + Number(aVal);
+            }
+         }
+      });
+    });
+
+    return newModel;
+  }, [model]);
+
   return (
     <KpiContext.Provider value={{
-      model,
+      model: computedModel,
       connState,
       canEdit,
       activeWeek,
@@ -322,6 +374,7 @@ export function KpiProvider({ children }) {
       removeWeek,
       addHiringRole,
       removeHiringRole,
+      pullFromCloud,
       resetData,
       setModel: saveToLocal
     }}>

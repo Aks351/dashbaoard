@@ -70,36 +70,57 @@ export default function DepartmentHiringMatrix({
                   <thead>
                     <tr>
                       <th>Stage \ Position</th>
+                      <th style={{ background: 'rgba(241,245,249,0.5)', borderRight: '2px solid var(--border)' }}>Total (This Wk)</th>
                       {positions.map(p => <th key={p}>{p}</th>)}
                     </tr>
                   </thead>
                   <tbody>
-                    {STAGES.map(st => (
-                      <tr key={st[1]}>
-                        <th>{st[0]}</th>
-                        {positions.map(p => {
-                          const m = mine.find(x => {
-                            const pMatch = (x.sub || '').match(/Position:\s*([^·]+)/i);
-                            const stMatch = (x.sub.split('·').pop() || '').trim();
-                            return pMatch && pMatch[1].trim() === p && stMatch === st[1];
-                          });
-                          
-                          if (!m || !curWk) return <td key={p}><span className="mx-act muted">—</span></td>;
-                          
-                          const pv = m.plan[curId];
-                          const av = m.actual[curId];
-                          const sc = calculateScore(pv, av, m.dir);
-                          
-                          return (
+                    {STAGES.map(st => {
+                      // Calculate the total for this specific week across all positions in this grid
+                      let totalPlan = 0, totalAct = 0, hasPlan = false, hasAct = false;
+                      
+                      const stageCells = positions.map(p => {
+                        const m = mine.find(x => {
+                          const pMatch = (x.sub || '').match(/Position:\s*([^·]+)/i);
+                          const stMatch = (x.sub.split('·').pop() || '').trim();
+                          return pMatch && pMatch[1].trim() === p && stMatch === st[1];
+                        });
+                        
+                        if (!m || !curWk) return { p, el: <td key={p}><span className="mx-act muted">—</span></td> };
+                        
+                        const pv = m.plan[curId];
+                        const av = m.actual[curId];
+                        
+                        if (pv !== '' && pv != null && !isNaN(pv)) { totalPlan += Number(pv); hasPlan = true; }
+                        if (av !== '' && av != null && !isNaN(av)) { totalAct += Number(av); hasAct = true; }
+                        
+                        const sc = calculateScore(pv, av, m.dir);
+                        return {
+                          p,
+                          el: (
                             <td key={p}>
                               <span className={`mx-act ${sc.color}`}>{av === '' || av == null ? '—' : av}</span>
                               <span className="mx-plan">/ {pv === '' || pv == null ? '—' : pv}</span>
                               <span className={`mx-pct ${sc.color}`}>{sc.label}</span>
                             </td>
-                          );
-                        })}
-                      </tr>
-                    ))}
+                          )
+                        };
+                      });
+                      
+                      const totalSc = calculateScore(hasPlan ? totalPlan : null, hasAct ? totalAct : null, 'higher');
+
+                      return (
+                        <tr key={st[1]}>
+                          <th>{st[0]}</th>
+                          <td style={{ background: 'rgba(241,245,249,0.5)', borderRight: '2px solid var(--border)' }}>
+                              <span className={`mx-act ${totalSc.color}`}>{!hasAct ? '—' : totalAct}</span>
+                              <span className="mx-plan">/ {!hasPlan ? '—' : totalPlan}</span>
+                              <span className={`mx-pct ${totalSc.color}`}>{totalSc.label}</span>
+                          </td>
+                          {stageCells.map(c => c.el)}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

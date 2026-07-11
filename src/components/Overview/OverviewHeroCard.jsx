@@ -4,17 +4,19 @@ import { TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
 
 export default function OverviewHeroCard({ department: d, weeks }) {
   let worst = null, worstSc = null;
-  d.metrics.forEach(m => {
+  const validMetrics = d.metrics.filter(m => d.id !== 'hiring' || !/·\s*Position:/i.test(m.sub || ''));
+  
+  validMetrics.forEach(m => {
     if (m.dir === 'zero') return;
     const mt = mtd(m, weeks);
     const sc = calculateScore(mt.plan, mt.actual, m.dir);
-    if (sc.pct !== null && (worstSc === null || sc.pct < worstSc.pct)) {
+    if (sc.pct !== null && sc.pct !== undefined && (worstSc === null || sc.pct < worstSc.pct)) {
       worst = m;
       worstSc = sc;
     }
   });
   if (!worst) {
-    worst = d.metrics[0];
+    worst = validMetrics[0];
     worstSc = calculateScore(mtd(worst, weeks).plan, mtd(worst, weeks).actual, worst.dir);
   }
   

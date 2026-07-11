@@ -28,7 +28,7 @@ export default function OverviewMetricTable({ departments, weeks }) {
               <div className="table-row dept-sep" style={{ gridTemplateColumns: '1fr' }}>
                 <div className="dept-sep-label">{d.emoji} {d.name.toUpperCase()}</div>
               </div>
-              {d.metrics.map(m => {
+              {d.metrics.filter(m => d.id !== 'hiring' || !/·\s*Position:/i.test(m.sub || '')).map(m => {
                 const mt = mtd(m, weeks);
                 const msc = calculateScore(mt.plan, mt.actual, m.dir);
                 return (

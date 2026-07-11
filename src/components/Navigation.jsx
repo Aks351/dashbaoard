@@ -1,10 +1,11 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { KpiContext, SOLUTION_LINKS } from '../store/kpiStore';
-import { ExternalLink, Database, Activity } from 'lucide-react';
+import { ExternalLink, Database, Activity, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Navigation({ activeTab, setActiveTab }) {
-  const { model, connState, unlockEditing } = useContext(KpiContext);
+  const { model, connState, unlockEditing, pullFromCloud } = useContext(KpiContext);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: <Activity size={16} /> },
@@ -14,6 +15,12 @@ export default function Navigation({ activeTab, setActiveTab }) {
     })),
     { id: 'data', label: 'Data Entry', icon: <Database size={16} /> }
   ];
+  
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await pullFromCloud();
+    setTimeout(() => setIsRefreshing(false), 500);
+  };
 
   return (
     <nav className="navbar">
@@ -36,7 +43,16 @@ export default function Navigation({ activeTab, setActiveTab }) {
 
       <div className="nav-right">
         <div className="nav-period">KPI Review · {model.meta.period}</div>
-        <div className="nav-conn" onClick={unlockEditing}>
+        <button 
+          className="btn-refresh" 
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          style={{ background: 'transparent', border: '1px solid var(--border)', padding: '4px 10px', borderRadius: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--text2)' }}
+        >
+          <RefreshCw size={14} className={isRefreshing ? 'spin' : ''} />
+          {isRefreshing ? 'Refreshing...' : 'Refresh'}
+        </button>
+        <div className="nav-conn" onClick={unlockEditing} style={{ cursor: 'pointer' }} title="Click to unlock editing">
           <span className={`conn-indicator ${connState}`}></span>
           {connState === 'offline' ? 'Offline' : connState === 'online' ? 'Synced' : connState === 'syncing' ? 'Syncing...' : 'Sync Error'}
         </div>
