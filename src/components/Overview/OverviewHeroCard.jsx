@@ -16,13 +16,14 @@ export default function OverviewHeroCard({ department: d, weeks }) {
     }
   });
   if (!worst) {
+    if (!validMetrics.length) return null; // no metrics at all — nothing to show
     worst = validMetrics[0];
     worstSc = calculateScore(mtd(worst, weeks).plan, mtd(worst, weeks).actual, worst.dir);
+    if (!worstSc) return null;
   }
   
   const mt = mtd(worst, weeks);
   const cls = worstSc.color === 'green' ? 'good' : (worstSc.color === 'amber' ? 'warning' : 'danger');
-  const heroActColor = (d.id === 'crm' && (worst.id.includes('dispatch') || worst.id.includes('payment'))) ? 'green' : cls;
   
   const valActual = (mt.actual === null || mt.actual === '') ? '—' : formatNum(mt.actual) + (worst.unit ? ` ${worst.unit}` : '');
   const valPlan = (mt.plan === null || mt.plan === '') ? '—' : formatNum(mt.plan) + (worst.unit ? ` ${worst.unit}` : '');
@@ -31,7 +32,7 @@ export default function OverviewHeroCard({ department: d, weeks }) {
     <div className={`hero-card ${cls}`}>
       <div className="hero-dept">{d.emoji} {d.name}</div>
       <div className="hero-label">{worst.name} MTD</div>
-      <div className={`hero-val ${heroActColor}`}>{valActual}</div>
+      <div className={`hero-val ${cls}`}>{valActual}</div>
       <div className="hero-plan">Plan: {valPlan}</div>
       <div className={`hero-badge ${worstSc.color}`}>
         {worstSc.color === 'green' ? <TrendingUp size={12} style={{marginRight: 4}}/> : 

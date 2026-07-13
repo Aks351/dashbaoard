@@ -46,8 +46,8 @@ export function calculateScore(plan, actual, dir = 'higher') {
   const variance = pct - 100;
   const prefix = variance > 0 ? '+' : '';
 
-  if (pct >= 100) return { label: `${prefix}${variance}%`, color: 'green', pct };
-  if (pct >= 90) return { label: `${prefix}${variance}%`, color: 'amber', pct };
+  if (variance >= -20) return { label: `${prefix}${variance}%`, color: 'green', pct };
+  if (variance >= -30) return { label: `${prefix}${variance}%`, color: 'amber', pct };
   return { label: `${prefix}${variance}%`, color: 'red', pct };
 }
 

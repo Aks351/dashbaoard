@@ -829,45 +829,7 @@ body {
   color: #dc2626;
 }
 
-.de-row {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
-  border-bottom: 1px solid var(--border);
-  align-items: center;
-}
-
-.de-row:last-child {
-  border-bottom: none;
-}
-
-.de-row.head {
-  background: #f8fafc;
-}
-
-.de-cell {
-  padding: 9px 14px;
-  font-size: 12px;
-}
-
-.de-cell.head {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: .5px;
-  color: var(--muted);
-  font-weight: 700;
-}
-
-.de-metric-name {
-  font-weight: 600;
-  color: var(--text);
-  font-size: 13px;
-}
-
-.de-metric-ref {
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 1px;
-}
+/* de-row/de-cell styles consolidated below at line ~957 — removed duplicate */
 
 .de-input {
   width: 100%;
@@ -1007,7 +969,10 @@ body {
 .mx-empty { padding: 16px; text-align: center; color: #94a3b8; font-size: 12px; background: var(--surface); border: 1px dashed var(--border); border-radius: 10px; }
 
 /* ── TABLE BASE ── */
-.metric-table { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, .04) }
+.metric-table { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow-x: auto; overflow-y: hidden; margin-bottom: 24px; box-shadow: 0 1px 3px rgba(0, 0, 0, .04); -webkit-overflow-scrolling: touch; }
+.metric-table::-webkit-scrollbar { height: 6px; }
+.metric-table::-webkit-scrollbar-track { background: rgba(0,0,0,0.04); border-radius: 4px; }
+.metric-table::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 4px; opacity: 0.5; }
 .metric-name { font-size: 13px; font-weight: 600; color: var(--text) }
 .metric-sub { font-size: 11px; color: var(--muted); margin-top: 1px }
 .val-actual { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700 }
@@ -1024,14 +989,16 @@ body {
 .plan-num { font-size: 13px; font-weight: 700; color: var(--text2) }
 .unit-sm { font-size: 9px; color: var(--muted) }
 
-/* ── DEPT TABLE (dynamic columns) ── */
-.dept-tbl { display: grid; border-bottom: 1px solid var(--border) }
-.dept-tbl:last-child { border-bottom: none }
-.dept-tbl:hover:not(.head-row) { background: #f8fafc }
+/* ── DEPT TABLE — now uses a single flat grid; dept-tbl kept for legacy ── */
+.dept-tbl { display: contents; } /* display:contents removes row box, making cells direct grid children */
 .d-cell { padding: 11px 12px; font-size: 12px; display: flex; align-items: center }
-.d-cell.head { font-size: 9px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); font-weight: 700; padding: 8px 12px; background: #f1f5f9 }
+.d-cell.head { font-size: 9px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); font-weight: 700; padding: 8px 12px; background: #f1f5f9; border-bottom: 1px solid var(--border); }
 .d-cell.center { justify-content: center; text-align: center; flex-direction: column; gap: 2px }
 .mtd-cell { display: flex; flex-direction: column; gap: 3px; align-items: center }
+/* Overview table cells */
+.t-cell { padding: 10px 12px; font-size: 12px; display: flex; align-items: center }
+.t-cell.head { font-size: 9px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); font-weight: 700; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.t-cell.center { justify-content: center; text-align: center; flex-direction: column; gap: 2px }
 .legend-bar { font-size: 11px; color: var(--muted); margin-top: 6px; padding: 7px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; display: inline-flex; gap: 16px; flex-wrap: wrap }
 
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

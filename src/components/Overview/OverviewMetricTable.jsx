@@ -1,74 +1,134 @@
 import React from 'react';
 import { mtd, calculateScore, formatNum } from '../../store/kpiStore';
 
+const PROMISED_DEPTS = ['purchase', 'production', 'crm'];
+const B = '1px solid var(--border)';
+
 export default function OverviewMetricTable({ departments, weeks }) {
-  const cols = `minmax(250px, 2.1fr) ` + weeks.map(() => `minmax(70px, 0.7fr) minmax(80px, 0.8fr)`).join(' ') + ` minmax(70px, 0.7fr) minmax(80px, 0.8fr) minmax(80px, 0.8fr)`;
+  // Per-week: Plan | Act | Promised  (3 cols per week)
+  // End: MTD Plan | MTD Act | Score  (3 fixed cols)
+  const cols =
+    `minmax(220px, 2fr) ` +
+    weeks.map(() => `minmax(62px, 0.62fr) minmax(72px, 0.72fr) minmax(68px, 0.68fr)`).join(' ') +
+    ` minmax(65px, 0.65fr) minmax(75px, 0.75fr) minmax(75px, 0.75fr)`;
+
+  // Total column count for dept separator spanning
+  const totalCols = 1 + weeks.length * 3 + 3;
+
+  // Flatten all rows
+  const rows = [];
+  rows.push({ type: 'header' });
+  departments.forEach(d => {
+    const showProm = PROMISED_DEPTS.includes(d.id);
+    rows.push({ type: 'dept-sep', d });
+    d.metrics
+      .filter(m => d.id !== 'hiring' || !/·\s*Position:/i.test(m.sub || ''))
+      .forEach((m, mIdx, arr) => {
+        rows.push({ type: 'metric', d, m, showProm, isLast: mIdx === arr.length - 1 });
+      });
+  });
 
   return (
     <div className="metric-table-container">
-      <div className="metric-table-grid">
-        {/* Header */}
-        <div className="table-row head-row" style={{ gridTemplateColumns: cols }}>
-          <div className="t-cell head">Metric</div>
-          {weeks.map((w) => (
-            <React.Fragment key={w.id}>
-              <div className="t-cell head center" style={{ borderLeft: '1px solid var(--border)' }}>{w.label.replace('Week', 'W')} Plan</div>
-              <div className="t-cell head center">{w.label.replace('Week', 'W')} Act</div>
-            </React.Fragment>
-          ))}
-          <div className="t-cell head center" style={{ borderLeft: '1px solid var(--border)', background: 'rgba(220, 252, 231, 0.4)' }}>MTD Plan</div>
-          <div className="t-cell head center" style={{ background: 'rgba(220, 252, 231, 0.4)' }}>MTD Act</div>
-          <div className="t-cell head center" style={{ background: 'rgba(220, 252, 231, 0.4)' }}>Score</div>
-        </div>
+      <div style={{ display: 'grid', gridTemplateColumns: cols, minWidth: 'max-content', width: '100%' }}>
 
-        {/* Rows */}
-        {departments.map(d => {
-          return (
-            <React.Fragment key={d.id}>
-              <div className="table-row dept-sep" style={{ gridTemplateColumns: '1fr' }}>
-                <div className="dept-sep-label">{d.emoji} {d.name.toUpperCase()}</div>
+        {rows.map((row, rIdx) => {
+          /* ── HEADER ── */
+          if (row.type === 'header') {
+            return (
+              <React.Fragment key="header">
+                <div className="t-cell head" style={{ background: '#f1f5f9' }}>Metric</div>
+                {weeks.map(w => (
+                  <React.Fragment key={w.id}>
+                    <div className="t-cell head center" style={{ background: '#f1f5f9', borderLeft: B }}>
+                      {w.label.replace('Week', 'W')} Plan
+                    </div>
+                    <div className="t-cell head center" style={{ background: '#f1f5f9' }}>
+                      {w.label.replace('Week', 'W')} Act
+                    </div>
+                    <div className="t-cell head center" style={{ background: '#eff6ff', color: '#3b82f6', fontSize: 9 }}>
+                      Promised
+                    </div>
+                  </React.Fragment>
+                ))}
+                <div className="t-cell head center" style={{ background: 'rgba(220,252,231,0.5)', borderLeft: B }}>MTD Plan</div>
+                <div className="t-cell head center" style={{ background: 'rgba(220,252,231,0.5)' }}>MTD Act</div>
+                <div className="t-cell head center" style={{ background: 'rgba(220,252,231,0.5)' }}>Score</div>
+              </React.Fragment>
+            );
+          }
+
+          /* ── DEPT SEPARATOR ── */
+          if (row.type === 'dept-sep') {
+            return (
+              <div
+                key={`sep-${row.d.id}`}
+                className="dept-sep-label"
+                style={{ gridColumn: `1 / ${totalCols + 1}`, borderBottom: B, borderTop: rIdx > 0 ? B : 'none' }}
+              >
+                {row.d.emoji} {row.d.name.toUpperCase()}
               </div>
-              {d.metrics.filter(m => d.id !== 'hiring' || !/·\s*Position:/i.test(m.sub || '')).map(m => {
-                const mt = mtd(m, weeks);
-                const msc = calculateScore(mt.plan, mt.actual, m.dir);
-                return (
-                  <div key={m.id} className="table-row" style={{ gridTemplateColumns: cols, background: m.total ? 'rgba(248, 250, 252, 0.7)' : 'transparent' }}>
-                    <div className="t-cell">
-                      <div>
-                        <div className="metric-name">{m.name}</div>
-                        {m.sub && <div className="metric-sub">{m.sub}</div>}
-                      </div>
-                    </div>
-                    
-                    {weeks.map(w => {
-                      const p = m.plan[w.id];
-                      const a = m.actual[w.id];
-                      const sc = calculateScore(p, a, m.dir);
-                      const actColor = sc.color;
-                      return (
-                        <React.Fragment key={w.id}>
-                          <div className="t-cell center" style={{ borderLeft: '1px solid var(--border)' }}>
-                            <span className="plan-num">{p === '' || p === null || p === undefined ? '—' : formatNum(p)}</span>
-                          </div>
-                          <div className="t-cell center">
-                            <span className={`val-actual ${actColor}`}>{a === '' || a === null || a === undefined ? '—' : formatNum(a)}</span>
-                          </div>
-                        </React.Fragment>
-                      );
-                    })}
+            );
+          }
 
-                    <div className="t-cell center" style={{ borderLeft: '1px solid var(--border)', background: 'rgba(240, 253, 244, 0.3)' }}>
-                      <span className="plan-num">{mt.plan === null ? '—' : formatNum(mt.plan)}</span>
+          /* ── METRIC ROW ── */
+          const { d, m, showProm, isLast } = row;
+          const mt = mtd(m, weeks);
+          const msc = calculateScore(mt.plan, mt.actual, m.dir);
+          const rowBg = m.total ? 'rgba(248,250,252,0.85)' : 'transparent';
+          const bb = isLast ? 'none' : B;
+
+          return (
+            <React.Fragment key={`${d.id}-${m.id}`}>
+              {/* Metric name */}
+              <div className="t-cell" style={{ background: rowBg, borderBottom: bb }}>
+                <div>
+                  <div className="metric-name" style={{ fontWeight: m.total ? 700 : 600 }}>{m.name}</div>
+                  {m.sub && <div className="metric-sub">{m.sub}</div>}
+                </div>
+              </div>
+
+              {/* Per-week: Plan | Act | Promised */}
+              {weeks.map(w => {
+                const p = m.plan[w.id];
+                const a = m.actual[w.id];
+                const sc = calculateScore(p, a, m.dir);
+                const prom = showProm && m.promised ? m.promised[w.id] : null;
+
+                return (
+                  <React.Fragment key={w.id}>
+                    <div className="t-cell center" style={{ background: rowBg, borderLeft: B, borderBottom: bb }}>
+                      <span className="plan-num">{p == null || p === '' ? '—' : formatNum(p)}</span>
                     </div>
-                    <div className="t-cell center" style={{ background: 'rgba(240, 253, 244, 0.3)' }}>
-                      <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatNum(mt.actual)}</span>
+                    <div className="t-cell center" style={{ background: rowBg, borderBottom: bb }}>
+                      <span className={`val-actual ${sc.color}`}>{a == null || a === '' ? '—' : formatNum(a)}</span>
                     </div>
-                    <div className="t-cell center" style={{ background: 'rgba(240, 253, 244, 0.3)' }}>
-                      <span className={`score-pill ${msc.color}`}>{msc.label}</span>
+                    {/* Promised — always rendered to keep grid aligned */}
+                    <div className="t-cell center" style={{ background: rowBg === 'transparent' ? '#fafbff' : rowBg, borderBottom: bb }}>
+                      {prom != null && prom !== '' ? (
+                        <span className="score-pill" style={{ background: '#eff6ff', color: '#3b82f6' }}>
+                          {`${Number(prom) - 100 > 0 ? '+' : ''}${Number(prom) - 100}%`}
+                        </span>
+                      ) : (
+                        <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
+                      )}
                     </div>
-                  </div>
+                  </React.Fragment>
                 );
               })}
+
+              {/* MTD Plan */}
+              <div className="t-cell center" style={{ background: 'rgba(240,253,244,0.3)', borderLeft: B, borderBottom: bb }}>
+                <span className="plan-num">{mt.plan === null ? '—' : formatNum(mt.plan)}</span>
+              </div>
+              {/* MTD Act */}
+              <div className="t-cell center" style={{ background: 'rgba(240,253,244,0.3)', borderBottom: bb }}>
+                <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatNum(mt.actual)}</span>
+              </div>
+              {/* Score */}
+              <div className="t-cell center" style={{ background: 'rgba(240,253,244,0.3)', borderBottom: bb }}>
+                <span className={`score-pill ${msc.color === 'gray' ? 'muted' : msc.color}`}>{msc.label}</span>
+              </div>
             </React.Fragment>
           );
         })}

@@ -8,7 +8,7 @@ export default function DataEntryDepartmentRow({
   updateValue,
   baseMetrics
 }) {
-  const showPromised = ['purchase', 'production'].includes(d.id);
+  const showPromised = ['purchase', 'production', 'crm'].includes(d.id);
   const gridCols = showPromised ? '2fr 1fr 1fr 1fr 1fr' : '2fr 1fr 1fr 1fr';
 
   return (
@@ -48,7 +48,7 @@ export default function DataEntryDepartmentRow({
                     style={{ color: '#3b82f6', background: pr !== '' ? '#eff6ff' : '' }}
                     onChange={e => updateValue(d.id, m.id, 'promised', wk.id, e.target.value)} />
                 ) : (
-                  <div className="muted" style={{ textAlign: 'center' }}>—</div>
+                  <div style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 12 }}>—</div>
                 )}
               </div>
             )}
