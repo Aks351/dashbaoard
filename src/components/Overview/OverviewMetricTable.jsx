@@ -4,6 +4,18 @@ import { mtd, calculateScore, formatNum } from '../../store/kpiStore';
 const PROMISED_DEPTS = ['purchase', 'production', 'crm'];
 const B = '1px solid var(--border)';
 
+// Sticky styles for the frozen first column
+const STICKY_HEAD = {
+  position: 'sticky', left: 0, zIndex: 3,
+  background: '#f1f5f9',
+  boxShadow: '2px 0 4px -2px rgba(0,0,0,0.10)',
+};
+const stickyData = (isTotal) => ({
+  position: 'sticky', left: 0, zIndex: 1,
+  background: isTotal ? 'rgba(248,250,252,0.97)' : 'var(--surface)',
+  boxShadow: '2px 0 4px -2px rgba(0,0,0,0.08)',
+});
+
 export default function OverviewMetricTable({ departments, weeks }) {
   // Per-week: Plan | Act | Promised  (3 cols per week)
   // End: MTD Plan | MTD Act | Score  (3 fixed cols)
@@ -37,7 +49,8 @@ export default function OverviewMetricTable({ departments, weeks }) {
           if (row.type === 'header') {
             return (
               <React.Fragment key="header">
-                <div className="t-cell head" style={{ background: '#f1f5f9' }}>Metric</div>
+                {/* Sticky header first cell */}
+                <div className="t-cell head" style={STICKY_HEAD}>Metric</div>
                 {weeks.map(w => (
                   <React.Fragment key={w.id}>
                     <div className="t-cell head center" style={{ background: '#f1f5f9', borderLeft: B }}>
@@ -58,13 +71,18 @@ export default function OverviewMetricTable({ departments, weeks }) {
             );
           }
 
-          /* ── DEPT SEPARATOR ── */
+          /* ── DEPT SEPARATOR — spans all cols, also sticky so label stays visible ── */
           if (row.type === 'dept-sep') {
             return (
               <div
                 key={`sep-${row.d.id}`}
                 className="dept-sep-label"
-                style={{ gridColumn: `1 / ${totalCols + 1}`, borderBottom: B, borderTop: rIdx > 0 ? B : 'none' }}
+                style={{
+                  gridColumn: `1 / ${totalCols + 1}`,
+                  borderBottom: B,
+                  borderTop: rIdx > 0 ? B : 'none',
+                  background: '#f1f5f9',
+                }}
               >
                 {row.d.emoji} {row.d.name.toUpperCase()}
               </div>
@@ -80,8 +98,11 @@ export default function OverviewMetricTable({ departments, weeks }) {
 
           return (
             <React.Fragment key={`${d.id}-${m.id}`}>
-              {/* Metric name */}
-              <div className="t-cell" style={{ background: rowBg, borderBottom: bb }}>
+              {/* Sticky metric name */}
+              <div
+                className="t-cell"
+                style={{ ...stickyData(m.total), borderBottom: bb }}
+              >
                 <div>
                   <div className="metric-name" style={{ fontWeight: m.total ? 700 : 600 }}>{m.name}</div>
                   {m.sub && <div className="metric-sub">{m.sub}</div>}
@@ -103,7 +124,6 @@ export default function OverviewMetricTable({ departments, weeks }) {
                     <div className="t-cell center" style={{ background: rowBg, borderBottom: bb }}>
                       <span className={`val-actual ${sc.color}`}>{a == null || a === '' ? '—' : formatNum(a)}</span>
                     </div>
-                    {/* Promised — always rendered to keep grid aligned */}
                     <div className="t-cell center" style={{ background: rowBg === 'transparent' ? '#fafbff' : rowBg, borderBottom: bb }}>
                       {prom != null && prom !== '' ? (
                         <span className="score-pill" style={{ background: '#eff6ff', color: '#3b82f6' }}>
