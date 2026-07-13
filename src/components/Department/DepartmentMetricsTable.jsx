@@ -9,6 +9,10 @@ const WEEK_COLORS = [
   { head: '#f8f9fa', body: '#fdfdfd' },
 ];
 
+// These CRM metrics always display green — they represent positive counts (higher = better, no penalty)
+const ALWAYS_GREEN_IDS = new Set(['planned_dispatch', 'ontime_dispatch', 'planned_payment', 'ontime_payment']);
+const applyGreen = (id, sc) => ALWAYS_GREEN_IDS.has(id) && sc.color !== 'gray' ? { ...sc, color: 'green' } : sc;
+
 const B = '1px solid var(--border)'; // shorthand border
 
 export default function DepartmentMetricsTable({ department: d, weeks, baseMetrics }) {
@@ -29,7 +33,14 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
       <div style={{ display: 'grid', gridTemplateColumns: cols, minWidth: 'max-content', width: '100%' }}>
 
         {/* ── HEADER CELLS ── */}
-        <div className="d-cell head" style={{ position: 'sticky', left: 0, zIndex: 2, background: '#f1f5f9' }}>Metric</div>
+        <div
+          className="d-cell head"
+          style={{
+            position: 'sticky', left: 0, zIndex: 3,
+            background: '#f1f5f9',
+            boxShadow: '2px 0 4px -2px rgba(0,0,0,0.10)',
+          }}
+        >Metric</div>
         {weeks.map((w, idx) => {
           const bg = isHiring ? WEEK_COLORS[idx % WEEK_COLORS.length].head : '#f1f5f9';
           return (
@@ -48,15 +59,25 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
         {/* ── DATA CELLS — React.Fragment keeps them flat in the grid ── */}
         {baseMetrics.map((m, mIdx) => {
           const mt = mtd(m, weeks);
-          const msc = calculateScore(mt.plan, mt.actual, m.dir);
+          const msc = applyGreen(m.id, calculateScore(mt.plan, mt.actual, m.dir));
           const isLast = mIdx === baseMetrics.length - 1;
           const rowBg = m.total ? 'rgba(248,250,252,0.85)' : 'transparent';
           const bb = isLast ? 'none' : B; // border-bottom
 
           return (
             <React.Fragment key={m.id}>
-              {/* Metric name */}
-              <div className="d-cell" style={{ background: rowBg, borderBottom: bb }}>
+              {/* Metric name — sticky first column */}
+              <div
+                className="d-cell"
+                style={{
+                  background: m.total ? 'rgba(248,250,252,0.95)' : 'var(--surface)',
+                  borderBottom: bb,
+                  position: 'sticky',
+                  left: 0,
+                  zIndex: 1,
+                  boxShadow: '2px 0 4px -2px rgba(0,0,0,0.08)',
+                }}
+              >
                 <div>
                   <div className="metric-name" style={{ fontWeight: m.total ? 700 : 600 }}>{d.emoji} {m.name}</div>
                   {m.sub && <div className="metric-sub">{m.sub}</div>}
@@ -67,7 +88,7 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
               {weeks.map((w, idx) => {
                 const p = m.plan[w.id];
                 const a = m.actual[w.id];
-                const sc = calculateScore(p, a, m.dir);
+                const sc = applyGreen(m.id, calculateScore(p, a, m.dir));
                 const prom = m.promised ? m.promised[w.id] : null;
                 const wkBg = m.total ? rowBg : (isHiring ? WEEK_COLORS[idx % WEEK_COLORS.length].body : 'transparent');
 
