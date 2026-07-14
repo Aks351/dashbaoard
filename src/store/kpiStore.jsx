@@ -58,7 +58,7 @@ export function mtd(metric, weeks) {
     const a = num(metric.actual[w.id]); if (a !== null) { act += a; actCount++; }
   });
 
-  if (metric.id === 'oilmt') {
+  if (metric.id === 'oilmt' || metric.id === 'gasmt') {
     return {
       plan: planCount > 0 ? plan / planCount : null,
       actual: actCount > 0 ? act / actCount : null
@@ -110,6 +110,19 @@ export function KpiProvider({ children }) {
       });
       hiring.metrics = newMetrics;
     }
+
+    // MIGRATION: Inject gasmt metric into production if missing
+    const production = initialData.departments.find(d => d.id === 'production');
+    if (production && !production.metrics.find(m => m.id === 'gasmt')) {
+      const seedProduction = SEED.departments.find(d => d.id === 'production');
+      const seedGasmt = seedProduction?.metrics.find(m => m.id === 'gasmt');
+      if (seedGasmt) {
+        production.metrics.push(JSON.parse(JSON.stringify(seedGasmt)));
+      }
+    }
+
+
+
     return initialData;
   });
 
@@ -169,6 +182,23 @@ export function KpiProvider({ children }) {
         }
       });
     }
+
+    // Inject gasmt metric into production if missing (migration)
+    const prod = newModel.departments.find(d => d.id === 'production');
+    if (prod && !prod.metrics.find(m => m.id === 'gasmt')) {
+      const seedProduction = SEED.departments.find(d => d.id === 'production');
+      const seedGasmt = seedProduction?.metrics.find(m => m.id === 'gasmt');
+      if (seedGasmt) {
+        // Ensure all existing week keys are present
+        newModel.weeks.forEach(w => {
+          if (!(w.id in seedGasmt.plan)) seedGasmt.plan[w.id] = '';
+          if (!(w.id in seedGasmt.actual)) seedGasmt.actual[w.id] = '';
+        });
+        prod.metrics.push(JSON.parse(JSON.stringify(seedGasmt)));
+      }
+    }
+
+
 
     setModel(newModel);
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(newModel)); } catch (e) { }
