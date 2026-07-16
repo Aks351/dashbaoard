@@ -1,5 +1,5 @@
 import React from 'react';
-import { mtd, calculateScore, formatNum } from '../../store/kpiStore';
+import { mtd, calculateScore, formatNum, formatVal } from '../../store/kpiStore';
 
 const PROMISED_DEPTS = ['purchase', 'production', 'crm'];
 const B = '1px solid var(--border)';
@@ -119,10 +119,10 @@ export default function OverviewMetricTable({ departments, weeks }) {
                 return (
                   <React.Fragment key={w.id}>
                     <div className="t-cell center" style={{ background: rowBg, borderLeft: B, borderBottom: bb }}>
-                      <span className="plan-num">{p == null || p === '' ? '—' : formatNum(p)}</span>
+                      <span className="plan-num">{p == null || p === '' ? '—' : formatVal(p, m.unit)}</span>
                     </div>
                     <div className="t-cell center" style={{ background: rowBg, borderBottom: bb }}>
-                      <span className={`val-actual ${sc.color}`}>{a == null || a === '' ? '—' : formatNum(a)}</span>
+                      <span className={`val-actual ${sc.color}`}>{a == null || a === '' ? '—' : formatVal(a, m.unit)}</span>
                     </div>
                     <div className="t-cell center" style={{ background: rowBg === 'transparent' ? '#fafbff' : rowBg, borderBottom: bb }}>
                       {prom != null && prom !== '' ? (
@@ -139,11 +139,11 @@ export default function OverviewMetricTable({ departments, weeks }) {
 
               {/* MTD Plan */}
               <div className="t-cell center" style={{ background: 'rgba(240,253,244,0.3)', borderLeft: B, borderBottom: bb }}>
-                <span className="plan-num">{mt.plan === null ? '—' : formatNum(mt.plan)}</span>
+                <span className="plan-num">{mt.plan === null ? '—' : formatVal(mt.plan, m.unit)}</span>
               </div>
               {/* MTD Act */}
               <div className="t-cell center" style={{ background: 'rgba(240,253,244,0.3)', borderBottom: bb }}>
-                <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatNum(mt.actual)}</span>
+                <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatVal(mt.actual, m.unit)}</span>
               </div>
               {/* Score */}
               <div className="t-cell center" style={{ background: 'rgba(240,253,244,0.3)', borderBottom: bb }}>

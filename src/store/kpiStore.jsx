@@ -19,19 +19,57 @@ export const STAGES = [
   ['Offer Given To', 'Offer Given To']
 ];
 
-export function num(v) { return (v === null || v === undefined || v === '') ? null : Number(v); }
+/** Parse a value that may be decimal hours OR an "HH:MM:SS" / "HH:MM" string.
+ *  Returns decimal hours (number), or null if unparseable. */
+export function parseHMS(v) {
+  if (v === null || v === undefined || v === '') return null;
+  // If it looks like HH:MM:SS or HH:MM, parse it
+  if (typeof v === 'string' && /^\d+:\d{2}(:\d{2})?$/.test(v.trim())) {
+    const parts = v.trim().split(':').map(Number);
+    return parts[0] + parts[1] / 60 + (parts[2] || 0) / 3600;
+  }
+  const n = Number(v);
+  return isNaN(n) ? null : n;
+}
+
+/** num() — converts value to number; understands HH:MM:SS for hrs metrics */
+export function num(v) {
+  if (v === null || v === undefined || v === '') return null;
+  // Handle time string
+  if (typeof v === 'string' && /^\d+:\d{2}(:\d{2})?$/.test(v.trim())) return parseHMS(v);
+  const n = Number(v);
+  return isNaN(n) ? null : n;
+}
 
 export function formatNum(v) {
   if (v === null || v === undefined || v === '') return '—';
   const n = Number(v);
-  if (isNaN(n)) return v;
+  if (isNaN(n)) return String(v);
   return Number(n.toFixed(3)).toString();
 }
 
-export function calculateScore(plan, actual, dir = 'higher') {
+/** Display a time value as HH:MM.
+ *  Accepts decimal hours (23.54) OR "HH:MM:SS" / "HH:MM" strings ("16:04:00"). */
+export function formatTime(v) {
+  if (v === null || v === undefined || v === '') return '—';
+  const dec = parseHMS(v);
+  if (dec === null) return String(v);
+  const h = Math.floor(dec);
+  const m = Math.round((dec - h) * 60);
+  return `${h}:${String(m).padStart(2, '0')}`;
+}
+
+/** Smart formatter — uses HH:MM for hrs unit, plain number otherwise */
+export function formatVal(v, unit) {
+  if (unit === 'hrs') return formatTime(v);
+  return formatNum(v);
+}
+
+export function calculateScore(plan, actual, dir = 'higher', options = {}) {
   if (plan === '' || actual === '' || plan == null || actual == null) return { label: '—', color: 'gray', pct: null };
-  const p = Number(plan);
-  const a = Number(actual);
+  // Support HH:MM:SS strings for time-based metrics
+  const p = typeof plan === 'string' && /^\d+:\d{2}/.test(plan.trim()) ? parseHMS(plan) : Number(plan);
+  const a = typeof actual === 'string' && /^\d+:\d{2}/.test(actual.trim()) ? parseHMS(actual) : Number(actual);
 
   if (dir === 'zero') {
     if (a === 0) return { pct: 0, color: 'green', label: '0 ✓' };
@@ -46,6 +84,14 @@ export function calculateScore(plan, actual, dir = 'higher') {
   const variance = pct - 100;
   const prefix = variance > 0 ? '+' : '';
 
+  // strict mode (Production): only green when variance > -1 (i.e. ≥100%)
+  if (options.strict) {
+    if (variance > -1) return { label: `${prefix}${variance}%`, color: 'green', pct };
+    if (variance >= -20) return { label: `${prefix}${variance}%`, color: 'amber', pct };
+    return { label: `${prefix}${variance}%`, color: 'red', pct };
+  }
+
+  // default thresholds
   if (variance >= -20) return { label: `${prefix}${variance}%`, color: 'green', pct };
   if (variance >= -30) return { label: `${prefix}${variance}%`, color: 'amber', pct };
   return { label: `${prefix}${variance}%`, color: 'red', pct };

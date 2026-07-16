@@ -1,5 +1,5 @@
 import React from 'react';
-import { mtd, calculateScore, formatNum } from '../../store/kpiStore';
+import { mtd, calculateScore, formatNum, formatVal } from '../../store/kpiStore';
 
 const WEEK_COLORS = [
   { head: '#fef9ec', body: '#fffdf5' },
@@ -18,6 +18,8 @@ const B = '1px solid var(--border)'; // shorthand border
 export default function DepartmentMetricsTable({ department: d, weeks, baseMetrics }) {
   const showPromised = ['purchase', 'production', 'crm'].includes(d.id);
   const isHiring = d.id === 'hiring';
+  const isProduction = d.id === 'production';
+  const scoreOpts = isProduction ? { strict: true } : {};
 
   // All rows share this SINGLE gridTemplateColumns string on ONE container grid.
   // This guarantees fr units compute identically for every row — no shifting.
@@ -59,7 +61,7 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
         {/* ── DATA CELLS — React.Fragment keeps them flat in the grid ── */}
         {baseMetrics.map((m, mIdx) => {
           const mt = mtd(m, weeks);
-          const msc = applyGreen(m.id, calculateScore(mt.plan, mt.actual, m.dir));
+          const msc = applyGreen(m.id, calculateScore(mt.plan, mt.actual, m.dir, scoreOpts));
           const isLast = mIdx === baseMetrics.length - 1;
           const rowBg = m.total ? 'rgba(248,250,252,0.85)' : 'transparent';
           const bb = isLast ? 'none' : B; // border-bottom
@@ -88,17 +90,17 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
               {weeks.map((w, idx) => {
                 const p = m.plan[w.id];
                 const a = m.actual[w.id];
-                const sc = applyGreen(m.id, calculateScore(p, a, m.dir));
+                const sc = applyGreen(m.id, calculateScore(p, a, m.dir, scoreOpts));
                 const prom = m.promised ? m.promised[w.id] : null;
                 const wkBg = m.total ? rowBg : (isHiring ? WEEK_COLORS[idx % WEEK_COLORS.length].body : 'transparent');
 
                 return (
                   <React.Fragment key={w.id}>
                     <div className="d-cell center" style={{ background: wkBg, borderLeft: B, borderBottom: bb }}>
-                      <span className="plan-num">{p === '' || p == null ? '—' : formatNum(p)}</span>
+                      <span className="plan-num">{p === '' || p == null ? '—' : formatVal(p, m.unit)}</span>
                     </div>
                     <div className="d-cell center" style={{ background: wkBg, borderBottom: bb }}>
-                      <span className={`val-actual ${sc.color}`}>{a === '' || a == null ? '—' : formatNum(a)}</span>
+                      <span className={`val-actual ${sc.color}`}>{a === '' || a == null ? '—' : formatVal(a, m.unit)}</span>
                     </div>
                     <div className="d-cell center" style={{ background: wkBg, borderBottom: bb }}>
                       <span className={`score-pill ${sc.color === 'gray' ? 'muted' : sc.color}`}>{sc.label}</span>
@@ -121,8 +123,8 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
               {/* MTD */}
               <div className="d-cell center" style={{ borderLeft: B, borderBottom: bb, background: isHiring ? '#f5fff8' : 'rgba(240,253,244,0.3)' }}>
                 <div className="mtd-cell">
-                  <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatNum(mt.actual)}</span>
-                  <span style={{ fontSize: 10, color: 'var(--muted)' }}>Plan: {mt.plan === null ? '—' : formatNum(mt.plan)}</span>
+                  <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatVal(mt.actual, m.unit)}</span>
+                  <span style={{ fontSize: 10, color: 'var(--muted)' }}>Plan: {mt.plan === null ? '—' : formatVal(mt.plan, m.unit)}</span>
                   <span className={`score-pill ${msc.color === 'gray' ? 'muted' : msc.color}`}>{msc.label}</span>
                 </div>
               </div>

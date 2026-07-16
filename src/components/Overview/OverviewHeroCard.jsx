@@ -1,5 +1,5 @@
 import React from 'react';
-import { mtd, calculateScore, formatNum } from '../../store/kpiStore';
+import { mtd, calculateScore, formatNum, formatVal } from '../../store/kpiStore';
 import { TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
 
 export default function OverviewHeroCard({ department: d, weeks }) {
@@ -25,8 +25,8 @@ export default function OverviewHeroCard({ department: d, weeks }) {
   const mt = mtd(worst, weeks);
   const cls = worstSc.color === 'green' ? 'good' : (worstSc.color === 'amber' ? 'warning' : 'danger');
   
-  const valActual = (mt.actual === null || mt.actual === '') ? '—' : formatNum(mt.actual) + (worst.unit ? ` ${worst.unit}` : '');
-  const valPlan = (mt.plan === null || mt.plan === '') ? '—' : formatNum(mt.plan) + (worst.unit ? ` ${worst.unit}` : '');
+  const valActual = (mt.actual === null || mt.actual === '') ? '—' : formatVal(mt.actual, worst.unit) + (worst.unit ? ` ${worst.unit}` : '');
+  const valPlan = (mt.plan === null || mt.plan === '') ? '—' : formatVal(mt.plan, worst.unit) + (worst.unit ? ` ${worst.unit}` : '');
 
   return (
     <div className={`hero-card ${cls}`}>
