@@ -1,14 +1,16 @@
 import React from 'react';
 import { mtd, calculateScore, formatNum, formatVal } from '../../store/kpiStore';
 import { TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
+import { weeksInMonth } from '../../utils/dateUtils';
 
 export default function OverviewHeroCard({ department: d, weeks }) {
+  const mw = weeksInMonth(weeks); // current-month weeks only
   let worst = null, worstSc = null;
   const validMetrics = d.metrics.filter(m => d.id !== 'hiring' || !/·\s*Position:/i.test(m.sub || ''));
   
   validMetrics.forEach(m => {
     if (m.dir === 'zero') return;
-    const mt = mtd(m, weeks);
+    const mt = mtd(m, mw);
     const sc = calculateScore(mt.plan, mt.actual, m.dir);
     if (sc.pct !== null && sc.pct !== undefined && (worstSc === null || sc.pct < worstSc.pct)) {
       worst = m;
@@ -16,13 +18,13 @@ export default function OverviewHeroCard({ department: d, weeks }) {
     }
   });
   if (!worst) {
-    if (!validMetrics.length) return null; // no metrics at all — nothing to show
+    if (!validMetrics.length) return null;
     worst = validMetrics[0];
-    worstSc = calculateScore(mtd(worst, weeks).plan, mtd(worst, weeks).actual, worst.dir);
+    worstSc = calculateScore(mtd(worst, mw).plan, mtd(worst, mw).actual, worst.dir);
     if (!worstSc) return null;
   }
   
-  const mt = mtd(worst, weeks);
+  const mt = mtd(worst, mw);
   const cls = worstSc.color === 'green' ? 'good' : (worstSc.color === 'amber' ? 'warning' : 'danger');
   
   const valActual = (mt.actual === null || mt.actual === '') ? '—' : formatVal(mt.actual, worst.unit) + (worst.unit ? ` ${worst.unit}` : '');

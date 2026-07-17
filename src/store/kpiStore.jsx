@@ -1,303 +1,77 @@
+// ─── KPI Store — React context + state ───────────────────────────────────────
+// This file is intentionally thin: it wires together the modules in
+//   src/constants/kpiConstants.js
+//   src/utils/kpiUtils.js
+//   src/store/migrations.js
+//   src/store/computedModel.js
+// into a React context that all components can consume.
+//
+// All public exports are re-exported below so that existing component
+// import paths (from '../../store/kpiStore') continue to work unchanged.
+
 import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import SEED from '../../seed.json';
 
-const STORAGE_KEY = 've_kpi_model_react_v1';
-const BACKEND_URL = "https://script.google.com/macros/s/AKfycbzS6DhQjUl440_wwJZaClcIwV03LHS_tq3ntMkiIPSbR_ovfYZ51L-wUFXU7MgfDHnh/exec";
-const EDIT_KEY = "vinayak2026";
+import { STORAGE_KEY, BACKEND_URL, EDIT_KEY } from '../constants/kpiConstants';
+import { applyInitialMigrations, applyStorageMigrations } from './migrations';
+import { buildComputedModel } from './computedModel';
 
-export const SOLUTION_LINKS = {
-  purchase: "https://docs.google.com/document/d/1VI-ROkFGQ3n909IWbJKWBMw_aYepOLUOsfh9EgyGo3s/edit?tab=t.0",
-  production: "https://docs.google.com/document/d/1_QqoquU80AmTE2sLy3cEp12EVWqCKDk7BHKXgcLlvmU/edit?tab=t.0",
-  crm: "https://docs.google.com/document/d/1rAW5FitcZK1v92vG6Wak_rZUKYpc0gNzse-bn3rw_GI/edit?tab=t.0",
-  hiring: "https://docs.google.com/document/d/17DIiKkxoKz89yEmJJv3McHqLrnrhbBt8sRjvWo3-utc/edit?tab=t.0"
-};
+// ─── Re-exports (keeps all existing component imports working) ────────────────
+export * from '../constants/kpiConstants';
+export * from '../utils/kpiUtils';
 
-export const RECRUITERS = ['Dipesh', 'Madhu'];
-export const STAGES = [
-  ['Applications', 'Applications'],
-  ['Final Rounds', 'Final Rounds'],
-  ['Offer Given To', 'Offer Given To']
-];
-
-/** Metrics whose plan is always forced to 0 — they are "target = 0" metrics */
-export const ZERO_PLAN_IDS = new Set(['complaints', 'delclient', 'delfactory', 'matret']);
-
-/** Parse a value that may be decimal hours OR an "HH:MM:SS" / "HH:MM" string.
- *  Returns decimal hours (number), or null if unparseable. */
-export function parseHMS(v) {
-  if (v === null || v === undefined || v === '') return null;
-  // If it looks like HH:MM:SS or HH:MM, parse it
-  if (typeof v === 'string' && /^\d+:\d{2}(:\d{2})?$/.test(v.trim())) {
-    const parts = v.trim().split(':').map(Number);
-    return parts[0] + parts[1] / 60 + (parts[2] || 0) / 3600;
-  }
-  const n = Number(v);
-  return isNaN(n) ? null : n;
-}
-
-/** num() — converts value to number; understands HH:MM:SS for hrs metrics */
-export function num(v) {
-  if (v === null || v === undefined || v === '') return null;
-  // Handle time string
-  if (typeof v === 'string' && /^\d+:\d{2}(:\d{2})?$/.test(v.trim())) return parseHMS(v);
-  const n = Number(v);
-  return isNaN(n) ? null : n;
-}
-
-export function formatNum(v) {
-  if (v === null || v === undefined || v === '') return '—';
-  const n = Number(v);
-  if (isNaN(n)) return String(v);
-  return Number(n.toFixed(3)).toString();
-}
-
-/** Display a time value as HH:MM.
- *  Accepts decimal hours (23.54) OR "HH:MM:SS" / "HH:MM" strings ("16:04:00"). */
-export function formatTime(v) {
-  if (v === null || v === undefined || v === '') return '—';
-  const dec = parseHMS(v);
-  if (dec === null) return String(v);
-  const h = Math.floor(dec);
-  const m = Math.round((dec - h) * 60);
-  return `${h}:${String(m).padStart(2, '0')}`;
-}
-
-/** Smart formatter — uses HH:MM for hrs unit, plain number otherwise */
-export function formatVal(v, unit) {
-  if (unit === 'hrs') return formatTime(v);
-  return formatNum(v);
-}
-
-export function calculateScore(plan, actual, dir = 'higher', options = {}) {
-  if (plan === '' || actual === '' || plan == null || actual == null) return { label: '—', color: 'gray', pct: null };
-  // Support HH:MM:SS strings for time-based metrics
-  const p = typeof plan === 'string' && /^\d+:\d{2}/.test(plan.trim()) ? parseHMS(plan) : Number(plan);
-  const a = typeof actual === 'string' && /^\d+:\d{2}/.test(actual.trim()) ? parseHMS(actual) : Number(actual);
-
-  if (dir === 'zero') {
-    if (a === 0) return { pct: 0, color: 'green', label: '0 ✓' };
-    return { pct: null, color: (a <= 1 ? 'amber' : 'red'), label: a + (a === 1 ? ' issue' : ' issues') };
-  }
-
-  if (p === 0) return a > 0 ? { label: '+∞%', color: 'green', pct: 9999 } : { label: '0%', color: 'gray', pct: 0 };
-
-  let pct = Math.round((a / p) * 100);
-  if (dir === 'lower') pct = a === 0 ? 100 : Math.round((p / a) * 100);
-
-  const variance = pct - 100;
-  const prefix = variance > 0 ? '+' : '';
-
-  // strict mode (Production): only green when variance > -1 (i.e. ≥100%)
-  if (options.strict) {
-    if (variance > -1) return { label: `${prefix}${variance}%`, color: 'green', pct };
-    if (variance >= -20) return { label: `${prefix}${variance}%`, color: 'amber', pct };
-    return { label: `${prefix}${variance}%`, color: 'red', pct };
-  }
-
-  // default thresholds
-  if (variance >= -20) return { label: `${prefix}${variance}%`, color: 'green', pct };
-  if (variance >= -30) return { label: `${prefix}${variance}%`, color: 'amber', pct };
-  return { label: `${prefix}${variance}%`, color: 'red', pct };
-}
-
-export function mtd(metric, weeks) {
-  let plan = 0, act = 0, planCount = 0, actCount = 0;
-  weeks.forEach(w => {
-    const p = num(metric.plan[w.id]); if (p !== null) { plan += p; planCount++; }
-    const a = num(metric.actual[w.id]); if (a !== null) { act += a; actCount++; }
-  });
-
-  if (metric.id === 'oilmt' || metric.id === 'gasmt') {
-    return {
-      plan: planCount > 0 ? plan / planCount : null,
-      actual: actCount > 0 ? act / actCount : null
-    };
-  }
-
-  return { plan: planCount > 0 ? plan : null, actual: actCount > 0 ? act : null };
-}
-
+// ─── Context ──────────────────────────────────────────────────────────────────
 export const KpiContext = createContext();
 
+export function useKpi() {
+  return useContext(KpiContext);
+}
+
+// ─── Provider ─────────────────────────────────────────────────────────────────
 export function KpiProvider({ children }) {
+
+  // ── State ──────────────────────────────────────────────────────────────────
   const [model, setModel] = useState(() => {
-    let initialData = null;
+    let data = null;
     try {
-      const s = localStorage.getItem(STORAGE_KEY);
-      if (s) initialData = JSON.parse(s);
-    } catch (e) { console.error(e); }
-    if (!initialData) initialData = JSON.parse(JSON.stringify(SEED));
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) data = JSON.parse(stored);
+    } catch (e) { console.error('Failed to load from localStorage:', e); }
 
-    // MIGRATION: Split CRM Dispatch and Payment
-    const crm = initialData.departments.find(d => d.id === 'crm');
-    if (crm) {
-      const newCrmMetrics = [];
-      crm.metrics.forEach(m => {
-        if (m.id === 'otd') {
-          newCrmMetrics.push({ ...m, id: 'planned_dispatch', name: 'Planned Dispatch' });
-          newCrmMetrics.push({ ...m, id: 'ontime_dispatch', name: 'On-Time Dispatch', actual: m.ontime || m.actual });
-        } else if (m.id === 'paycoll') {
-          newCrmMetrics.push({ ...m, id: 'planned_payment', name: 'Planned Payment' });
-          newCrmMetrics.push({ ...m, id: 'ontime_payment', name: 'On-Time Payment', actual: m.ontime || m.actual });
-        } else if (m.id !== 'planned_dispatch' && m.id !== 'ontime_dispatch' && m.id !== 'planned_payment' && m.id !== 'ontime_payment') {
-          newCrmMetrics.push(m);
-        }
-      });
-      // Delete ontime from all crm metrics
-      newCrmMetrics.forEach(m => { delete m.ontime; });
-      crm.metrics = newCrmMetrics;
-    }
-
-    // MIGRATION: Remove any existing onboard metrics
-    const hiring = initialData.departments.find(d => d.id === 'hiring');
-    if (hiring) {
-      const newMetrics = [];
-      hiring.metrics.forEach(m => {
-        if (!m.id.endsWith('_onboard') && m.id !== 'onboard') {
-          newMetrics.push(m);
-        }
-      });
-      hiring.metrics = newMetrics;
-    }
-
-    // MIGRATION: Inject gasmt metric into production if missing
-    const production = initialData.departments.find(d => d.id === 'production');
-    if (production && !production.metrics.find(m => m.id === 'gasmt')) {
-      const seedProduction = SEED.departments.find(d => d.id === 'production');
-      const seedGasmt = seedProduction?.metrics.find(m => m.id === 'gasmt');
-      if (seedGasmt) {
-        production.metrics.push(JSON.parse(JSON.stringify(seedGasmt)));
-      }
-    }
-
-
-
-    return initialData;
+    if (!data) data = JSON.parse(JSON.stringify(SEED));
+    return applyInitialMigrations(data);
   });
 
-  const [connState, setConnState] = useState('offline'); // offline, online, syncing, error
-  const [canEdit, setCanEdit] = useState(false);
+  const [connState, setConnState] = useState('offline'); // offline | online | syncing | error
+  const [canEdit,   setCanEdit]   = useState(false);
   const [activeWeek, setActiveWeek] = useState(model.weeks[0]?.id || null);
 
-  useEffect(() => {
-    // Initial fetch
-    pullFromCloud();
-  }, []);
+  // ── Boot: pull latest data from cloud ──────────────────────────────────────
+  useEffect(() => { pullFromCloud(); }, []);
 
+  // ── Persist + migrate on every model change ────────────────────────────────
   const saveToLocal = (modelData) => {
-    const newModel = JSON.parse(JSON.stringify(modelData)); // Deep copy to safely mutate
-
-    // Inject missing CRM metrics securely
-    const crm = newModel.departments.find(d => d.id === 'crm');
-    if (crm) {
-      const missingMetrics = [
-        { id: 'otd_ontime', name: 'On-time Disptach', sub: '', unit: '', dir: 'higher', total: false, plan: {}, actual: {}, promised: {} },
-        { id: 'paycoll_ontime', name: 'On-time Payment', sub: '', unit: '', dir: 'higher', total: false, plan: {}, actual: {}, promised: {} }
-      ];
-      missingMetrics.forEach(newM => {
-        if (!crm.metrics.some(m => m.id === newM.id)) {
-          const parentIndex = crm.metrics.findIndex(m => m.id === (newM.id === 'otd_ontime' ? 'otd' : 'paycoll'));
-          if (parentIndex !== -1) {
-            crm.metrics.splice(parentIndex + 1, 0, newM);
-          } else {
-            crm.metrics.push(newM);
-          }
-        }
-      });
-    }
-
-    // Repair broken hiring position sub strings (in case they were manually modified in Google Sheets)
-    const hiring = newModel.departments.find(d => d.id === 'hiring');
-    if (hiring) {
-      hiring.metrics.filter(m => m.id.startsWith('pos_')).forEach(m => {
-        if (!/Position:/i.test(m.sub || '')) {
-          // It is a position metric but missing the Position string. Try to infer the name.
-          // e.g. pos_dipesh_tenderexecutive_apps
-          const parts = m.id.split('_');
-          if (parts.length >= 4) {
-            const rec = parts[1].charAt(0).toUpperCase() + parts[1].slice(1);
-            const stage = parts[parts.length - 1]; // apps, final, offer
-            let stageName = stage === 'apps' ? 'Applications' : stage === 'final' ? 'Final Rounds' : 'Offer Given To';
-            // We can't perfectly recover the spaces in Tender Executive from 'tenderexecutive', 
-            // but we can try to copy the position name from a sibling metric!
-            const sibling = hiring.metrics.find(sib => sib.id.startsWith(`pos_${parts[1]}_${parts[2]}_`) && sib.id !== m.id && /Position:/i.test(sib.sub || ''));
-            let posName = parts[2];
-            if (sibling) {
-              const pMatch = sibling.sub.match(/Position:\s*([^·]+)/i);
-              if (pMatch) posName = pMatch[1].trim();
-            }
-            m.sub = `Recruiter: ${rec} · Position: ${posName} · ${stageName}`;
-          }
-        }
-      });
-    }
-
-    // Inject gasmt metric into production if missing (migration)
-    const prod = newModel.departments.find(d => d.id === 'production');
-    if (prod && !prod.metrics.find(m => m.id === 'gasmt')) {
-      const seedProduction = SEED.departments.find(d => d.id === 'production');
-      const seedGasmt = seedProduction?.metrics.find(m => m.id === 'gasmt');
-      if (seedGasmt) {
-        // Ensure all existing week keys are present
-        newModel.weeks.forEach(w => {
-          if (!(w.id in seedGasmt.plan)) seedGasmt.plan[w.id] = '';
-          if (!(w.id in seedGasmt.actual)) seedGasmt.actual[w.id] = '';
-        });
-        prod.metrics.push(JSON.parse(JSON.stringify(seedGasmt)));
-      }
-    }
-
-
-
-    setModel(newModel);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(newModel)); } catch (e) { }
+    const next = applyStorageMigrations(JSON.parse(JSON.stringify(modelData)));
+    setModel(next);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch (e) { }
   };
 
-  const updateValue = (deptId, metricId, field, weekId, value) => {
-    if (BACKEND_URL && !canEdit) {
-      alert('You are in view mode. Please unlock editing first.');
-      return;
-    }
-    const newModel = { ...model };
-    const dept = newModel.departments.find(d => d.id === deptId);
-    const metric = dept.metrics.find(m => m.id === metricId);
-    if (!metric[field]) metric[field] = {};
-    metric[field][weekId] = value === '' ? '' : Number(value);
-
-    saveToLocal(newModel);
-
-    // Debounce cloud push
-    if (window._pushTimer) clearTimeout(window._pushTimer);
-    window._pushTimer = setTimeout(() => pushToCloud(newModel), 800);
-  };
-
-  const unlockEditing = () => {
-    const k = prompt('Enter the editor passphrase to enable editing:');
-    if (k === null) return;
-    if (k === EDIT_KEY) {
-      setCanEdit(true);
-      alert('Editing unlocked on this device.');
-    } else {
-      alert('Wrong passphrase. You can still view, but not edit.');
-    }
-  };
-
+  // ── Cloud sync ─────────────────────────────────────────────────────────────
   const pullFromCloud = async () => {
     if (!BACKEND_URL) { setConnState('offline'); return; }
     setConnState('syncing');
     try {
-      const r = await fetch(BACKEND_URL + '?action=get&t=' + Date.now());
+      const r = await fetch(`${BACKEND_URL}?action=get&t=${Date.now()}`);
       const j = await r.json();
       if (j.ok) {
-        if (j.data && j.data.departments) {
+        if (j.data?.departments) {
           saveToLocal(j.data);
-          if (!j.data.weeks.some(w => w.id === activeWeek)) {
+          if (!j.data.weeks.some(w => w.id === activeWeek))
             setActiveWeek(j.data.weeks[0]?.id || null);
-          }
         }
         setConnState('online');
       } else {
-        console.error('Backend returned error:', j.message);
+        console.error('Backend error:', j.message);
         setConnState('error');
       }
     } catch (e) {
@@ -310,27 +84,23 @@ export function KpiProvider({ children }) {
     if (!BACKEND_URL || !canEdit) return;
     setConnState('syncing');
     try {
-      const dataToPush = JSON.parse(JSON.stringify(currentModel, (k, v) => (k && k[0] === '_') ? undefined : v));
+      // Strip internal fields (prefixed with '_') before sending
+      const payload = JSON.parse(JSON.stringify(currentModel, (k, v) => (k && k[0] === '_') ? undefined : v));
       const r = await fetch(BACKEND_URL, {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'save', key: EDIT_KEY, data: dataToPush })
+        body:    JSON.stringify({ action: 'save', key: EDIT_KEY, data: payload }),
       });
       let j = {};
-      try { j = await r.json(); } catch (e) { }
+      try { j = await r.json(); } catch (_) { }
 
-      if (r.ok || (j && j.ok)) {
+      if (r.ok || j?.ok) {
         setConnState('online');
       } else {
         setConnState('error');
-      }
-
-      if (j && j.ok === false) {
-        if (j.code === 'AUTH_ERROR') {
-          alert('Edit key rejected by server.');
-          setCanEdit(false);
-        } else {
-          console.error('Save failed:', j.message);
+        if (j?.ok === false) {
+          if (j.code === 'AUTH_ERROR') { alert('Edit key rejected by server.'); setCanEdit(false); }
+          else console.error('Save failed:', j.message);
         }
       }
     } catch (e) {
@@ -339,272 +109,165 @@ export function KpiProvider({ children }) {
     }
   };
 
+  // ── Value mutations ─────────────────────────────────────────────────────────
+  const updateValue = (deptId, metricId, field, weekId, value) => {
+    if (BACKEND_URL && !canEdit) {
+      alert('You are in view mode. Please unlock editing first.');
+      return;
+    }
+    const next = { ...model };
+    const metric = next.departments.find(d => d.id === deptId)?.metrics.find(m => m.id === metricId);
+    if (!metric) return;
+    if (!metric[field]) metric[field] = {};
+    metric[field][weekId] = value === '' ? '' : Number(value);
+
+    saveToLocal(next);
+
+    // Debounced cloud push
+    if (window._pushTimer) clearTimeout(window._pushTimer);
+    window._pushTimer = setTimeout(() => pushToCloud(next), 800);
+  };
+
+  const unlockEditing = () => {
+    const k = prompt('Enter the editor passphrase to enable editing:');
+    if (k === null) return;
+    if (k === EDIT_KEY) { setCanEdit(true); alert('Editing unlocked on this device.'); }
+    else alert('Wrong passphrase. You can still view, but not edit.');
+  };
+
+  // ── Week management ─────────────────────────────────────────────────────────
   const addWeek = (label, range) => {
-    const id = 'w' + Date.now().toString(36);
-    const newModel = { ...model };
-    newModel.weeks.push({ id, label, range });
-    newModel.departments.forEach(d => {
+    const id       = 'w' + Date.now().toString(36);
+    const next     = { ...model };
+    next.weeks.push({ id, label, range });
+    next.departments.forEach(d =>
       d.metrics.forEach(m => {
-        m.plan[id] = '';
+        m.plan[id]   = '';
         m.actual[id] = '';
         if (m.promised) m.promised[id] = '';
-      });
-    });
+      })
+    );
     setActiveWeek(id);
-    saveToLocal(newModel);
-    pushToCloud(newModel);
+    saveToLocal(next);
+    pushToCloud(next);
   };
 
   const editWeek = (id, newLabel, newRange) => {
-    const newModel = { ...model };
-    const w = newModel.weeks.find(w => w.id === id);
-    if (w) {
-      w.label = newLabel;
-      w.range = newRange;
-      saveToLocal(newModel);
-      pushToCloud(newModel);
-    }
+    const next = { ...model };
+    const w    = next.weeks.find(w => w.id === id);
+    if (!w) return;
+    w.label = newLabel;
+    w.range = newRange;
+    saveToLocal(next);
+    pushToCloud(next);
   };
 
   const removeWeek = (id) => {
-    const newModel = { ...model };
-    newModel.weeks = newModel.weeks.filter(w => w.id !== id);
-    newModel.departments.forEach(d => {
+    const next = { ...model };
+    next.weeks = next.weeks.filter(w => w.id !== id);
+    next.departments.forEach(d =>
       d.metrics.forEach(m => {
         delete m.plan[id];
         delete m.actual[id];
         if (m.promised) delete m.promised[id];
-      });
-    });
-    if (activeWeek === id) setActiveWeek(newModel.weeks[0]?.id || null);
-    saveToLocal(newModel);
-    pushToCloud(newModel);
+      })
+    );
+    if (activeWeek === id) setActiveWeek(next.weeks[0]?.id || null);
+    saveToLocal(next);
+    pushToCloud(next);
   };
 
+  // ── Hiring role management ──────────────────────────────────────────────────
   const addHiringRole = (recruiter, role, weekId) => {
-    const newModel = { ...model };
-    const hiring = newModel.departments.find(d => d.id === 'hiring');
+    const next    = { ...model };
+    const hiring  = next.departments.find(d => d.id === 'hiring');
     if (!hiring) return;
 
-    const safeId = role.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const safeId  = role.toLowerCase().replace(/[^a-z0-9]/g, '');
     const recSafe = recruiter.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const baseId = `pos_${recSafe}_${safeId}`;
+    const baseId  = `pos_${recSafe}_${safeId}`;
 
-    const stages = [
-      { id: `${baseId}_apps`,  name: `${role} — Applications`,   sub: `Recruiter: ${recruiter} · Position: ${role} · Applications` },
-      { id: `${baseId}_final`, name: `${role} — Final Rounds`,    sub: `Recruiter: ${recruiter} · Position: ${role} · Final Rounds` },
-      { id: `${baseId}_offer`, name: `${role} — Offer Given To`,  sub: `Recruiter: ${recruiter} · Position: ${role} · Offer Given To` }
+    const stages  = [
+      { id: `${baseId}_apps`,  name: `${role} — Applications`,  sub: `Recruiter: ${recruiter} · Position: ${role} · Applications`  },
+      { id: `${baseId}_final`, name: `${role} — Final Rounds`,   sub: `Recruiter: ${recruiter} · Position: ${role} · Final Rounds`  },
+      { id: `${baseId}_offer`, name: `${role} — Offer Given To`, sub: `Recruiter: ${recruiter} · Position: ${role} · Offer Given To` },
     ];
 
     stages.forEach(s => {
       let existing = hiring.metrics.find(m => m.id === s.id);
       if (!existing) {
-        // Brand new role — create metric with empty data for all weeks
-        existing = {
-          id: s.id, name: s.name, sub: s.sub,
-          unit: '', dir: 'higher', total: false,
-          plan: {}, actual: {},
-          activeWeeks: []
-        };
-        newModel.weeks.forEach(w => {
-          existing.plan[w.id] = '';
-          existing.actual[w.id] = '';
-        });
+        existing = { id: s.id, name: s.name, sub: s.sub, unit: '', dir: 'higher', total: false, plan: {}, actual: {}, activeWeeks: [] };
+        next.weeks.forEach(w => { existing.plan[w.id] = ''; existing.actual[w.id] = ''; });
         hiring.metrics.push(existing);
       }
-      // Activate for this week
       if (!existing.activeWeeks) existing.activeWeeks = [];
-      if (weekId && !existing.activeWeeks.includes(weekId)) {
-        existing.activeWeeks.push(weekId);
-      }
+      if (weekId && !existing.activeWeeks.includes(weekId)) existing.activeWeeks.push(weekId);
     });
 
-    saveToLocal(newModel);
-    pushToCloud(newModel);
+    saveToLocal(next);
+    pushToCloud(next);
   };
 
-  /** Toggle a role on/off for a specific week (without deleting the metric globally) */
+  /** Activate or deactivate an existing role for a specific week */
   const toggleRoleWeek = (recruiter, role, weekId) => {
-    const newModel = { ...model };
-    const hiring = newModel.departments.find(d => d.id === 'hiring');
+    const next   = { ...model };
+    const hiring = next.departments.find(d => d.id === 'hiring');
     if (!hiring) return;
 
-    const affected = hiring.metrics.filter(m => {
-      const sub = m.sub || '';
-      return sub.includes(`Recruiter: ${recruiter}`) && sub.includes(`Position: ${role}`);
-    });
+    hiring.metrics
+      .filter(m => (m.sub || '').includes(`Recruiter: ${recruiter}`) && (m.sub || '').includes(`Position: ${role}`))
+      .forEach(m => {
+        if (!m.activeWeeks) m.activeWeeks = [];
+        if (m.activeWeeks.includes(weekId)) {
+          m.activeWeeks     = m.activeWeeks.filter(w => w !== weekId);
+          m.plan[weekId]   = '';
+          m.actual[weekId] = '';
+        } else {
+          m.activeWeeks.push(weekId);
+        }
+      });
 
-    affected.forEach(m => {
-      if (!m.activeWeeks) m.activeWeeks = [];
-      if (m.activeWeeks.includes(weekId)) {
-        // Deactivate: remove from this week
-        m.activeWeeks = m.activeWeeks.filter(w => w !== weekId);
-        // Clear data for this week so it doesn't pollute aggregates
-        m.plan[weekId] = '';
-        m.actual[weekId] = '';
-      } else {
-        // Activate: add this week
-        m.activeWeeks.push(weekId);
-      }
-    });
-
-    saveToLocal(newModel);
-    pushToCloud(newModel);
+    saveToLocal(next);
+    pushToCloud(next);
   };
 
   const removeHiringRole = (recruiter, role, weekId) => {
-    const newModel = { ...model };
-    const hiring = newModel.departments.find(d => d.id === 'hiring');
+    const next   = { ...model };
+    const hiring = next.departments.find(d => d.id === 'hiring');
     if (!hiring) return;
 
+    const matches = (m) => (m.sub || '').includes(`Recruiter: ${recruiter}`) && (m.sub || '').includes(`Position: ${role}`);
+
     if (weekId) {
-      // Week-scoped removal: deactivate for this week only
-      // If no weeks remain active, delete the metric entirely
-      const affected = hiring.metrics.filter(m => {
-        const sub = m.sub || '';
-        return sub.includes(`Recruiter: ${recruiter}`) && sub.includes(`Position: ${role}`);
-      });
-      affected.forEach(m => {
+      // Week-scoped: deactivate for this week; delete metric entirely if no weeks remain
+      hiring.metrics.filter(matches).forEach(m => {
         if (!m.activeWeeks) m.activeWeeks = [];
-        m.activeWeeks = m.activeWeeks.filter(w => w !== weekId);
-        m.plan[weekId] = '';
+        m.activeWeeks     = m.activeWeeks.filter(w => w !== weekId);
+        m.plan[weekId]   = '';
         m.actual[weekId] = '';
       });
-      // Fully remove metrics that are no longer active in any week
-      hiring.metrics = hiring.metrics.filter(m => {
-        const sub = m.sub || '';
-        const isAffected = sub.includes(`Recruiter: ${recruiter}`) && sub.includes(`Position: ${role}`);
-        if (!isAffected) return true;
-        return (m.activeWeeks || []).length > 0; // keep if still active somewhere
-      });
+      hiring.metrics = hiring.metrics.filter(m => !matches(m) || (m.activeWeeks || []).length > 0);
     } else {
-      // Global removal: delete metric from all weeks
-      hiring.metrics = hiring.metrics.filter(m => {
-        const sub = m.sub || '';
-        return !(sub.includes(`Recruiter: ${recruiter}`) && sub.includes(`Position: ${role}`));
-      });
+      // Global: remove entirely
+      hiring.metrics = hiring.metrics.filter(m => !matches(m));
     }
 
-    saveToLocal(newModel);
-    pushToCloud(newModel);
+    saveToLocal(next);
+    pushToCloud(next);
   };
 
+  // ── Reset ───────────────────────────────────────────────────────────────────
   const resetData = () => {
-    const newModel = JSON.parse(JSON.stringify(SEED));
-    saveToLocal(newModel);
-    setActiveWeek(newModel.weeks[0].id);
-    if (canEdit) pushToCloud(newModel);
+    const next = JSON.parse(JSON.stringify(SEED));
+    saveToLocal(next);
+    setActiveWeek(next.weeks[0].id);
+    if (canEdit) pushToCloud(next);
   };
 
-  const computedModel = useMemo(() => {
-    if (!model) return model;
+  // ── Computed (display-ready) model ─────────────────────────────────────────
+  const computedModel = useMemo(() => buildComputedModel(model), [model]);
 
-    // Create a deep copy to avoid mutating the React state directly
-    const newModel = JSON.parse(JSON.stringify(model));
-    const hiring = newModel.departments.find(d => d.id === 'hiring');
-    if (hiring) {
-      const posMetrics = hiring.metrics.filter(m => m.id.startsWith('pos_'));
-
-      // Ensure core top-level metrics exist (in case they were deleted from Google Sheets)
-      const CORE_STAGES = [
-        { id: 'apps', name: 'Applications' },
-        { id: 'final', name: 'Final Round Interviews' },
-        { id: 'offer', name: 'Offer Given To' }
-      ];
-
-      CORE_STAGES.forEach(stg => {
-        if (!hiring.metrics.some(m => m.id === stg.id)) {
-          hiring.metrics.unshift({
-            id: stg.id,
-            name: stg.name,
-            sub: 'All positions',
-            unit: '',
-            dir: 'higher',
-            total: false,
-            plan: {},
-            actual: {},
-            promised: {}
-          });
-        }
-      });
-
-      const RECRUITERS_LIST = ['Dipesh', 'Madhu'];
-      RECRUITERS_LIST.forEach(rec => {
-        CORE_STAGES.forEach(stg => {
-          const rId = `rec_${rec.toLowerCase()}_${stg.id}`;
-          if (!hiring.metrics.some(m => m.id === rId)) {
-            hiring.metrics.push({
-              id: rId,
-              name: `${rec} — ${stg.name === 'Final Round Interviews' ? 'Final Rounds' : stg.name}`,
-              sub: `Recruiter: ${rec}`,
-              unit: '',
-              dir: 'higher',
-              total: false,
-              plan: {},
-              actual: {},
-              promised: {}
-            });
-          }
-        });
-      });
-
-      const isTopOrRec = m => !m.id.startsWith('pos_');
-
-      // Clear out plan and actual for aggregate metrics
-      hiring.metrics.filter(isTopOrRec).forEach(m => {
-        m.plan = {};
-        m.actual = {};
-      });
-
-      newModel.weeks.forEach(w => {
-        const wid = w.id;
-        posMetrics.forEach(pm => {
-          // ID format: pos_dipesh_tenderexecutive_apps
-          const parts = pm.id.split('_');
-          if (parts.length >= 4) {
-            const rec = parts[1]; // dipesh
-            const stageId = parts[parts.length - 1]; // apps, final, offer
-
-            const recM = hiring.metrics.find(m => m.id === `rec_${rec.toLowerCase()}_${stageId}`);
-            const topM = hiring.metrics.find(m => m.id === stageId);
-
-            const pVal = pm.plan[wid];
-            const aVal = pm.actual[wid];
-
-            if (recM) {
-              if (pVal !== '' && pVal != null && !isNaN(pVal)) recM.plan[wid] = (recM.plan[wid] || 0) + Number(pVal);
-              if (aVal !== '' && aVal != null && !isNaN(aVal)) recM.actual[wid] = (recM.actual[wid] || 0) + Number(aVal);
-            }
-            if (topM) {
-              if (pVal !== '' && pVal != null && !isNaN(pVal)) topM.plan[wid] = (topM.plan[wid] || 0) + Number(pVal);
-              if (aVal !== '' && aVal != null && !isNaN(aVal)) topM.actual[wid] = (topM.actual[wid] || 0) + Number(aVal);
-            }
-          }
-        });
-      });
-    }
-
-    // Hide Gas/MT from UI for now (data is preserved in storage)
-    const production = newModel.departments.find(d => d.id === 'production');
-    if (production) {
-      production.metrics = production.metrics.filter(m => m.id !== 'gasmt');
-    }
-
-    const crm = newModel.departments.find(d => d.id === 'crm');
-    if (crm) {
-      crm.metrics.forEach(m => {
-        if (m.id === 'otd') m.name = 'Total dispatch';
-        if (m.id === 'paycoll') m.name = 'Total Payement collection';
-        // Force plan = 0 for all weeks on zero-target metrics
-        if (ZERO_PLAN_IDS.has(m.id)) {
-          newModel.weeks.forEach(w => { m.plan[w.id] = 0; });
-        }
-      });
-    }
-
-    return newModel;
-  }, [model]);
-
+  // ── Context value ───────────────────────────────────────────────────────────
   return (
     <KpiContext.Provider value={{
       model: computedModel,
@@ -622,7 +285,7 @@ export function KpiProvider({ children }) {
       toggleRoleWeek,
       pullFromCloud,
       resetData,
-      setModel: saveToLocal
+      setModel: saveToLocal,
     }}>
       {children}
     </KpiContext.Provider>
