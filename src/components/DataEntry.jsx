@@ -18,6 +18,7 @@ export default function DataEntry() {
     removeWeek,
     addHiringRole,
     removeHiringRole,
+    toggleRoleWeek,
     connState
   } = useContext(KpiContext);
 
@@ -106,8 +107,10 @@ export default function DataEntry() {
                   canEdit={canEdit}
                   updateValue={updateValue}
                   posMetrics={posMetrics}
+                  allPosMetrics={d.metrics.filter(m => m.id.startsWith('pos_'))}
                   addHiringRole={addHiringRole}
                   removeHiringRole={removeHiringRole}
+                  toggleRoleWeek={toggleRoleWeek}
                 />
               )}
             </div>

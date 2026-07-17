@@ -38,8 +38,14 @@ export default function DepartmentHiringMatrix({
         const recTotals = recruiterMetrics.filter(m => (m.sub || '').trim() === `Recruiter: ${rec}`);
         const mine = posMetrics.filter(m => (m.sub || '').match(/Recruiter:\s*([^·]+)/i)?.[1].trim() === rec);
 
+        // Filter positions to only those active for the current week
+        // (activeWeeks missing = legacy metric = show always)
+        const mineForWeek = curId
+          ? mine.filter(m => !m.activeWeeks || m.activeWeeks.length === 0 || m.activeWeeks.includes(curId))
+          : mine;
+
         let positions = [];
-        mine.forEach(m => {
+        mineForWeek.forEach(m => {
           const pMatch = (m.sub || '').match(/Position:\s*([^·]+)/i);
           if (pMatch && !positions.includes(pMatch[1].trim())) positions.push(pMatch[1].trim());
         });
@@ -80,7 +86,7 @@ export default function DepartmentHiringMatrix({
                       let totalPlan = 0, totalAct = 0, hasPlan = false, hasAct = false;
 
                       const stageCells = positions.map(p => {
-                        const m = mine.find(x => {
+                        const m = mineForWeek.find(x => {
                           const pMatch = (x.sub || '').match(/Position:\s*([^·]+)/i);
                           const stMatch = (x.sub.split('·').pop() || '').trim();
                           return pMatch && pMatch[1].trim() === p && stMatch === st[1];

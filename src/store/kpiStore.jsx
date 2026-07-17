@@ -378,7 +378,7 @@ export function KpiProvider({ children }) {
     pushToCloud(newModel);
   };
 
-  const addHiringRole = (recruiter, role) => {
+  const addHiringRole = (recruiter, role, weekId) => {
     const newModel = { ...model };
     const hiring = newModel.departments.find(d => d.id === 'hiring');
     if (!hiring) return;
@@ -388,50 +388,99 @@ export function KpiProvider({ children }) {
     const baseId = `pos_${recSafe}_${safeId}`;
 
     const stages = [
-      { id: `${baseId}_apps`, name: `${role} — Applications`, sub: `Recruiter: ${recruiter} · Position: ${role} · Applications` },
-      { id: `${baseId}_final`, name: `${role} — Final Rounds`, sub: `Recruiter: ${recruiter} · Position: ${role} · Final Rounds` },
-      { id: `${baseId}_offer`, name: `${role} — Offer Given To`, sub: `Recruiter: ${recruiter} · Position: ${role} · Offer Given To` }
+      { id: `${baseId}_apps`,  name: `${role} — Applications`,   sub: `Recruiter: ${recruiter} · Position: ${role} · Applications` },
+      { id: `${baseId}_final`, name: `${role} — Final Rounds`,    sub: `Recruiter: ${recruiter} · Position: ${role} · Final Rounds` },
+      { id: `${baseId}_offer`, name: `${role} — Offer Given To`,  sub: `Recruiter: ${recruiter} · Position: ${role} · Offer Given To` }
     ];
 
     stages.forEach(s => {
-      // Don't add if it already exists
-      if (hiring.metrics.some(m => m.id === s.id)) return;
-
-      const newMetric = {
-        id: s.id,
-        name: s.name,
-        sub: s.sub,
-        unit: '',
-        dir: 'higher',
-        total: false,
-        plan: {},
-        actual: {}
-      };
-      // initialize weeks
-      newModel.weeks.forEach(w => {
-        newMetric.plan[w.id] = '';
-        newMetric.actual[w.id] = '';
-      });
-      hiring.metrics.push(newMetric);
+      let existing = hiring.metrics.find(m => m.id === s.id);
+      if (!existing) {
+        // Brand new role — create metric with empty data for all weeks
+        existing = {
+          id: s.id, name: s.name, sub: s.sub,
+          unit: '', dir: 'higher', total: false,
+          plan: {}, actual: {},
+          activeWeeks: []
+        };
+        newModel.weeks.forEach(w => {
+          existing.plan[w.id] = '';
+          existing.actual[w.id] = '';
+        });
+        hiring.metrics.push(existing);
+      }
+      // Activate for this week
+      if (!existing.activeWeeks) existing.activeWeeks = [];
+      if (weekId && !existing.activeWeeks.includes(weekId)) {
+        existing.activeWeeks.push(weekId);
+      }
     });
 
     saveToLocal(newModel);
     pushToCloud(newModel);
   };
 
-  const removeHiringRole = (recruiter, role) => {
+  /** Toggle a role on/off for a specific week (without deleting the metric globally) */
+  const toggleRoleWeek = (recruiter, role, weekId) => {
     const newModel = { ...model };
     const hiring = newModel.departments.find(d => d.id === 'hiring');
     if (!hiring) return;
 
-    const recSafe = `Recruiter: ${recruiter} `;
-    const posSafe = `Position: ${role} `;
-
-    hiring.metrics = hiring.metrics.filter(m => {
+    const affected = hiring.metrics.filter(m => {
       const sub = m.sub || '';
-      // We look for exact matches in the sub string to be safe
-      return !(sub.includes(`Recruiter: ${recruiter}`) && sub.includes(`Position: ${role}`));
+      return sub.includes(`Recruiter: ${recruiter}`) && sub.includes(`Position: ${role}`);
     });
+
+    affected.forEach(m => {
+      if (!m.activeWeeks) m.activeWeeks = [];
+      if (m.activeWeeks.includes(weekId)) {
+        // Deactivate: remove from this week
+        m.activeWeeks = m.activeWeeks.filter(w => w !== weekId);
+        // Clear data for this week so it doesn't pollute aggregates
+        m.plan[weekId] = '';
+        m.actual[weekId] = '';
+      } else {
+        // Activate: add this week
+        m.activeWeeks.push(weekId);
+      }
+    });
+
+    saveToLocal(newModel);
+    pushToCloud(newModel);
+  };
+
+  const removeHiringRole = (recruiter, role, weekId) => {
+    const newModel = { ...model };
+    const hiring = newModel.departments.find(d => d.id === 'hiring');
+    if (!hiring) return;
+
+    if (weekId) {
+      // Week-scoped removal: deactivate for this week only
+      // If no weeks remain active, delete the metric entirely
+      const affected = hiring.metrics.filter(m => {
+        const sub = m.sub || '';
+        return sub.includes(`Recruiter: ${recruiter}`) && sub.includes(`Position: ${role}`);
+      });
+      affected.forEach(m => {
+        if (!m.activeWeeks) m.activeWeeks = [];
+        m.activeWeeks = m.activeWeeks.filter(w => w !== weekId);
+        m.plan[weekId] = '';
+        m.actual[weekId] = '';
+      });
+      // Fully remove metrics that are no longer active in any week
+      hiring.metrics = hiring.metrics.filter(m => {
+        const sub = m.sub || '';
+        const isAffected = sub.includes(`Recruiter: ${recruiter}`) && sub.includes(`Position: ${role}`);
+        if (!isAffected) return true;
+        return (m.activeWeeks || []).length > 0; // keep if still active somewhere
+      });
+    } else {
+      // Global removal: delete metric from all weeks
+      hiring.metrics = hiring.metrics.filter(m => {
+        const sub = m.sub || '';
+        return !(sub.includes(`Recruiter: ${recruiter}`) && sub.includes(`Position: ${role}`));
+      });
+    }
 
     saveToLocal(newModel);
     pushToCloud(newModel);
@@ -557,6 +606,7 @@ export function KpiProvider({ children }) {
       removeWeek,
       addHiringRole,
       removeHiringRole,
+      toggleRoleWeek,
       pullFromCloud,
       resetData,
       setModel: saveToLocal
