@@ -584,6 +584,12 @@ export function KpiProvider({ children }) {
       });
     }
 
+    // Hide Gas/MT from UI for now (data is preserved in storage)
+    const production = newModel.departments.find(d => d.id === 'production');
+    if (production) {
+      production.metrics = production.metrics.filter(m => m.id !== 'gasmt');
+    }
+
     const crm = newModel.departments.find(d => d.id === 'crm');
     if (crm) {
       crm.metrics.forEach(m => {
