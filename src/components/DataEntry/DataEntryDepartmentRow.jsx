@@ -1,5 +1,5 @@
 import React from 'react';
-import { calculateScore, formatNum } from '../../store/kpiStore';
+import { calculateScore, formatNum, ZERO_PLAN_IDS } from '../../store/kpiStore';
 
 export default function DataEntryDepartmentRow({
   department: d,
@@ -36,9 +36,14 @@ export default function DataEntryDepartmentRow({
               </div>
             </div>
             <div className="t-cell">
-              <input className={`de-input ${p !== '' ? 'filled' : ''}`} type="number" step="any" value={p} placeholder="plan" 
-                disabled={!canEdit}
-                onChange={e => updateValue(d.id, m.id, 'plan', wk.id, e.target.value)} />
+              {ZERO_PLAN_IDS.has(m.id) ? (
+                <div style={{ textAlign: 'center', fontWeight: 700, color: 'var(--muted)', fontSize: 13, padding: '6px 0' }
+                } title="Plan is always 0 for this metric">0 <span style={{ fontSize: 10, fontWeight: 400 }}>(fixed)</span></div>
+              ) : (
+                <input className={`de-input ${p !== '' ? 'filled' : ''}`} type="number" step="any" value={p} placeholder="plan"
+                  disabled={!canEdit}
+                  onChange={e => updateValue(d.id, m.id, 'plan', wk.id, e.target.value)} />
+              )}
             </div>
             {showPromised && (
               <div className="t-cell">

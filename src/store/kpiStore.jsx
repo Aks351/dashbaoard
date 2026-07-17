@@ -19,6 +19,9 @@ export const STAGES = [
   ['Offer Given To', 'Offer Given To']
 ];
 
+/** Metrics whose plan is always forced to 0 — they are "target = 0" metrics */
+export const ZERO_PLAN_IDS = new Set(['complaints', 'delclient', 'delfactory', 'matret']);
+
 /** Parse a value that may be decimal hours OR an "HH:MM:SS" / "HH:MM" string.
  *  Returns decimal hours (number), or null if unparseable. */
 export function parseHMS(v) {
@@ -586,6 +589,10 @@ export function KpiProvider({ children }) {
       crm.metrics.forEach(m => {
         if (m.id === 'otd') m.name = 'Total dispatch';
         if (m.id === 'paycoll') m.name = 'Total Payement collection';
+        // Force plan = 0 for all weeks on zero-target metrics
+        if (ZERO_PLAN_IDS.has(m.id)) {
+          newModel.weeks.forEach(w => { m.plan[w.id] = 0; });
+        }
       });
     }
 
