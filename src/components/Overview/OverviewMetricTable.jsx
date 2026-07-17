@@ -128,7 +128,7 @@ export default function OverviewMetricTable({ departments, weeks }) {
                     <div className="t-cell center" style={{ background: rowBg === 'transparent' ? '#fafbff' : rowBg, borderBottom: bb }}>
                       {prom != null && prom !== '' ? (
                         <span className="score-pill" style={{ background: '#eff6ff', color: '#3b82f6' }}>
-                          {`${Number(prom) - 100 > 0 ? '+' : ''}${Number(prom) - 100}%`}
+                          {`${Number(prom) > 0 ? '+' : ''}${Number(prom)}%`}
                         </span>
                       ) : (
                         <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>

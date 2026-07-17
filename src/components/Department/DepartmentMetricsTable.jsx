@@ -110,7 +110,7 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
                       <div className="d-cell center" style={{ background: m.total ? rowBg : '#f8faff', borderBottom: bb }}>
                         {prom !== '' && prom != null ? (
                           <span className="score-pill" style={{ background: '#eff6ff', color: '#3b82f6' }}>
-                            {`${Number(prom) - 100 > 0 ? '+' : ''}${Number(prom) - 100}%`}
+                            {`${Number(prom) > 0 ? '+' : ''}${Number(prom)}%`}
                           </span>
                         ) : (
                           <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
