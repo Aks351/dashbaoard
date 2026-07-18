@@ -89,10 +89,9 @@ export function calculateScore(plan, actual, dir = 'higher', options = {}) {
   const variance = pct - 100;
   const prefix   = variance > 0 ? '+' : '';
 
-  // Strict mode (Production only): green requires ≥ 100% of plan
+  // Strict mode (Production only): green requires ≥ 100% of plan, everything else is red
   if (options.strict) {
     if (variance > -1)  return { label: `${prefix}${variance}%`, color: 'green', pct };
-    if (variance >= -20) return { label: `${prefix}${variance}%`, color: 'amber', pct };
     return { label: `${prefix}${variance}%`, color: 'red', pct };
   }
 
