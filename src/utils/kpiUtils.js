@@ -30,12 +30,12 @@ export function num(v) {
 
 // ─── Display formatters ───────────────────────────────────────────────────────
 
-/** Format a plain number for display (up to 3 significant decimals). */
-export function formatNum(v) {
+/** Format a plain number for display (up to 2 significant decimals, unless specified). */
+export function formatNum(v, decimals = 2) {
   if (v === null || v === undefined || v === '') return '—';
   const n = Number(v);
   if (isNaN(n)) return String(v);
-  return Number(n.toFixed(3)).toString();
+  return Number(n.toFixed(decimals)).toString();
 }
 
 /**
@@ -52,9 +52,10 @@ export function formatTime(v) {
 }
 
 /** Smart formatter — uses HH:MM for 'hrs' unit, plain number otherwise. */
-export function formatVal(v, unit) {
+export function formatVal(v, unit, metricId = null) {
   if (unit === 'hrs') return formatTime(v);
-  return formatNum(v);
+  if (metricId === 'fg') return formatNum(v, 0);
+  return formatNum(v, 2);
 }
 
 // ─── Scoring ──────────────────────────────────────────────────────────────────

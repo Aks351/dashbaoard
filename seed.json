@@ -248,7 +248,7 @@
                 },
                 {
                     "id": "oilmt",
-                    "name": "Fuel cost per Ton",
+                    "name": "Melting cost per ton",
                     "sub": "lower is better",
                     "unit": "",
                     "dir": "lower",

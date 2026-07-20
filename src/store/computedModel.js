@@ -133,7 +133,7 @@ function _normalizeProductionNames(model) {
   if (!prod) return;
   prod.metrics.forEach(m => {
     if (m.id === 'oilmt') {
-      m.name = 'Fuel cost per Ton';
+      m.name = 'Melting cost per ton';
       m.sub = 'lower is better';
       m.unit = '';
     }

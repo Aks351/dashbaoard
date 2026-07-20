@@ -27,8 +27,8 @@ export default function OverviewHeroCard({ department: d, weeks }) {
   const mt = mtd(worst, mw);
   const cls = worstSc.color === 'green' ? 'good' : (worstSc.color === 'amber' ? 'warning' : 'danger');
   
-  const valActual = (mt.actual === null || mt.actual === '') ? '—' : formatVal(mt.actual, worst.unit) + (worst.unit ? ` ${worst.unit}` : '');
-  const valPlan = (mt.plan === null || mt.plan === '') ? '—' : formatVal(mt.plan, worst.unit) + (worst.unit ? ` ${worst.unit}` : '');
+  const valActual = (mt.actual === null || mt.actual === '') ? '—' : formatVal(mt.actual, worst.unit, worst.id) + (worst.unit ? ` ${worst.unit}` : '');
+  const valPlan = (mt.plan === null || mt.plan === '') ? '—' : formatVal(mt.plan, worst.unit, worst.id) + (worst.unit ? ` ${worst.unit}` : '');
 
   return (
     <div className={`hero-card ${cls}`}>

@@ -98,10 +98,10 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
                 return (
                   <React.Fragment key={w.id}>
                     <div className="d-cell center" style={{ background: wkBg, borderLeft: B, borderBottom: bb }}>
-                      <span className="plan-num">{p === '' || p == null ? '—' : formatVal(p, m.unit)}</span>
+                      <span className="plan-num">{p === '' || p == null ? '—' : formatVal(p, m.unit, m.id)}</span>
                     </div>
                     <div className="d-cell center" style={{ background: wkBg, borderBottom: bb }}>
-                      <span className={`val-actual ${sc.color}`}>{a === '' || a == null ? '—' : formatVal(a, m.unit)}</span>
+                      <span className={`val-actual ${sc.color}`}>{a === '' || a == null ? '—' : formatVal(a, m.unit, m.id)}</span>
                     </div>
                     <div className="d-cell center" style={{ background: wkBg, borderBottom: bb }}>
                       <span className={`score-pill ${sc.color === 'gray' ? 'muted' : sc.color}`}>{sc.label}</span>
@@ -124,8 +124,8 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
               {/* MTD */}
               <div className="d-cell center" style={{ borderLeft: B, borderBottom: bb, background: isHiring ? '#f5fff8' : 'rgba(240,253,244,0.3)' }}>
                 <div className="mtd-cell">
-                  <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatVal(mt.actual, m.unit)}</span>
-                  <span style={{ fontSize: 10, color: 'var(--muted)' }}>Plan: {mt.plan === null ? '—' : formatVal(mt.plan, m.unit)}</span>
+                  <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatVal(mt.actual, m.unit, m.id)}</span>
+                  <span style={{ fontSize: 10, color: 'var(--muted)' }}>Plan: {mt.plan === null ? '—' : formatVal(mt.plan, m.unit, m.id)}</span>
                   <span className={`score-pill ${msc.color === 'gray' ? 'muted' : msc.color}`}>{msc.label}</span>
                 </div>
               </div>
