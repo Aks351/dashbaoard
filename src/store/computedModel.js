@@ -23,6 +23,7 @@ export function buildComputedModel(rawModel) {
   _hideHiddenMetrics(model);
   _applyZeroPlanOverrides(model);
   _normalizeCrmNames(model);
+  _normalizeProductionNames(model);
 
   return model;
 }
@@ -122,5 +123,19 @@ function _normalizeCrmNames(model) {
   crm.metrics.forEach(m => {
     if (m.id === 'otd')     m.name = 'Total dispatch';
     if (m.id === 'paycoll') m.name = 'Total Payement collection';
+  });
+}
+
+// ─── Production name normalisations ──────────────────────────────────────────
+
+function _normalizeProductionNames(model) {
+  const prod = model.departments.find(d => d.id === 'production');
+  if (!prod) return;
+  prod.metrics.forEach(m => {
+    if (m.id === 'oilmt') {
+      m.name = 'Fuel cost per Ton';
+      m.sub = 'lower is better';
+      m.unit = '';
+    }
   });
 }

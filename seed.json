@@ -248,9 +248,9 @@
                 },
                 {
                     "id": "oilmt",
-                    "name": "Oil / MT",
-                    "sub": "L/MT · lower is better",
-                    "unit": "L/MT",
+                    "name": "Fuel cost per Ton",
+                    "sub": "lower is better",
+                    "unit": "",
                     "dir": "lower",
                     "total": false,
                     "plan": {
