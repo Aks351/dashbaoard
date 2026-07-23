@@ -270,6 +270,27 @@
                     }
                 },
                 {
+                    "id": "oilpermt",
+                    "name": "Oil / MT",
+                    "sub": "L/MT · lower is better",
+                    "unit": "L/MT",
+                    "dir": "lower",
+                    "total": false,
+                    "plan": {
+                        "wmqo21ah6": "",
+                        "wmqoudofq": "",
+                        "wmqyswxhs": "",
+                        "wmr8vcgjt": ""
+                    },
+                    "actual": {
+                        "wmqo21ah6": "",
+                        "wmqoudofq": "",
+                        "wmqyswxhs": "",
+                        "wmr8vcgjt": ""
+                    },
+                    "promised": {}
+                },
+                {
                     "id": "gasmt",
                     "name": "Gas / MT",
                     "sub": "m³/MT · lower is better",

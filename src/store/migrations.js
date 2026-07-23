@@ -14,6 +14,7 @@ export function applyInitialMigrations(data) {
   _migrateCrmSplitDispatchPayment(data);
   _migrateRemoveOnboardMetrics(data);
   _migrateInjectGasmt(data);
+  _migrateInjectOilPerMt(data);
   return data;
 }
 
@@ -27,6 +28,7 @@ export function applyStorageMigrations(model) {
   _injectMissingCrmOnTimeMetrics(model);
   _repairHiringPositionSubStrings(model);
   _injectMissingGasmt(model);
+  _injectMissingOilPerMt(model);
   return model;
 }
 
@@ -132,4 +134,28 @@ function _injectMissingGasmt(model) {
     if (!(w.id in copy.actual)) copy.actual[w.id] = '';
   });
   prod.metrics.push(copy);
+}
+/** Ensure oilpermt exists in production on every save */
+function _injectMissingOilPerMt(model) {
+  const prod = model.departments.find(d => d.id === 'production');
+  if (!prod || prod.metrics.find(m => m.id === 'oilpermt')) return;
+
+  const seedOilPerMt = SEED.departments.find(d => d.id === 'production')?.metrics.find(m => m.id === 'oilpermt');
+  if (!seedOilPerMt) return;
+
+  const copy = JSON.parse(JSON.stringify(seedOilPerMt));
+  model.weeks.forEach(w => {
+    if (!(w.id in copy.plan))   copy.plan[w.id]   = '';
+    if (!(w.id in copy.actual)) copy.actual[w.id] = '';
+  });
+
+  // Insert right after oilmt
+  const oilmtIdx = prod.metrics.findIndex(m => m.id === 'oilmt');
+  if (oilmtIdx !== -1) prod.metrics.splice(oilmtIdx + 1, 0, copy);
+  else prod.metrics.push(copy);
+}
+
+/** Boot-time: inject oilpermt from SEED if absent */
+function _migrateInjectOilPerMt(data) {
+  _injectMissingOilPerMt(data);
 }
