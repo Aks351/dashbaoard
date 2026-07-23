@@ -15,6 +15,7 @@ export function applyInitialMigrations(data) {
   _migrateRemoveOnboardMetrics(data);
   _migrateInjectGasmt(data);
   _migrateInjectOilPerMt(data);
+  _migrateInjectQtyReplaced(data);
   return data;
 }
 
@@ -29,6 +30,7 @@ export function applyStorageMigrations(model) {
   _repairHiringPositionSubStrings(model);
   _injectMissingGasmt(model);
   _injectMissingOilPerMt(model);
+  _injectMissingQtyReplaced(model);
   return model;
 }
 
@@ -160,3 +162,23 @@ function _migrateInjectOilPerMt(data) {
   _injectMissingOilPerMt(data);
 }
 
+/** Ensure qty_replaced exists in production on every save */
+function _injectMissingQtyReplaced(model) {
+  const prod = model.departments.find(d => d.id === 'production');
+  if (!prod || prod.metrics.find(m => m.id === 'qty_replaced')) return;
+
+  const seedMetric = SEED.departments.find(d => d.id === 'production')?.metrics.find(m => m.id === 'qty_replaced');
+  if (!seedMetric) return;
+
+  const copy = JSON.parse(JSON.stringify(seedMetric));
+  model.weeks.forEach(w => {
+    if (!(w.id in copy.plan))   copy.plan[w.id]   = '';
+    if (!(w.id in copy.actual)) copy.actual[w.id] = '';
+  });
+  prod.metrics.push(copy);
+}
+
+/** Boot-time: inject qty_replaced from SEED if absent */
+function _migrateInjectQtyReplaced(data) {
+  _injectMissingQtyReplaced(data);
+}

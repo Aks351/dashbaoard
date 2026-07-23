@@ -310,6 +310,27 @@
                         "wmr8vcgjt": ""
                     },
                     "promised": {}
+                },
+                {
+                    "id": "qty_replaced",
+                    "name": "Qty Replaced",
+                    "sub": "MT · lower is better",
+                    "unit": "MT",
+                    "dir": "lower",
+                    "total": false,
+                    "plan": {
+                        "wmqo21ah6": "",
+                        "wmqoudofq": "",
+                        "wmqyswxhs": "",
+                        "wmr8vcgjt": ""
+                    },
+                    "actual": {
+                        "wmqo21ah6": "",
+                        "wmqoudofq": "",
+                        "wmqyswxhs": "",
+                        "wmr8vcgjt": ""
+                    },
+                    "promised": {}
                 }
             ]
         },

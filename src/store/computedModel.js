@@ -167,4 +167,12 @@ function _mirrorCrmMetricsToProduction(model) {
     // Shallow clone — both depts point to same underlying data object
     prod.metrics.push({ ...source, name });
   });
+
+  // Move qty_replaced to immediately after matret
+  const matretIdx     = prod.metrics.findIndex(m => m.id === 'matret');
+  const qtyReplacedIdx = prod.metrics.findIndex(m => m.id === 'qty_replaced');
+  if (matretIdx !== -1 && qtyReplacedIdx !== -1 && qtyReplacedIdx !== matretIdx + 1) {
+    const [qtyMetric] = prod.metrics.splice(qtyReplacedIdx, 1);
+    prod.metrics.splice(matretIdx + 1, 0, qtyMetric);
+  }
 }
