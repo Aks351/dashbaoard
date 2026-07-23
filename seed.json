@@ -310,6 +310,48 @@
                         "wmr8vcgjt": ""
                     },
                     "promised": {}
+                },
+                {
+                    "id": "prod_complaints",
+                    "name": "Complaints",
+                    "sub": "Target = 0",
+                    "unit": "",
+                    "dir": "zero",
+                    "total": false,
+                    "plan": {
+                        "wmqo21ah6": "",
+                        "wmqoudofq": "",
+                        "wmqyswxhs": "",
+                        "wmr8vcgjt": ""
+                    },
+                    "actual": {
+                        "wmqo21ah6": "",
+                        "wmqoudofq": "",
+                        "wmqyswxhs": "",
+                        "wmr8vcgjt": ""
+                    },
+                    "promised": {}
+                },
+                {
+                    "id": "prod_replacement",
+                    "name": "Replacement",
+                    "sub": "Target = 0",
+                    "unit": "",
+                    "dir": "zero",
+                    "total": false,
+                    "plan": {
+                        "wmqo21ah6": "",
+                        "wmqoudofq": "",
+                        "wmqyswxhs": "",
+                        "wmr8vcgjt": ""
+                    },
+                    "actual": {
+                        "wmqo21ah6": "",
+                        "wmqoudofq": "",
+                        "wmqyswxhs": "",
+                        "wmr8vcgjt": ""
+                    },
+                    "promised": {}
                 }
             ]
         },

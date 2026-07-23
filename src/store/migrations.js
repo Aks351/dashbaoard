@@ -15,6 +15,7 @@ export function applyInitialMigrations(data) {
   _migrateRemoveOnboardMetrics(data);
   _migrateInjectGasmt(data);
   _migrateInjectOilPerMt(data);
+  _migrateInjectProdComplaintsReplacement(data);
   return data;
 }
 
@@ -29,6 +30,7 @@ export function applyStorageMigrations(model) {
   _repairHiringPositionSubStrings(model);
   _injectMissingGasmt(model);
   _injectMissingOilPerMt(model);
+  _injectMissingProdComplaintsReplacement(model);
   return model;
 }
 
@@ -158,4 +160,34 @@ function _injectMissingOilPerMt(model) {
 /** Boot-time: inject oilpermt from SEED if absent */
 function _migrateInjectOilPerMt(data) {
   _injectMissingOilPerMt(data);
+}
+
+// ─── Production Complaints & Replacement ─────────────────────────────────────
+
+/** Inject prod_complaints and prod_replacement into production if absent */
+function _injectMissingProdComplaintsReplacement(model) {
+  const prod = model.departments.find(d => d.id === 'production');
+  if (!prod) return;
+
+  const seedProd = SEED.departments.find(d => d.id === 'production');
+  if (!seedProd) return;
+
+  ['prod_complaints', 'prod_replacement'].forEach(metricId => {
+    if (prod.metrics.find(m => m.id === metricId)) return;
+
+    const seedMetric = seedProd.metrics.find(m => m.id === metricId);
+    if (!seedMetric) return;
+
+    const copy = JSON.parse(JSON.stringify(seedMetric));
+    model.weeks.forEach(w => {
+      if (!(w.id in copy.plan))   copy.plan[w.id]   = '';
+      if (!(w.id in copy.actual)) copy.actual[w.id] = '';
+    });
+    prod.metrics.push(copy);
+  });
+}
+
+/** Boot-time: inject prod_complaints and prod_replacement from SEED if absent */
+function _migrateInjectProdComplaintsReplacement(data) {
+  _injectMissingProdComplaintsReplacement(data);
 }

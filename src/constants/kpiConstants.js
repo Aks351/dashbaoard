@@ -26,7 +26,7 @@ export const STAGES = [
 // ─── Metric rule sets ─────────────────────────────────────────────────────────
 
 /** Metrics whose plan is always forced to 0 ("target = 0" metrics) */
-export const ZERO_PLAN_IDS = new Set(['complaints', 'delclient', 'delfactory', 'matret']);
+export const ZERO_PLAN_IDS = new Set(['complaints', 'delclient', 'delfactory', 'matret', 'prod_complaints', 'prod_replacement']);
 
 /** Metrics hidden from the UI (data preserved in storage) */
 export const HIDDEN_METRIC_IDS = new Set(['gasmt']);
