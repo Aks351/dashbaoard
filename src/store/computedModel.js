@@ -24,6 +24,7 @@ export function buildComputedModel(rawModel) {
   _applyZeroPlanOverrides(model);
   _normalizeCrmNames(model);
   _normalizeProductionNames(model);
+  _mirrorCrmMetricsToProduction(model);
 
   return model;
 }
@@ -137,5 +138,33 @@ function _normalizeProductionNames(model) {
       m.sub = 'lower is better';
       m.unit = '';
     }
+  });
+}
+
+// ─── Mirror CRM metrics into Production ───────────────────────────────────
+
+/**
+ * Copy 'complaints' and 'matret' from CRM into Production so they appear
+ * in both department views. The data is shared — not duplicated in storage.
+ */
+function _mirrorCrmMetricsToProduction(model) {
+  const prod = model.departments.find(d => d.id === 'production');
+  const crm  = model.departments.find(d => d.id === 'crm');
+  if (!prod || !crm) return;
+
+  const IDS_TO_MIRROR = [
+    { id: 'complaints', name: 'Complaints' },
+    { id: 'matret',     name: 'Material Returns' },
+  ];
+
+  IDS_TO_MIRROR.forEach(({ id, name }) => {
+    // Skip if already mirrored (idempotent)
+    if (prod.metrics.some(m => m.id === id)) return;
+
+    const source = crm.metrics.find(m => m.id === id);
+    if (!source) return;
+
+    // Shallow clone — both depts point to same underlying data object
+    prod.metrics.push({ ...source, name });
   });
 }
