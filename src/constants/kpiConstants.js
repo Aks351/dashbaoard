@@ -1,7 +1,7 @@
 // ─── App-wide constants ───────────────────────────────────────────────────────
 
 export const STORAGE_KEY = 've_kpi_model_react_v1';
-export const BACKEND_URL = 'https://script.google.com/macros/s/AKfycby3NY-iM5R_fgdF84Gmpomp1WiMHDyOwzw55fHk1n3TzqJMDU0j5iI2SKV33_0SICI2/exec';
+export const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbx2Rve2KKJcwJLIz4Pxq4oFXE79-1fYur_y1BO7kzaOQJruNeKUFhbJuTUJbHE3O2O5/exec';
 export const EDIT_KEY = 'vinayak2026';
 
 // ─── Navigation / solution links ─────────────────────────────────────────────
