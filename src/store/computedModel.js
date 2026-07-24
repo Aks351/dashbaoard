@@ -26,6 +26,7 @@ export function buildComputedModel(rawModel) {
   _reorderCrmMetrics(model);
   _normalizeProductionNames(model);
   _mirrorCrmMetricsToProduction(model);
+  _reorderProductionMetrics(model);
 
   return model;
 }
@@ -171,6 +172,37 @@ function _normalizeProductionNames(model) {
       m.sub = 'lower is better';
       m.unit = '';
     }
+  });
+}
+
+// ─── Production display order ───────────────────────────────────────────────────
+
+const PRODUCTION_ORDER = [
+  'fg',            // Finished Goods
+  'hrslost',       // Hours Lost
+  'oilpermt',      // Oil / MT  ← before Melting cost per ton
+  'oilmt',         // Melting cost per ton
+  'gasmt',         // Gas / MT (hidden, but keep positionally stable)
+  'qty_replaced',  // Qty Replaced
+  'complaints',    // Complaints (mirrored from CRM)
+  'matret',        // Material Returns (mirrored from CRM)
+];
+
+/**
+ * Sort Production metrics into the canonical display order.
+ * Called after mirroring so CRM metrics are already present.
+ * Any metrics not in PRODUCTION_ORDER are appended at the end.
+ */
+function _reorderProductionMetrics(model) {
+  const prod = model.departments.find(d => d.id === 'production');
+  if (!prod) return;
+
+  prod.metrics.sort((a, b) => {
+    const ai = PRODUCTION_ORDER.indexOf(a.id);
+    const bi = PRODUCTION_ORDER.indexOf(b.id);
+    const aPos = ai === -1 ? PRODUCTION_ORDER.length : ai;
+    const bPos = bi === -1 ? PRODUCTION_ORDER.length : bi;
+    return aPos - bPos;
   });
 }
 
