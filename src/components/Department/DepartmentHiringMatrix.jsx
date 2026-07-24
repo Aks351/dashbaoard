@@ -89,7 +89,7 @@ export default function DepartmentHiringMatrix({
                         const m = mineForWeek.find(x => {
                           const pMatch = (x.sub || '').match(/Position:\s*([^·]+)/i);
                           const stMatch = (x.sub.split('·').pop() || '').trim();
-                          return pMatch && pMatch[1].trim() === p && stMatch === st[1];
+                          return pMatch && pMatch[1].trim() === p && stMatch === st[0];
                         });
 
                         if (!m || !curWk) return { p, el: <td key={p}><span className="mx-act muted">—</span></td> };
