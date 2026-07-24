@@ -23,6 +23,7 @@ export function buildComputedModel(rawModel) {
   _hideHiddenMetrics(model);
   _applyZeroPlanOverrides(model);
   _normalizeCrmNames(model);
+  _reorderCrmMetrics(model);
   _normalizeProductionNames(model);
   _mirrorCrmMetricsToProduction(model);
 
@@ -124,6 +125,38 @@ function _normalizeCrmNames(model) {
   crm.metrics.forEach(m => {
     if (m.id === 'otd')     m.name = 'Total dispatch';
     if (m.id === 'paycoll') m.name = 'Total Payement collection';
+  });
+}
+
+// ─── CRM display order ────────────────────────────────────────────────────────
+
+const CRM_ORDER = [
+  'otd',           // Total dispatch
+  'otd_ontime',    // On-time Dispatch
+  'delclient',     // Delayed Dispatch — Client
+  'delfactory',    // Delayed Dispatch — Factory
+  'paycoll',       // Total Payment collection
+  'paycoll_ontime',// On-time Payment
+  'complaints',    // Complaints
+  'matret',        // Material Returns
+];
+
+/**
+ * Sort CRM metrics into the canonical display order.
+ * Any metrics not listed in CRM_ORDER are appended at the end
+ * so future additions don't break silently.
+ */
+function _reorderCrmMetrics(model) {
+  const crm = model.departments.find(d => d.id === 'crm');
+  if (!crm) return;
+
+  crm.metrics.sort((a, b) => {
+    const ai = CRM_ORDER.indexOf(a.id);
+    const bi = CRM_ORDER.indexOf(b.id);
+    // Known ids sort by their position; unknowns go to the end
+    const aPos = ai === -1 ? CRM_ORDER.length : ai;
+    const bPos = bi === -1 ? CRM_ORDER.length : bi;
+    return aPos - bPos;
   });
 }
 
