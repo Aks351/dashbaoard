@@ -18,9 +18,10 @@ export const SOLUTION_LINKS = {
 export const RECRUITERS = ['Dipesh', 'Madhu'];
 
 export const STAGES = [
-  ['Applications', 'Applications'],
-  ['Final Rounds', 'Final Rounds'],
-  ['Offer Given To', 'Offer Given To'],
+  ['Applications',        'Applications'],
+  ['Interview with Rono', 'rono'],
+  ['Final Rounds',        'Final Rounds'],
+  ['Offer Given To',      'Offer Given To'],
 ];
 
 // ─── Metric rule sets ─────────────────────────────────────────────────────────

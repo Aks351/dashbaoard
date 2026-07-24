@@ -16,6 +16,7 @@ export function applyInitialMigrations(data) {
   _migrateInjectGasmt(data);
   _migrateInjectOilPerMt(data);
   _migrateInjectQtyReplaced(data);
+  _migrateInjectRonoStage(data);
   return data;
 }
 
@@ -31,6 +32,7 @@ export function applyStorageMigrations(model) {
   _injectMissingGasmt(model);
   _injectMissingOilPerMt(model);
   _injectMissingQtyReplaced(model);
+  _injectMissingRonoStage(model);
   return model;
 }
 
@@ -181,4 +183,58 @@ function _injectMissingQtyReplaced(model) {
 /** Boot-time: inject qty_replaced from SEED if absent */
 function _migrateInjectQtyReplaced(data) {
   _injectMissingQtyReplaced(data);
+}
+
+// ─── Interview with Rono stage injection ───────────────────────────────────────
+
+/**
+ * For every existing hiring role (identified by a _apps metric), inject the
+ * matching _rono metric if it is absent. Inserts it right after _apps so the
+ * stage order stays: apps → rono → final → offer.
+ */
+function _injectMissingRonoStage(model) {
+  const hiring = model.departments.find(d => d.id === 'hiring');
+  if (!hiring) return;
+
+  // Find all _apps metrics — each represents one role/recruiter combo
+  const appsMetrics = hiring.metrics.filter(m => m.id.endsWith('_apps'));
+
+  appsMetrics.forEach(appsM => {
+    const baseId  = appsM.id.slice(0, -5); // strip '_apps'
+    const ronoId  = `${baseId}_rono`;
+    if (hiring.metrics.some(m => m.id === ronoId)) return; // already present
+
+    // Derive recruiter & role names from the _apps metric's sub string
+    // sub format: "Recruiter: Dipesh · Position: Manager · Applications"
+    const subStr    = appsM.sub || '';
+    const recMatch  = subStr.match(/Recruiter:\s*([^·]+)/);
+    const posMatch  = subStr.match(/Position:\s*([^·]+)/);
+    const recruiter = recMatch ? recMatch[1].trim() : '';
+    const role      = posMatch ? posMatch[1].trim() : '';
+
+    const ronoM = {
+      id:          ronoId,
+      name:        role ? `${role} — Interview with Rono` : 'Interview with Rono',
+      sub:         `Recruiter: ${recruiter} · Position: ${role} · Interview with Rono`,
+      unit:        '',
+      dir:         'higher',
+      total:       false,
+      plan:        {},
+      actual:      {},
+      activeWeeks: Array.isArray(appsM.activeWeeks) ? [...appsM.activeWeeks] : [],
+    };
+
+    // Seed week keys from the _apps metric
+    Object.keys(appsM.plan).forEach(wid => { ronoM.plan[wid] = ''; });
+    Object.keys(appsM.actual).forEach(wid => { ronoM.actual[wid] = ''; });
+
+    // Insert immediately after _apps
+    const appsIdx = hiring.metrics.findIndex(m => m.id === appsM.id);
+    hiring.metrics.splice(appsIdx + 1, 0, ronoM);
+  });
+}
+
+/** Boot-time: inject _rono stage for existing roles */
+function _migrateInjectRonoStage(data) {
+  _injectMissingRonoStage(data);
 }

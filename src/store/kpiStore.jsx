@@ -188,9 +188,10 @@ export function KpiProvider({ children }) {
     const baseId  = `pos_${recSafe}_${safeId}`;
 
     const stages  = [
-      { id: `${baseId}_apps`,  name: `${role} — Applications`,  sub: `Recruiter: ${recruiter} · Position: ${role} · Applications`  },
-      { id: `${baseId}_final`, name: `${role} — Final Rounds`,   sub: `Recruiter: ${recruiter} · Position: ${role} · Final Rounds`  },
-      { id: `${baseId}_offer`, name: `${role} — Offer Given To`, sub: `Recruiter: ${recruiter} · Position: ${role} · Offer Given To` },
+      { id: `${baseId}_apps`,  name: `${role} — Applications`,       sub: `Recruiter: ${recruiter} · Position: ${role} · Applications`       },
+      { id: `${baseId}_rono`,  name: `${role} — Interview with Rono`, sub: `Recruiter: ${recruiter} · Position: ${role} · Interview with Rono` },
+      { id: `${baseId}_final`, name: `${role} — Final Rounds`,        sub: `Recruiter: ${recruiter} · Position: ${role} · Final Rounds`        },
+      { id: `${baseId}_offer`, name: `${role} — Offer Given To`,      sub: `Recruiter: ${recruiter} · Position: ${role} · Offer Given To`      },
     ];
 
     stages.forEach(s => {

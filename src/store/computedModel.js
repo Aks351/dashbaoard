@@ -5,7 +5,8 @@
 import { ZERO_PLAN_IDS, HIDDEN_METRIC_IDS, RECRUITERS } from '../constants/kpiConstants';
 
 const CORE_HIRING_STAGES = [
-  { id: 'apps', name: 'Applications' },
+  { id: 'apps',  name: 'Applications' },
+  { id: 'rono',  name: 'Interview with Rono' },
   { id: 'final', name: 'Final Round Interviews' },
   { id: 'offer', name: 'Offer Given To' },
 ];
