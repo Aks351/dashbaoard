@@ -97,6 +97,44 @@ function _computeHiringAggregates(model) {
       if (topM) { addVal(topM, 'plan', pVal); addVal(topM, 'actual', aVal); }
     });
   });
+
+  // ─── Enforce strict display order for Hiring ──────────────────────────────
+  const getStageIdx = (id) => {
+    const parts = id.split('_');
+    const stageId = parts.length === 1 ? id : parts[parts.length - 1];
+    const idx = CORE_HIRING_STAGES.findIndex(s => s.id === stageId);
+    return idx === -1 ? 99 : idx;
+  };
+
+  const getMetricType = (id) => {
+    if (id.startsWith('pos_')) return 3;
+    if (id.startsWith('rec_')) return 2;
+    return 1;
+  };
+
+  hiring.metrics.sort((a, b) => {
+    const tA = getMetricType(a.id);
+    const tB = getMetricType(b.id);
+    if (tA !== tB) return tA - tB;
+
+    if (tA === 1) return getStageIdx(a.id) - getStageIdx(b.id);
+    
+    if (tA === 2) {
+      const recA = a.id.split('_')[1] || '';
+      const recB = b.id.split('_')[1] || '';
+      if (recA !== recB) return recA.localeCompare(recB);
+      return getStageIdx(a.id) - getStageIdx(b.id);
+    }
+    
+    if (tA === 3) {
+      const baseA = a.id.substring(0, a.id.lastIndexOf('_'));
+      const baseB = b.id.substring(0, b.id.lastIndexOf('_'));
+      if (baseA !== baseB) return baseA.localeCompare(baseB);
+      return getStageIdx(a.id) - getStageIdx(b.id);
+    }
+    
+    return 0;
+  });
 }
 
 // ─── Hide metrics flagged as hidden ──────────────────────────────────────────
