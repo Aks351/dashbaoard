@@ -1,5 +1,5 @@
 import React from 'react';
-import { calculateScore, formatNum, ZERO_PLAN_IDS } from '../../store/kpiStore';
+import { calculateScore, ZERO_PLAN_IDS } from '../../store/kpiStore';
 
 export default function DataEntryDepartmentRow({
   department: d,

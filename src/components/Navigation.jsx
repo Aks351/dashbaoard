@@ -1,7 +1,6 @@
 import { useContext, useState } from 'react';
-import { KpiContext, SOLUTION_LINKS } from '../store/kpiStore';
-import { ExternalLink, Database, Activity, RefreshCw } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { KpiContext } from '../store/kpiStore';
+import { Database, Activity, RefreshCw } from 'lucide-react';
 
 export default function Navigation({ activeTab, setActiveTab }) {
   const { model, connState, unlockEditing, pullFromCloud } = useContext(KpiContext);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { mtd, calculateScore, formatNum, formatVal } from '../../store/kpiStore';
+import { mtd, calculateScore, formatVal } from '../../store/kpiStore';
 import { weeksInMonth } from '../../utils/dateUtils';
 
 const WEEK_COLORS = [

@@ -23,9 +23,7 @@ export * from '../utils/kpiUtils';
 // ─── Context ──────────────────────────────────────────────────────────────────
 export const KpiContext = createContext();
 
-export function useKpi() {
-  return useContext(KpiContext);
-}
+
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
 export function KpiProvider({ children }) {
@@ -53,7 +51,7 @@ export function KpiProvider({ children }) {
   const saveToLocal = (modelData) => {
     const next = applyStorageMigrations(JSON.parse(JSON.stringify(modelData)));
     setModel(next);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch (e) { }
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { }
   };
 
   // ── Cloud sync ─────────────────────────────────────────────────────────────
@@ -92,7 +90,7 @@ export function KpiProvider({ children }) {
         body:    JSON.stringify({ action: 'save', key: EDIT_KEY, data: payload }),
       });
       let j = {};
-      try { j = await r.json(); } catch (_) { }
+      try { j = await r.json(); } catch { }
 
       if (r.ok || j?.ok) {
         setConnState('online');

@@ -1,5 +1,5 @@
 import React from 'react';
-import { calculateScore, RECRUITERS, STAGES, formatNum } from '../../store/kpiStore';
+import { calculateScore, RECRUITERS, STAGES } from '../../store/kpiStore';
 import DepartmentMetricsTable from './DepartmentMetricsTable';
 
 export default function DepartmentHiringMatrix({
