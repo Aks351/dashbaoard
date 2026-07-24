@@ -5,7 +5,7 @@
 import { ZERO_PLAN_IDS, HIDDEN_METRIC_IDS, RECRUITERS } from '../constants/kpiConstants';
 
 const CORE_HIRING_STAGES = [
-  { id: 'apps',  name: 'Applications' },
+  { id: 'apps', name: 'Applications' },
   { id: 'final', name: 'Final Round Interviews' },
   { id: 'offer', name: 'Offer Given To' },
 ];
@@ -68,7 +68,7 @@ function _computeHiringAggregates(model) {
 
   // Clear aggregate metrics before recomputing
   hiring.metrics.filter(m => !m.id.startsWith('pos_')).forEach(m => {
-    m.plan   = {};
+    m.plan = {};
     m.actual = {};
   });
 
@@ -76,13 +76,13 @@ function _computeHiringAggregates(model) {
   model.weeks.forEach(w => {
     const wid = w.id;
     posMetrics.forEach(pm => {
-      const parts   = pm.id.split('_');
+      const parts = pm.id.split('_');
       if (parts.length < 4) return;
 
-      const rec     = parts[1];
+      const rec = parts[1];
       const stageId = parts[parts.length - 1];
-      const pVal    = pm.plan[wid];
-      const aVal    = pm.actual[wid];
+      const pVal = pm.plan[wid];
+      const aVal = pm.actual[wid];
 
       const recM = hiring.metrics.find(m => m.id === `rec_${rec.toLowerCase()}_${stageId}`);
       const topM = hiring.metrics.find(m => m.id === stageId);
@@ -124,7 +124,7 @@ function _normalizeCrmNames(model) {
   const crm = model.departments.find(d => d.id === 'crm');
   if (!crm) return;
   crm.metrics.forEach(m => {
-    if (m.id === 'otd')     m.name = 'Total dispatch';
+    if (m.id === 'otd') m.name = 'Total dispatch';
     if (m.id === 'paycoll') m.name = 'Total Payement collection';
   });
 }
@@ -183,9 +183,9 @@ const PRODUCTION_ORDER = [
   'oilpermt',      // Oil / MT  ← before Melting cost per ton
   'oilmt',         // Melting cost per ton
   'gasmt',         // Gas / MT (hidden, but keep positionally stable)
-  'qty_replaced',  // Qty Replaced
   'complaints',    // Complaints (mirrored from CRM)
   'matret',        // Material Returns (mirrored from CRM)
+  'qty_replaced',  // Qty Replaced
 ];
 
 /**
@@ -214,12 +214,12 @@ function _reorderProductionMetrics(model) {
  */
 function _mirrorCrmMetricsToProduction(model) {
   const prod = model.departments.find(d => d.id === 'production');
-  const crm  = model.departments.find(d => d.id === 'crm');
+  const crm = model.departments.find(d => d.id === 'crm');
   if (!prod || !crm) return;
 
   const IDS_TO_MIRROR = [
     { id: 'complaints', name: 'Complaints' },
-    { id: 'matret',     name: 'Material Returns' },
+    { id: 'matret', name: 'Material Returns' },
   ];
 
   IDS_TO_MIRROR.forEach(({ id, name }) => {
@@ -234,7 +234,7 @@ function _mirrorCrmMetricsToProduction(model) {
   });
 
   // Move qty_replaced to immediately after matret
-  const matretIdx     = prod.metrics.findIndex(m => m.id === 'matret');
+  const matretIdx = prod.metrics.findIndex(m => m.id === 'matret');
   const qtyReplacedIdx = prod.metrics.findIndex(m => m.id === 'qty_replaced');
   if (matretIdx !== -1 && qtyReplacedIdx !== -1 && qtyReplacedIdx !== matretIdx + 1) {
     const [qtyMetric] = prod.metrics.splice(qtyReplacedIdx, 1);
