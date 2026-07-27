@@ -40,7 +40,7 @@ export default function DataEntryDepartmentRow({
                 <div style={{ textAlign: 'center', fontWeight: 700, color: 'var(--muted)', fontSize: 13, padding: '6px 0' }
                 } title="Plan is always 0 for this metric">0 <span style={{ fontSize: 10, fontWeight: 400 }}>(fixed)</span></div>
               ) : (
-                <input className={`de-input ${p !== '' ? 'filled' : ''}`} type="number" step="any" value={p} placeholder="plan"
+                <input className={`de-input ${p !== '' ? 'filled' : ''}`} type={m.unit === 'hrs' ? "text" : "number"} step="any" value={p} placeholder="plan"
                   disabled={!canEdit}
                   onChange={e => updateValue(d.id, m.id, 'plan', wk.id, e.target.value)} />
               )}
@@ -58,7 +58,7 @@ export default function DataEntryDepartmentRow({
               </div>
             )}
             <div className="t-cell">
-              <input className={`de-input ${a !== '' ? 'filled' : ''}`} type="number" step="any" value={a} placeholder="actual" 
+              <input className={`de-input ${a !== '' ? 'filled' : ''}`} type={m.unit === 'hrs' ? "text" : "number"} step="any" value={a} placeholder="actual" 
                 disabled={!canEdit}
                 onChange={e => updateValue(d.id, m.id, 'actual', wk.id, e.target.value)} />
             </div>

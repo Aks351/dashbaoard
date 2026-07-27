@@ -27,6 +27,7 @@ export function buildComputedModel(rawModel) {
   _reorderCrmMetrics(model);
   _normalizeProductionNames(model);
   _mirrorCrmMetricsToProduction(model);
+  _mirrorProductionMetricsToCrm(model);
   _reorderProductionMetrics(model);
 
   return model;
@@ -179,6 +180,7 @@ const CRM_ORDER = [
   'paycoll_ontime',// On-time Payment
   'complaints',    // Complaints
   'matret',        // Material Returns
+  'qty_replaced',  // Qty Replaced (mirrored from Production)
 ];
 
 /**
@@ -210,6 +212,9 @@ function _normalizeProductionNames(model) {
       m.name = 'Melting cost per ton';
       m.sub = 'lower is better';
       m.unit = '';
+    }
+    if (m.id === 'qty_replaced') {
+      m.dir = 'zero';
     }
   });
 }
@@ -279,4 +284,26 @@ function _mirrorCrmMetricsToProduction(model) {
     const [qtyMetric] = prod.metrics.splice(qtyReplacedIdx, 1);
     prod.metrics.splice(matretIdx + 1, 0, qtyMetric);
   }
+}
+
+// ─── Mirror Production metrics into CRM ───────────────────────────────────────
+
+/**
+ * Copy 'qty_replaced' from Production into CRM so it appears in both views.
+ */
+function _mirrorProductionMetricsToCrm(model) {
+  const prod = model.departments.find(d => d.id === 'production');
+  const crm = model.departments.find(d => d.id === 'crm');
+  if (!prod || !crm) return;
+
+  const IDS_TO_MIRROR = [
+    { id: 'qty_replaced', name: 'Qty Replaced' },
+  ];
+
+  IDS_TO_MIRROR.forEach(({ id, name }) => {
+    if (crm.metrics.some(m => m.id === id)) return;
+    const source = prod.metrics.find(m => m.id === id);
+    if (!source) return;
+    crm.metrics.push({ ...source, name });
+  });
 }

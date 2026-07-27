@@ -19,7 +19,12 @@ export function parseHMS(v) {
     }
   }
   const n = Number(v);
-  return isNaN(n) ? null : n;
+  if (isNaN(n)) return null;
+  
+  // Interpret decimal values as HH.MM (e.g. 50.26 -> 50 hours, 26 mins)
+  const h = Math.floor(n);
+  const m = Math.round((n - h) * 100);
+  return h + (m / 60);
 }
 
 /**

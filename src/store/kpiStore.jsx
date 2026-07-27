@@ -114,10 +114,17 @@ export function KpiProvider({ children }) {
       return;
     }
     const next = { ...model };
-    const metric = next.departments.find(d => d.id === deptId)?.metrics.find(m => m.id === metricId);
+    
+    // Redirect edits for mirrored metrics to their source department
+    let targetDeptId = deptId;
+    if (deptId === 'production' && ['complaints', 'matret'].includes(metricId)) targetDeptId = 'crm';
+    if (deptId === 'crm' && metricId === 'qty_replaced') targetDeptId = 'production';
+    
+    const metric = next.departments.find(d => d.id === targetDeptId)?.metrics.find(m => m.id === metricId);
     if (!metric) return;
     if (!metric[field]) metric[field] = {};
-    metric[field][weekId] = value === '' ? '' : Number(value);
+    const numVal = Number(value);
+    metric[field][weekId] = value === '' ? '' : (isNaN(numVal) ? value : numVal);
 
     saveToLocal(next);
 

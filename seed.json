@@ -316,7 +316,7 @@
                     "name": "Qty Replaced",
                     "sub": "MT · lower is better",
                     "unit": "MT",
-                    "dir": "lower",
+                    "dir": "zero",
                     "total": false,
                     "plan": {
                         "wmqo21ah6": "",
