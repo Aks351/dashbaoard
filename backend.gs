@@ -104,11 +104,15 @@ function buildGrid_(data) {
       ];
 
       weeks.forEach(function(wk) {
-        row.push(
-          has_(metric.plan,     wk.id) ? metric.plan[wk.id]     : "",
-          has_(metric.actual,   wk.id) ? metric.actual[wk.id]   : "",
-          has_(metric.promised, wk.id) ? metric.promised[wk.id] : ""
-        );
+        let p = has_(metric.plan,     wk.id) ? metric.plan[wk.id]     : "";
+        let a = has_(metric.actual,   wk.id) ? metric.actual[wk.id]   : "";
+        let pr= has_(metric.promised, wk.id) ? metric.promised[wk.id] : "";
+
+        if (typeof p === 'string' && /^\d+:\d{2}/.test(p)) p = "'" + p;
+        if (typeof a === 'string' && /^\d+:\d{2}/.test(a)) a = "'" + a;
+        if (typeof pr=== 'string' && /^\d+:\d{2}/.test(pr)) pr= "'" + pr;
+
+        row.push(p, a, pr);
       });
 
       rows.push(row);
@@ -172,19 +176,28 @@ function readGrid_(metaSheet, dataSheet) {
 
     const plan = {}, actual = {}, promised = {};
 
+    function safeNum_(val) {
+      if (val === "" || val === undefined || val === null) return "";
+      if (typeof val === 'string') {
+        if (val.charAt(0) === "'") val = val.substring(1);
+        if (/^\d+:\d{2}/.test(val)) return val;
+      }
+      if (Object.prototype.toString.call(val) === '[object Date]') return ""; // Clear corrupted dates
+      const num = Number(val);
+      return isNaN(num) ? val : num;
+    }
+
     weeks.forEach(function(wk, i) {
       const base = fixedColCount + i * 3;
 
-      const planVal   = row[base]     !== undefined ? row[base]     : "";
-      const actualVal = row[base + 1] !== undefined ? row[base + 1] : "";
+      const planVal   = row[base];
+      const actualVal = row[base + 1];
 
-      plan[wk.id]   = planVal   === "" ? "" : Number(planVal);
-      actual[wk.id] = actualVal === "" ? "" : Number(actualVal);
+      plan[wk.id]   = safeNum_(planVal);
+      actual[wk.id] = safeNum_(actualVal);
 
       const promisedVal = row[base + 2];
-      if (promisedVal !== "" && promisedVal !== undefined && promisedVal !== null) {
-        promised[wk.id] = Number(promisedVal);
-      }
+      promised[wk.id] = safeNum_(promisedVal);
     });
 
     const metric = {
