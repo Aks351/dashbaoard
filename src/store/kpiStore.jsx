@@ -9,7 +9,7 @@
 // All public exports are re-exported below so that existing component
 // import paths (from '../../store/kpiStore') continue to work unchanged.
 
-import { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { createContext, useContext, useState, useEffect, useMemo, useRef } from 'react';
 import SEED from '../../seed.json';
 
 import { STORAGE_KEY, BACKEND_URL, EDIT_KEY } from '../constants/kpiConstants';
@@ -44,6 +44,17 @@ export function KpiProvider({ children }) {
   const [canEdit,   setCanEdit]   = useState(false);
   const [activeWeek, setActiveWeek] = useState(model.weeks[0]?.id || null);
 
+  // ── Pending Edits (Offline-first safe merge) ──────────────────────────────
+  const pendingEdits = useRef(null);
+  if (pendingEdits.current === null) {
+    try {
+      const stored = localStorage.getItem('ve_pending_edits');
+      pendingEdits.current = stored ? JSON.parse(stored) : {};
+    } catch {
+      pendingEdits.current = {};
+    }
+  }
+
   // ── Boot: pull latest data from cloud ──────────────────────────────────────
   useEffect(() => { pullFromCloud(); }, []);
 
@@ -63,6 +74,13 @@ export function KpiProvider({ children }) {
       const j = await r.json();
       if (j.ok) {
         if (j.data?.departments) {
+          // Re-apply any pending local edits on top of the fresh cloud data
+          Object.values(pendingEdits.current).forEach(edit => {
+            const { deptId, metricId, field, weekId, value } = edit;
+            const metric = j.data.departments.find(d => d.id === deptId)?.metrics.find(m => m.id === metricId);
+            if (metric && metric[field]) metric[field][weekId] = value;
+          });
+          
           saveToLocal(j.data);
           if (!j.data.weeks.some(w => w.id === activeWeek))
             setActiveWeek(j.data.weeks[0]?.id || null);
@@ -78,9 +96,13 @@ export function KpiProvider({ children }) {
     }
   };
 
-  const pushToCloud = async (currentModel) => {
+  const pushFullModelToCloud = async (currentModel) => {
     if (!BACKEND_URL || !canEdit) return;
     setConnState('syncing');
+    
+    // Capture the keys we are about to push
+    const keysBeingPushed = Object.keys(pendingEdits.current);
+    
     try {
       // Strip internal fields (prefixed with '_') before sending
       const payload = JSON.parse(JSON.stringify(currentModel, (k, v) => (k && k[0] === '_') ? undefined : v));
@@ -94,6 +116,9 @@ export function KpiProvider({ children }) {
 
       if (r.ok || j?.ok) {
         setConnState('online');
+        // Successfully pushed; clear only the edits that were in this payload
+        keysBeingPushed.forEach(k => delete pendingEdits.current[k]);
+        try { localStorage.setItem('ve_pending_edits', JSON.stringify(pendingEdits.current)); } catch {}
       } else {
         setConnState('error');
         if (j?.ok === false) {
@@ -102,7 +127,42 @@ export function KpiProvider({ children }) {
         }
       }
     } catch (e) {
-      console.error('pushToCloud error:', e);
+      console.error('pushFullModelToCloud error:', e);
+      setConnState('error');
+    }
+  };
+
+  const pushDeltaToCloud = async () => {
+    if (!BACKEND_URL || !canEdit) return;
+    
+    const keysBeingPushed = Object.keys(pendingEdits.current);
+    if (keysBeingPushed.length === 0) return;
+    
+    setConnState('syncing');
+    const editsToPush = keysBeingPushed.map(k => pendingEdits.current[k]);
+    
+    try {
+      const r = await fetch(BACKEND_URL, {
+        method:  'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body:    JSON.stringify({ action: 'saveDelta', key: EDIT_KEY, edits: editsToPush }),
+      });
+      let j = {};
+      try { j = await r.json(); } catch { }
+
+      if (r.ok || j?.ok) {
+        setConnState('online');
+        keysBeingPushed.forEach(k => delete pendingEdits.current[k]);
+        try { localStorage.setItem('ve_pending_edits', JSON.stringify(pendingEdits.current)); } catch {}
+      } else {
+        setConnState('error');
+        if (j?.ok === false) {
+          if (j.code === 'AUTH_ERROR') { alert('Edit key rejected by server.'); setCanEdit(false); }
+          else console.error('Delta save failed:', j.message);
+        }
+      }
+    } catch (e) {
+      console.error('pushDeltaToCloud error:', e);
       setConnState('error');
     }
   };
@@ -124,13 +184,19 @@ export function KpiProvider({ children }) {
     if (!metric) return;
     if (!metric[field]) metric[field] = {};
     const numVal = Number(value);
-    metric[field][weekId] = value === '' ? '' : (isNaN(numVal) ? value : numVal);
+    const finalVal = value === '' ? '' : (isNaN(numVal) ? value : numVal);
+    metric[field][weekId] = finalVal;
+    
+    // Queue edit for safe merging
+    const editKey = `${targetDeptId}|${metricId}|${field}|${weekId}`;
+    pendingEdits.current[editKey] = { deptId: targetDeptId, metricId, field, weekId, value: finalVal };
+    try { localStorage.setItem('ve_pending_edits', JSON.stringify(pendingEdits.current)); } catch {}
 
     saveToLocal(next);
 
     // Debounced cloud push
     if (window._pushTimer) clearTimeout(window._pushTimer);
-    window._pushTimer = setTimeout(() => pushToCloud(next), 800);
+    window._pushTimer = setTimeout(() => pushDeltaToCloud(), 800);
   };
 
   const unlockEditing = () => {
@@ -154,7 +220,7 @@ export function KpiProvider({ children }) {
     );
     setActiveWeek(id);
     saveToLocal(next);
-    pushToCloud(next);
+    pushFullModelToCloud(next);
   };
 
   const editWeek = (id, newLabel, newRange) => {
@@ -164,7 +230,7 @@ export function KpiProvider({ children }) {
     w.label = newLabel;
     w.range = newRange;
     saveToLocal(next);
-    pushToCloud(next);
+    pushFullModelToCloud(next);
   };
 
   const removeWeek = (id) => {
@@ -179,7 +245,7 @@ export function KpiProvider({ children }) {
     );
     if (activeWeek === id) setActiveWeek(next.weeks[0]?.id || null);
     saveToLocal(next);
-    pushToCloud(next);
+    pushFullModelToCloud(next);
   };
 
   // ── Hiring role management ──────────────────────────────────────────────────
@@ -211,7 +277,7 @@ export function KpiProvider({ children }) {
     });
 
     saveToLocal(next);
-    pushToCloud(next);
+    pushFullModelToCloud(next);
   };
 
   /** Activate or deactivate an existing role for a specific week */
@@ -234,7 +300,7 @@ export function KpiProvider({ children }) {
       });
 
     saveToLocal(next);
-    pushToCloud(next);
+    pushFullModelToCloud(next);
   };
 
   const removeHiringRole = (recruiter, role, weekId) => {
@@ -259,7 +325,7 @@ export function KpiProvider({ children }) {
     }
 
     saveToLocal(next);
-    pushToCloud(next);
+    pushFullModelToCloud(next);
   };
 
   // ── Reset ───────────────────────────────────────────────────────────────────
@@ -267,7 +333,7 @@ export function KpiProvider({ children }) {
     const next = JSON.parse(JSON.stringify(SEED));
     saveToLocal(next);
     setActiveWeek(next.weeks[0].id);
-    if (canEdit) pushToCloud(next);
+    if (canEdit) pushFullModelToCloud(next);
   };
 
   // ── Computed (display-ready) model ─────────────────────────────────────────

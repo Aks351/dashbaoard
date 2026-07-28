@@ -1,7 +1,7 @@
 // ─── App-wide constants ───────────────────────────────────────────────────────
 
 export const STORAGE_KEY = 've_kpi_model_react_v1';
-export const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbx2Rve2KKJcwJLIz4Pxq4oFXE79-1fYur_y1BO7kzaOQJruNeKUFhbJuTUJbHE3O2O5/exec';
+export const BACKEND_URL = 'https://script.google.com/macros/s/AKfycby4W_SNP8qYw0DVgAlFw_0uqDnjLMtru9DdQTCR-jgyf2NK5S8DkGRPHves4tNxQ7IY/exec';
 export const EDIT_KEY = 'vinayak2026';
 
 // ─── Navigation / solution links ─────────────────────────────────────────────
@@ -18,10 +18,10 @@ export const SOLUTION_LINKS = {
 export const RECRUITERS = ['Dipesh', 'Madhu'];
 
 export const STAGES = [
-  ['Applications',        'Applications'],
+  ['Applications', 'Applications'],
   ['Interview with Rono', 'rono'],
-  ['Final Rounds',        'Final Rounds'],
-  ['Offer Given To',      'Offer Given To'],
+  ['Final Rounds', 'Final Rounds'],
+  ['Offer Given To', 'Offer Given To'],
 ];
 
 // ─── Metric rule sets ─────────────────────────────────────────────────────────

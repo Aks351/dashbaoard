@@ -1,4 +1,4 @@
-﻿/****************************************************************
+/****************************************************************
  * config.gs - Configuration and Setup
  ****************************************************************/
 
@@ -279,8 +279,58 @@ function doGet(e) {
   }
 }
 
+function saveDelta(body) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const current = readDashboard();
+    if (!current || !current.data) throw { code: "STATE_ERROR", message: "Failed to read current state" };
+    
+    const data = current.data;
+    const edits = body.edits || [];
+    
+    edits.forEach(function(edit) {
+      const dept = data.departments.find(function(d) { return d.id === edit.deptId; });
+      if (!dept) return;
+      const metric = dept.metrics.find(function(m) { return m.id === edit.metricId; });
+      if (!metric) return;
+      if (!metric[edit.field]) metric[edit.field] = {};
+      metric[edit.field][edit.weekId] = edit.value;
+    });
+    
+    const grid = buildGrid_(data);
+    
+    const metaSheet = getOrCreateSheet_(CONFIG.META_TAB);
+    const dataSheet = getOrCreateSheet_(CONFIG.DATA_TAB);
+
+    const prevVersion = parseInt(metaSheet.getRange("B3").getValue(), 10) || 0;
+    const version     = prevVersion + 1;
+    const now         = new Date();
+
+    metaSheet.clearContents();
+    metaSheet.getRange(1, 1, 3, 2).setValues([
+      ["Dashboard Meta (JSON)", JSON.stringify(data.meta)],
+      ["Last Updated", now],
+      ["Version", version]
+    ]);
+    metaSheet.getRange(5, 1, 1, 3).setValues([["Week ID", "Label", "Range"]]);
+    if (grid.weekRows.length) {
+      metaSheet.getRange(6, 1, grid.weekRows.length, 3).setValues(grid.weekRows);
+    }
+
+    dataSheet.clearContents();
+    dataSheet.getRange(1, 1, grid.dataRows.length, grid.dataRows[0].length)
+             .setValues(grid.dataRows);
+
+    return { ok: true, savedAt: now.toISOString(), version: version, delta: true };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 var POST_HANDLERS = {
   save: saveDashboard,
+  saveDelta: saveDelta,
   get:  function(_body) { return readDashboard(); }
 };
 
