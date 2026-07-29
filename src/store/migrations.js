@@ -19,6 +19,7 @@ export function applyInitialMigrations(data) {
   _migrateInjectRonoStage(data);
   _migrateComplaintsRename(data);
   _migrateInjectClosedComplaints(data);
+  _migrateFixDurationCorruption(data);
   return data;
 }
 
@@ -37,6 +38,7 @@ export function applyStorageMigrations(model) {
   _injectMissingRonoStage(model);
   _migrateComplaintsRename(model);
   _migrateInjectClosedComplaints(model);
+  _migrateFixDurationCorruption(model);
   return model;
 }
 
@@ -299,4 +301,43 @@ function _migrateInjectClosedComplaints(model) {
     };
     crm.metrics.splice(insertAfter + 1, 0, avgM);
   }
+}
+
+// ─── Fix [h]:mm duration corruption ──────────────────────────────────────────
+
+/**
+ * When the backend mistakenly applied [h]:mm format to ALL week columns,
+ * Google Sheets displayed every number N as a duration (N treated as days).
+ * getDisplayValues() then returned strings like "1008:00" for what was 42.
+ *
+ * Reverse formula:  original_number = (hours + minutes/60) / 24
+ * because Sheets rendered:  N days  →  [N*24]h [fractional*60]m
+ *
+ * This migration converts those corrupted "H:MM" strings back to numbers
+ * for every metric that is NOT a time metric (unit !== 'hrs').
+ * Time metrics (hrslost) keep their "H:MM" strings untouched.
+ */
+function _migrateFixDurationCorruption(model) {
+  const HH_MM = /^(\d+):(\d{2})$/;
+  model.departments.forEach(dept => {
+    dept.metrics.forEach(m => {
+      // Keep HH:MM strings as-is for genuine time metrics
+      if (m.unit === 'hrs') return;
+      ['plan', 'actual', 'promised'].forEach(field => {
+        if (!m[field]) return;
+        Object.keys(m[field]).forEach(wid => {
+          const v = m[field][wid];
+          if (typeof v !== 'string') return;
+          const match = v.match(HH_MM);
+          if (!match) return;
+          const h  = parseInt(match[1], 10);
+          const mm = parseInt(match[2], 10);
+          // Reverse Sheets [h]:mm day-fraction rendering
+          const original = (h + mm / 60) / 24;
+          // Round to a sensible precision (no floating-point noise)
+          m[field][wid] = Math.round(original * 10000) / 10000;
+        });
+      });
+    });
+  });
 }

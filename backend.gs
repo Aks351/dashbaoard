@@ -1,4 +1,4 @@
-﻿/****************************************************************
+/****************************************************************
  * DASHBOARD BACKEND - Google Apps Script
  *
  * TIME HANDLING STRATEGY
@@ -260,23 +260,19 @@ function writeGrid_(grid, data, metaSheet, dataSheet) {
   }
 
   // ── data sheet ────────────────────────────────────────────
-  dataSheet.clearContents();
+  // Use clear() (wipes content AND format) so no old [h]:mm or other
+  // cell formats linger from previous writes.
+  dataSheet.clear();
 
   var numRows = grid.dataRows.length;
   var numCols = grid.dataRows[0].length;
   var range   = dataSheet.getRange(1, 1, numRows, numCols);
 
-  // Step 1: set cell format to [h]:mm for EVERY week column so that
-  //         Sheets parses "50:26" as a duration (not a date).
-  //         Non-time values (plain numbers, "") are unaffected by [h]:mm.
-  var fixedCols  = METRIC_COLUMNS.length;           // 10
-  var weekCols   = numCols - fixedCols;             // 3 × number-of-weeks
-  if (weekCols > 0) {
-    dataSheet.getRange(1, fixedCols + 1, numRows, weekCols)
-             .setNumberFormat("[h]:mm");
-  }
-
-  // Step 2: write values AFTER the format is set
+  // Format ALL cells as plain text BEFORE writing.
+  // This stops Sheets from auto-converting "50:26" into a Date/Duration
+  // or treating numbers as day-fractions.  getDisplayValues() will then
+  // return exactly what we wrote ("50:26", "42", "") with no surprises.
+  range.setNumberFormat("@");
   range.setValues(grid.dataRows);
 
   return { version: version, savedAt: now.toISOString() };
