@@ -177,7 +177,7 @@ export function KpiProvider({ children }) {
     
     // Redirect edits for mirrored metrics to their source department
     let targetDeptId = deptId;
-    if (deptId === 'production' && ['complaints', 'matret'].includes(metricId)) targetDeptId = 'crm';
+    if (deptId === 'production' && ['complaints', 'closed_complaints', 'avg_closing_days', 'matret'].includes(metricId)) targetDeptId = 'crm';
     if (deptId === 'crm' && metricId === 'qty_replaced') targetDeptId = 'production';
     
     const metric = next.departments.find(d => d.id === targetDeptId)?.metrics.find(m => m.id === metricId);

@@ -172,15 +172,17 @@ function _normalizeCrmNames(model) {
 // ─── CRM display order ────────────────────────────────────────────────────────
 
 const CRM_ORDER = [
-  'otd',           // Total dispatch
-  'otd_ontime',    // On-time Dispatch
-  'delclient',     // Delayed Dispatch — Client
-  'delfactory',    // Delayed Dispatch — Factory
-  'paycoll',       // Total Payment collection
-  'paycoll_ontime',// On-time Payment
-  'complaints',    // Complaints
-  'matret',        // Material Returns
-  'qty_replaced',  // Qty Replaced (mirrored from Production)
+  'otd',              // Total dispatch
+  'otd_ontime',       // On-time Dispatch
+  'delclient',        // Delayed Dispatch — Client
+  'delfactory',       // Delayed Dispatch — Factory
+  'paycoll',          // Total Payment collection
+  'paycoll_ontime',   // On-time Payment
+  'complaints',       // Open Complaints
+  'closed_complaints',// Closed Complaints
+  'avg_closing_days', // Avg. Closing Days
+  'matret',           // Material Returns
+  'qty_replaced',     // Qty Replaced (mirrored from Production)
 ];
 
 /**
@@ -222,14 +224,16 @@ function _normalizeProductionNames(model) {
 // ─── Production display order ───────────────────────────────────────────────────
 
 const PRODUCTION_ORDER = [
-  'fg',            // Finished Goods
-  'hrslost',       // Hours Lost
-  'oilpermt',      // Oil / MT  ← before Melting cost per ton
-  'oilmt',         // Melting cost per ton
-  'gasmt',         // Gas / MT (hidden, but keep positionally stable)
-  'complaints',    // Complaints (mirrored from CRM)
-  'matret',        // Material Returns (mirrored from CRM)
-  'qty_replaced',  // Qty Replaced
+  'fg',                // Finished Goods
+  'hrslost',           // Hours Lost
+  'oilpermt',          // Oil / MT
+  'oilmt',             // Melting cost per ton
+  'gasmt',             // Gas / MT (hidden)
+  'complaints',        // Open Complaints (mirrored from CRM)
+  'closed_complaints', // Closed Complaints (mirrored from CRM)
+  'avg_closing_days',  // Avg. Closing Days (mirrored from CRM)
+  'matret',            // Material Returns (mirrored from CRM)
+  'qty_replaced',      // Qty Replaced
 ];
 
 /**
@@ -262,8 +266,10 @@ function _mirrorCrmMetricsToProduction(model) {
   if (!prod || !crm) return;
 
   const IDS_TO_MIRROR = [
-    { id: 'complaints', name: 'Complaints' },
-    { id: 'matret', name: 'Material Returns' },
+    { id: 'complaints',        name: 'Open Complaints'   },
+    { id: 'closed_complaints', name: 'Closed Complaints' },
+    { id: 'avg_closing_days',  name: 'Avg. Closing Days' },
+    { id: 'matret',            name: 'Material Returns'  },
   ];
 
   IDS_TO_MIRROR.forEach(({ id, name }) => {

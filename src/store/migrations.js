@@ -17,6 +17,8 @@ export function applyInitialMigrations(data) {
   _migrateInjectOilPerMt(data);
   _migrateInjectQtyReplaced(data);
   _migrateInjectRonoStage(data);
+  _migrateComplaintsRename(data);
+  _migrateInjectClosedComplaints(data);
   return data;
 }
 
@@ -33,6 +35,8 @@ export function applyStorageMigrations(model) {
   _injectMissingOilPerMt(model);
   _injectMissingQtyReplaced(model);
   _injectMissingRonoStage(model);
+  _migrateComplaintsRename(model);
+  _migrateInjectClosedComplaints(model);
   return model;
 }
 
@@ -237,4 +241,62 @@ function _injectMissingRonoStage(model) {
 /** Boot-time: inject _rono stage for existing roles */
 function _migrateInjectRonoStage(data) {
   _injectMissingRonoStage(data);
+}
+
+// ─── Complaints rename + new metrics migration ────────────────────────────────
+
+/** Rename 'Complaints' -> 'Open Complaints' in CRM if still on old name. */
+function _migrateComplaintsRename(model) {
+  const crm = model.departments.find(d => d.id === 'crm');
+  if (!crm) return;
+  const comp = crm.metrics.find(m => m.id === 'complaints');
+  if (comp && comp.name === 'Complaints') comp.name = 'Open Complaints';
+}
+
+/**
+ * Inject 'closed_complaints' and 'avg_closing_days' into CRM
+ * immediately after 'complaints', if they don't exist yet.
+ */
+function _migrateInjectClosedComplaints(model) {
+  const crm = model.departments.find(d => d.id === 'crm');
+  if (!crm) return;
+
+  const weekIds = model.weeks.map(w => w.id);
+  const blankWeeks = wids => Object.fromEntries(wids.map(id => [id, '']));
+
+  const compIdx = crm.metrics.findIndex(m => m.id === 'complaints');
+  if (compIdx === -1) return;
+
+  let insertAfter = compIdx;
+
+  if (!crm.metrics.some(m => m.id === 'closed_complaints')) {
+    const closedM = {
+      id: 'closed_complaints',
+      name: 'Closed Complaints',
+      sub: '',
+      unit: '',
+      dir: 'higher',
+      total: false,
+      plan:    blankWeeks(weekIds),
+      actual:  blankWeeks(weekIds),
+      promised: {},
+    };
+    crm.metrics.splice(insertAfter + 1, 0, closedM);
+    insertAfter += 1;
+  }
+
+  if (!crm.metrics.some(m => m.id === 'avg_closing_days')) {
+    const avgM = {
+      id: 'avg_closing_days',
+      name: 'Avg. Closing Days',
+      sub: 'lower is better',
+      unit: 'days',
+      dir: 'lower',
+      total: false,
+      plan:    blankWeeks(weekIds),
+      actual:  blankWeeks(weekIds),
+      promised: {},
+    };
+    crm.metrics.splice(insertAfter + 1, 0, avgM);
+  }
 }

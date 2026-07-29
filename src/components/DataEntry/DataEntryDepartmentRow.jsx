@@ -1,5 +1,5 @@
 import React from 'react';
-import { calculateScore, ZERO_PLAN_IDS } from '../../store/kpiStore';
+import { calculateScore, ZERO_PLAN_IDS, FIXED_PLAN_VALUES } from '../../store/kpiStore';
 
 export default function DataEntryDepartmentRow({
   department: d,
@@ -22,10 +22,13 @@ export default function DataEntryDepartmentRow({
       </div>
 
       {baseMetrics.map(m => {
-        const p = m.plan[wk.id] ?? '';
-        const a = m.actual[wk.id] ?? '';
+        const p  = m.plan[wk.id] ?? '';
+        const a  = m.actual[wk.id] ?? '';
         const pr = (m.promised && m.promised[wk.id]) ?? '';
-        const sc = calculateScore(p, a, m.dir);
+        // Use fixed plan value for scoring if this metric has one
+        const fixedPlan = FIXED_PLAN_VALUES[m.id];
+        const effectivePlan = fixedPlan !== undefined ? fixedPlan : p;
+        const sc = calculateScore(effectivePlan, a, m.dir);
 
         return (
           <div key={m.id} className="table-row" style={{ gridTemplateColumns: gridCols }}>
@@ -37,8 +40,11 @@ export default function DataEntryDepartmentRow({
             </div>
             <div className="t-cell">
               {ZERO_PLAN_IDS.has(m.id) ? (
-                <div style={{ textAlign: 'center', fontWeight: 700, color: 'var(--muted)', fontSize: 13, padding: '6px 0' }
-                } title="Plan is always 0 for this metric">0 <span style={{ fontSize: 10, fontWeight: 400 }}>(fixed)</span></div>
+                <div style={{ textAlign: 'center', fontWeight: 700, color: 'var(--muted)', fontSize: 13, padding: '6px 0' }}
+                  title="Plan is always 0 for this metric">0 <span style={{ fontSize: 10, fontWeight: 400 }}>(fixed)</span></div>
+              ) : fixedPlan !== undefined ? (
+                <div style={{ textAlign: 'center', fontWeight: 700, color: 'var(--muted)', fontSize: 13, padding: '6px 0' }}
+                  title={`Plan is always ${fixedPlan} for this metric`}>{fixedPlan} <span style={{ fontSize: 10, fontWeight: 400 }}>(fixed)</span></div>
               ) : (
                 <input className={`de-input ${p !== '' ? 'filled' : ''}`} type={m.unit === 'hrs' ? "text" : "number"} step="any" value={p} placeholder="plan"
                   disabled={!canEdit}

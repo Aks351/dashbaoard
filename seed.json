@@ -1,1037 +1,1105 @@
-{
-    "meta": {
-        "company": "Vinayak Enterprises",
-        "period": "June 2026"
-    },
-    "weeks": [
-        {
-            "id": "wmqo21ah6",
-            "label": "Week 3",
-            "range": "15-21 Jun"
-        },
-        {
-            "id": "wmqoudofq",
-            "label": "Week 4",
-            "range": "22-28 Jun"
-        },
-        {
-            "id": "wmqyswxhs",
-            "label": "Week 5",
-            "range": "29 - 5 july"
-        },
-        {
-            "id": "wmr8vcgjt",
-            "label": "Week 5",
-            "range": "06 July - 12 July"
-        }
-    ],
-    "departments": [
-        {
-            "id": "purchase",
-            "name": "Purchase",
-            "emoji": "📦",
-            "metrics": [
-                {
-                    "id": "ing97",
-                    "name": "Ingot 97%",
-                    "sub": "",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 7,
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 3,
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {
-                        "wmqoudofq": -33
-                    }
-                },
-                {
-                    "id": "ing975",
-                    "name": "Ingot 97.5%",
-                    "sub": "",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 6,
-                        "wmqoudofq": 7,
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 2,
-                        "wmqoudofq": 0,
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {
-                        "wmqoudofq": -33
-                    }
-                },
-                {
-                    "id": "ing98",
-                    "name": "Ingot 98%",
-                    "sub": "",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 7,
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 7,
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {
-                        "wmqoudofq": -33
-                    }
-                },
-                {
-                    "id": "ing985",
-                    "name": "Ingot 98.5%",
-                    "sub": "",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 6,
-                        "wmqoudofq": 7,
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 3,
-                        "wmqoudofq": 0,
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {
-                        "wmqoudofq": -33
-                    }
-                },
-                {
-                    "id": "totdel",
-                    "name": "Total Delivery",
-                    "sub": "",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": true,
-                    "plan": {
-                        "wmqo21ah6": 14,
-                        "wmqoudofq": 28,
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 7,
-                        "wmqoudofq": 15,
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {
-                        "wmqoudofq": -33
-                    }
-                },
-                {
-                    "id": "ontime",
-                    "name": "On-Time Delivery",
-                    "sub": "No. on time",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 33,
-                        "wmqoudofq": 24,
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 16,
-                        "wmqoudofq": 15,
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {
-                        "wmqoudofq": -20
-                    }
-                },
-                {
-                    "id": "qret",
-                    "name": "Quality Returns",
-                    "sub": "Rejections",
-                    "unit": "",
-                    "dir": "zero",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": 0,
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": 3,
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {
-                        "wmqoudofq": 1,
-                        "wmqo21ah6": ""
-                    }
-                }
-            ]
-        },
-        {
-            "id": "production",
-            "name": "Production",
-            "emoji": "🏭",
-            "metrics": [
-                {
-                    "id": "fg",
-                    "name": "Finished Goods",
-                    "sub": "MT total",
-                    "unit": "MT",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 342,
-                        "wmqoudofq": 420,
-                        "wmqyswxhs": 420,
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 261.765,
-                        "wmqoudofq": 404,
-                        "wmqyswxhs": 384,
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {
-                        "wmqoudofq": 420
-                    }
-                },
-                {
-                    "id": "hrslost",
-                    "name": "Hours Lost",
-                    "sub": "hrs · lower is better",
-                    "unit": "hrs",
-                    "dir": "lower",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 15,
-                        "wmqoudofq": 18,
-                        "wmqyswxhs": 18,
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 50.26,
-                        "wmqoudofq": 20.25,
-                        "wmqyswxhs": 23.54,
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {
-                        "wmqoudofq": 18
-                    }
-                },
-                {
-                    "id": "oilmt",
-                    "name": "Melting cost per ton",
-                    "sub": "lower is better",
-                    "unit": "",
-                    "dir": "lower",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 50,
-                        "wmqoudofq": 58,
-                        "wmqyswxhs": 60,
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 69.56,
-                        "wmqoudofq": 62.21,
-                        "wmqyswxhs": 64.93,
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {
-                        "wmqoudofq": 58
-                    }
-                },
-                {
-                    "id": "oilpermt",
-                    "name": "Oil / MT",
-                    "sub": "L/MT · lower is better",
-                    "unit": "L/MT",
-                    "dir": "lower",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {}
-                },
-                {
-                    "id": "gasmt",
-                    "name": "Gas / MT",
-                    "sub": "m³/MT · lower is better",
-                    "unit": "m³/MT",
-                    "dir": "lower",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {}
-                },
-                {
-                    "id": "qty_replaced",
-                    "name": "Qty Replaced",
-                    "sub": "MT · lower is better",
-                    "unit": "MT",
-                    "dir": "zero",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {}
-                }
-            ]
-        },
-        {
-            "id": "crm",
-            "name": "CRM",
-            "emoji": "🤝",
-            "metrics": [
-                {
-                    "id": "otd",
-                    "name": "Total dispatch",
-                    "sub": "",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 39,
-                        "wmqoudofq": 31,
-                        "wmqyswxhs": 57,
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 13,
-                        "wmqoudofq": 25,
-                        "wmqyswxhs": 43,
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {
-                        "wmqoudofq": -30,
-                        "wmqyswxhs": -20,
-                        "wmr8vcgjt": -20
-                    }
-                },
-                {
-                    "id": "paycoll",
-                    "name": "Total Payement collection",
-                    "sub": "No. received",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 28,
-                        "wmqoudofq": 35,
-                        "wmqyswxhs": 44,
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 4,
-                        "wmqoudofq": 12,
-                        "wmqyswxhs": 38,
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {
-                        "wmqoudofq": -50,
-                        "wmqyswxhs": -40,
-                        "wmr8vcgjt": -20
-                    }
-                },
-                {
-                    "id": "complaints",
-                    "name": "Complaints",
-                    "sub": "",
-                    "unit": "",
-                    "dir": "zero",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 6,
-                        "wmqoudofq": 2,
-                        "wmqyswxhs": 1,
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {
-                        "wmqoudofq": 0,
-                        "wmqyswxhs": ""
-                    }
-                },
-                {
-                    "id": "delclient",
-                    "name": "Delayed Dispatch — Client",
-                    "sub": "Target = 0",
-                    "unit": "",
-                    "dir": "zero",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 8,
-                        "wmqoudofq": 1,
-                        "wmqyswxhs": 9,
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {}
-                },
-                {
-                    "id": "delfactory",
-                    "name": "Delayed Dispatch — Factory",
-                    "sub": "Target = 0",
-                    "unit": "",
-                    "dir": "zero",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 14,
-                        "wmqoudofq": 2,
-                        "wmqyswxhs": 4,
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {}
-                },
-                {
-                    "id": "matret",
-                    "name": "Material Returns",
-                    "sub": "Target = 0",
-                    "unit": "",
-                    "dir": "zero",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 0,
-                        "wmqyswxhs": 1,
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {
-                        "wmqoudofq": 0
-                    }
-                }
-            ]
-        },
-        {
-            "id": "hiring",
-            "name": "Hiring",
-            "emoji": "👥",
-            "metrics": [
-                {
-                    "id": "apps",
-                    "name": "Applications",
-                    "sub": "All positions",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 31,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 17,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {}
-                },
-                {
-                    "id": "final",
-                    "name": "Final Round Interviews",
-                    "sub": "All positions",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 21,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 4,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {}
-                },
-                {
-                    "id": "offer",
-                    "name": "Offer Given To",
-                    "sub": "All positions",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "rec_dipesh_apps",
-                    "name": "Dipesh — Applications",
-                    "sub": "Recruiter: Dipesh",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 19,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 8,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {}
-                },
-                {
-                    "id": "rec_dipesh_final",
-                    "name": "Dipesh — Final Rounds",
-                    "sub": "Recruiter: Dipesh",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 12,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 3,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {}
-                },
-                {
-                    "id": "rec_dipesh_offer",
-                    "name": "Dipesh — Offer Given To",
-                    "sub": "Recruiter: Dipesh",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "rec_madhu_apps",
-                    "name": "Madhu — Applications",
-                    "sub": "Recruiter: Madhu",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 12,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 9,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {}
-                },
-                {
-                    "id": "rec_madhu_final",
-                    "name": "Madhu — Final Rounds",
-                    "sub": "Recruiter: Madhu",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 9,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "promised": {}
-                },
-                {
-                    "id": "rec_madhu_offer",
-                    "name": "Madhu — Offer Given To",
-                    "sub": "Recruiter: Madhu",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_dipesh_tenderexecutive_apps",
-                    "name": "Tender Executive — Applications",
-                    "sub": "Recruiter: Dipesh · Position: Tender Executive · Applications",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 3,
-                        "wmqoudofq": 8,
-                        "wmqyswxhs": 8,
-                        "wmr8vcgjt": 6
-                    },
-                    "actual": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 6,
-                        "wmqyswxhs": 3,
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_dipesh_tenderexecutive_offer",
-                    "name": "Tender Executive — Offer Given To",
-                    "sub": "Recruiter: Dipesh · Position: Tender Executive · Offer Given To",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_dipesh_tenderexecutive_final",
-                    "name": "Tender Executive — Final Rounds",
-                    "sub": "Recruiter: Dipesh · Position: Tender Executive · Final Rounds",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 2,
-                        "wmqoudofq": 4,
-                        "wmqyswxhs": 2,
-                        "wmr8vcgjt": 2
-                    },
-                    "actual": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 1,
-                        "wmqyswxhs": 3,
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_dipesh_plantoperationsmanager_apps",
-                    "name": "Plant Operations Manager — Applications",
-                    "sub": "Recruiter: Dipesh · Position: Plant Operations Manager · Applications",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 3,
-                        "wmqoudofq": 5,
-                        "wmqyswxhs": 6,
-                        "wmr8vcgjt": 5
-                    },
-                    "actual": {
-                        "wmqo21ah6": 0,
-                        "wmqoudofq": 1,
-                        "wmqyswxhs": 2,
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_dipesh_plantoperationsmanager_offer",
-                    "name": "Plant Operations Manager — Offer Given To",
-                    "sub": "Recruiter: Dipesh · Position: Plant Operations Manager · Offer Given To",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_dipesh_plantoperationsmanager_final",
-                    "name": "Plant Operations Manager — Final Rounds",
-                    "sub": "Recruiter: Dipesh · Position: Plant Operations Manager · Final Rounds",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 3,
-                        "wmqyswxhs": 2,
-                        "wmr8vcgjt": 2
-                    },
-                    "actual": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 0,
-                        "wmqyswxhs": 0,
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_madhu_pc_apps",
-                    "name": "PC — Applications",
-                    "sub": "Recruiter: Madhu · Position: PC · Applications",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 2,
-                        "wmqoudofq": 8,
-                        "wmqyswxhs": 5,
-                        "wmr8vcgjt": 5
-                    },
-                    "actual": {
-                        "wmqo21ah6": 2,
-                        "wmqoudofq": 2,
-                        "wmqyswxhs": 9,
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_madhu_pc_offer",
-                    "name": "PC — Offer Given To",
-                    "sub": "Recruiter: Madhu · Position: PC · Offer Given To",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_madhu_pc_final",
-                    "name": "PC — Final Rounds",
-                    "sub": "Recruiter: Madhu · Position: PC · Final Rounds",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 4,
-                        "wmqyswxhs": 2,
-                        "wmr8vcgjt": 2
-                    },
-                    "actual": {
-                        "wmqo21ah6": 0,
-                        "wmqoudofq": 0,
-                        "wmqyswxhs": 0,
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_madhu_crmsales_apps",
-                    "name": "CRM/Sales — Applications",
-                    "sub": "Recruiter: Madhu · Position: CRM/Sales · Applications",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 2,
-                        "wmqoudofq": 8,
-                        "wmqyswxhs": 6,
-                        "wmr8vcgjt": 6
-                    },
-                    "actual": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 1,
-                        "wmqyswxhs": 5,
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_madhu_crmsales_offer",
-                    "name": "CRM/Sales — Offer Given To",
-                    "sub": "Recruiter: Madhu · Position: CRM/Sales · Offer Given To",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_madhu_crmsales_final",
-                    "name": "CRM/Sales — Final Rounds",
-                    "sub": "Recruiter: Madhu · Position: CRM/Sales · Final Rounds",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 2,
-                        "wmqoudofq": 4,
-                        "wmqyswxhs": 4,
-                        "wmr8vcgjt": 2
-                    },
-                    "actual": {
-                        "wmqo21ah6": 0,
-                        "wmqoudofq": 0,
-                        "wmqyswxhs": 2,
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_madhu_senioraccountant_apps",
-                    "name": "Senior Accountant — Applications",
-                    "sub": "Recruiter: Madhu · Position: Senior Accountant · Applications",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 2,
-                        "wmqoudofq": 4,
-                        "wmqyswxhs": 5,
-                        "wmr8vcgjt": 5
-                    },
-                    "actual": {
-                        "wmqo21ah6": 2,
-                        "wmqoudofq": 3,
-                        "wmqyswxhs": 2,
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_madhu_senioraccountant_offer",
-                    "name": "Senior Accountant — Offer Given To",
-                    "sub": "Recruiter: Madhu · Position: Senior Accountant · Offer Given To",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_madhu_senioraccountant_final",
-                    "name": "Senior Accountant — Final Rounds",
-                    "sub": "Recruiter: Madhu · Position: Senior Accountant · Final Rounds",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 3,
-                        "wmqyswxhs": 2,
-                        "wmr8vcgjt": 2
-                    },
-                    "actual": {
-                        "wmqo21ah6": 1,
-                        "wmqoudofq": 1,
-                        "wmqyswxhs": 0,
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_dipesh_accountantdausa_apps",
-                    "name": "Accountant -Dausa — Applications",
-                    "sub": "Recruiter: Dipesh · Position: Accountant -Dausa · Applications",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": 5
-                    },
-                    "actual": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_dipesh_accountantdausa_offer",
-                    "name": "Accountant -Dausa — Offer Given To",
-                    "sub": "Recruiter: Dipesh · Position: Accountant -Dausa · Offer Given To",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    },
-                    "actual": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    }
-                },
-                {
-                    "id": "pos_dipesh_accountantdausa_final",
-                    "name": "Accountant -Dausa — Final Rounds",
-                    "sub": "Recruiter: Dipesh · Position: Accountant -Dausa · Final Rounds",
-                    "unit": "",
-                    "dir": "higher",
-                    "total": false,
-                    "plan": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": 2
-                    },
-                    "actual": {
-                        "wmqo21ah6": "",
-                        "wmqoudofq": "",
-                        "wmqyswxhs": "",
-                        "wmr8vcgjt": ""
-                    }
-                }
-            ]
-        }
-    ]
+﻿{
+    "meta":  {
+                 "company":  "Vinayak Enterprises",
+                 "period":  "June 2026"
+             },
+    "weeks":  [
+                  {
+                      "id":  "wmqo21ah6",
+                      "label":  "Week 3",
+                      "range":  "15-21 Jun"
+                  },
+                  {
+                      "id":  "wmqoudofq",
+                      "label":  "Week 4",
+                      "range":  "22-28 Jun"
+                  },
+                  {
+                      "id":  "wmqyswxhs",
+                      "label":  "Week 5",
+                      "range":  "29 - 5 july"
+                  },
+                  {
+                      "id":  "wmr8vcgjt",
+                      "label":  "Week 5",
+                      "range":  "06 July - 12 July"
+                  }
+              ],
+    "departments":  [
+                        {
+                            "id":  "purchase",
+                            "name":  "Purchase",
+                            "emoji":  "ðŸ“¦",
+                            "metrics":  [
+                                            {
+                                                "id":  "ing97",
+                                                "name":  "Ingot 97%",
+                                                "sub":  "",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  1,
+                                                             "wmqoudofq":  7,
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  1,
+                                                               "wmqoudofq":  3,
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+                                                                 "wmqoudofq":  -33
+                                                             }
+                                            },
+                                            {
+                                                "id":  "ing975",
+                                                "name":  "Ingot 97.5%",
+                                                "sub":  "",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  6,
+                                                             "wmqoudofq":  7,
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  2,
+                                                               "wmqoudofq":  0,
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+                                                                 "wmqoudofq":  -33
+                                                             }
+                                            },
+                                            {
+                                                "id":  "ing98",
+                                                "name":  "Ingot 98%",
+                                                "sub":  "",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  1,
+                                                             "wmqoudofq":  7,
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  1,
+                                                               "wmqoudofq":  7,
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+                                                                 "wmqoudofq":  -33
+                                                             }
+                                            },
+                                            {
+                                                "id":  "ing985",
+                                                "name":  "Ingot 98.5%",
+                                                "sub":  "",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  6,
+                                                             "wmqoudofq":  7,
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  3,
+                                                               "wmqoudofq":  0,
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+                                                                 "wmqoudofq":  -33
+                                                             }
+                                            },
+                                            {
+                                                "id":  "totdel",
+                                                "name":  "Total Delivery",
+                                                "sub":  "",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  true,
+                                                "plan":  {
+                                                             "wmqo21ah6":  14,
+                                                             "wmqoudofq":  28,
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  7,
+                                                               "wmqoudofq":  15,
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+                                                                 "wmqoudofq":  -33
+                                                             }
+                                            },
+                                            {
+                                                "id":  "ontime",
+                                                "name":  "On-Time Delivery",
+                                                "sub":  "No. on time",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  33,
+                                                             "wmqoudofq":  24,
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  16,
+                                                               "wmqoudofq":  15,
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+                                                                 "wmqoudofq":  -20
+                                                             }
+                                            },
+                                            {
+                                                "id":  "qret",
+                                                "name":  "Quality Returns",
+                                                "sub":  "Rejections",
+                                                "unit":  "",
+                                                "dir":  "zero",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  0,
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  "",
+                                                               "wmqoudofq":  3,
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+                                                                 "wmqoudofq":  1,
+                                                                 "wmqo21ah6":  ""
+                                                             }
+                                            }
+                                        ]
+                        },
+                        {
+                            "id":  "production",
+                            "name":  "Production",
+                            "emoji":  "ðŸ­",
+                            "metrics":  [
+                                            {
+                                                "id":  "fg",
+                                                "name":  "Finished Goods",
+                                                "sub":  "MT total",
+                                                "unit":  "MT",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  342,
+                                                             "wmqoudofq":  420,
+                                                             "wmqyswxhs":  420,
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  261.765,
+                                                               "wmqoudofq":  404,
+                                                               "wmqyswxhs":  384,
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+                                                                 "wmqoudofq":  420
+                                                             }
+                                            },
+                                            {
+                                                "id":  "hrslost",
+                                                "name":  "Hours Lost",
+                                                "sub":  "hrs Â· lower is better",
+                                                "unit":  "hrs",
+                                                "dir":  "lower",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  15,
+                                                             "wmqoudofq":  18,
+                                                             "wmqyswxhs":  18,
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  50.26,
+                                                               "wmqoudofq":  20.25,
+                                                               "wmqyswxhs":  23.54,
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+                                                                 "wmqoudofq":  18
+                                                             }
+                                            },
+                                            {
+                                                "id":  "oilmt",
+                                                "name":  "Melting cost per ton",
+                                                "sub":  "lower is better",
+                                                "unit":  "",
+                                                "dir":  "lower",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  50,
+                                                             "wmqoudofq":  58,
+                                                             "wmqyswxhs":  60,
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  69.56,
+                                                               "wmqoudofq":  62.21,
+                                                               "wmqyswxhs":  64.93,
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+                                                                 "wmqoudofq":  58
+                                                             }
+                                            },
+                                            {
+                                                "id":  "oilpermt",
+                                                "name":  "Oil / MT",
+                                                "sub":  "L/MT Â· lower is better",
+                                                "unit":  "L/MT",
+                                                "dir":  "lower",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  "",
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+
+                                                             }
+                                            },
+                                            {
+                                                "id":  "gasmt",
+                                                "name":  "Gas / MT",
+                                                "sub":  "mÂ³/MT Â· lower is better",
+                                                "unit":  "mÂ³/MT",
+                                                "dir":  "lower",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  "",
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+
+                                                             }
+                                            },
+                                            {
+                                                "id":  "qty_replaced",
+                                                "name":  "Qty Replaced",
+                                                "sub":  "MT Â· lower is better",
+                                                "unit":  "MT",
+                                                "dir":  "zero",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  "",
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+
+                                                             }
+                                            }
+                                        ]
+                        },
+                        {
+                            "id":  "crm",
+                            "name":  "CRM",
+                            "emoji":  "ðŸ¤",
+                            "metrics":  [
+                                            {
+                                                "id":  "otd",
+                                                "name":  "Total dispatch",
+                                                "sub":  "",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  39,
+                                                             "wmqoudofq":  31,
+                                                             "wmqyswxhs":  57,
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  13,
+                                                               "wmqoudofq":  25,
+                                                               "wmqyswxhs":  43,
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+                                                                 "wmqoudofq":  -30,
+                                                                 "wmqyswxhs":  -20,
+                                                                 "wmr8vcgjt":  -20
+                                                             }
+                                            },
+                                            {
+                                                "id":  "paycoll",
+                                                "name":  "Total Payement collection",
+                                                "sub":  "No. received",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  28,
+                                                             "wmqoudofq":  35,
+                                                             "wmqyswxhs":  44,
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  4,
+                                                               "wmqoudofq":  12,
+                                                               "wmqyswxhs":  38,
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+                                                                 "wmqoudofq":  -50,
+                                                                 "wmqyswxhs":  -40,
+                                                                 "wmr8vcgjt":  -20
+                                                             }
+                                            },
+                                            {
+                                                "id":  "complaints",
+                                                "name":  "Open Complaints",
+                                                "sub":  "",
+                                                "unit":  "",
+                                                "dir":  "zero",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  6,
+                                                               "wmqoudofq":  2,
+                                                               "wmqyswxhs":  1,
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+                                                                 "wmqoudofq":  0,
+                                                                 "wmqyswxhs":  ""
+                                                             }
+                                            },
+                                            {
+                                                "id":  "closed_complaints",
+                                                "name":  "Closed Complaints",
+                                                "sub":  "",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  "",
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+
+                                                             }
+                                            },
+                                            {
+                                                "id":  "avg_closing_days",
+                                                "name":  "Avg. Closing Days",
+                                                "sub":  "lower is better",
+                                                "unit":  "days",
+                                                "dir":  "lower",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  "",
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+
+                                                             }
+                                            },
+                                            {
+                                                "id":  "delclient",
+                                                "name":  "Delayed Dispatch â€” Client",
+                                                "sub":  "Target = 0",
+                                                "unit":  "",
+                                                "dir":  "zero",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  8,
+                                                               "wmqoudofq":  1,
+                                                               "wmqyswxhs":  9,
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+
+                                                             }
+                                            },
+                                            {
+                                                "id":  "delfactory",
+                                                "name":  "Delayed Dispatch â€” Factory",
+                                                "sub":  "Target = 0",
+                                                "unit":  "",
+                                                "dir":  "zero",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  14,
+                                                               "wmqoudofq":  2,
+                                                               "wmqyswxhs":  4,
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+
+                                                             }
+                                            },
+                                            {
+                                                "id":  "matret",
+                                                "name":  "Material Returns",
+                                                "sub":  "Target = 0",
+                                                "unit":  "",
+                                                "dir":  "zero",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  1,
+                                                               "wmqoudofq":  0,
+                                                               "wmqyswxhs":  1,
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+                                                                 "wmqoudofq":  0
+                                                             }
+                                            }
+                                        ]
+                        },
+                        {
+                            "id":  "hiring",
+                            "name":  "Hiring",
+                            "emoji":  "ðŸ‘¥",
+                            "metrics":  [
+                                            {
+                                                "id":  "apps",
+                                                "name":  "Applications",
+                                                "sub":  "All positions",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  31,
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  17,
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+
+                                                             }
+                                            },
+                                            {
+                                                "id":  "final",
+                                                "name":  "Final Round Interviews",
+                                                "sub":  "All positions",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  21,
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  4,
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+
+                                                             }
+                                            },
+                                            {
+                                                "id":  "offer",
+                                                "name":  "Offer Given To",
+                                                "sub":  "All positions",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  "",
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "rec_dipesh_apps",
+                                                "name":  "Dipesh â€” Applications",
+                                                "sub":  "Recruiter: Dipesh",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  19,
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  8,
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+
+                                                             }
+                                            },
+                                            {
+                                                "id":  "rec_dipesh_final",
+                                                "name":  "Dipesh â€” Final Rounds",
+                                                "sub":  "Recruiter: Dipesh",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  12,
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  3,
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+
+                                                             }
+                                            },
+                                            {
+                                                "id":  "rec_dipesh_offer",
+                                                "name":  "Dipesh â€” Offer Given To",
+                                                "sub":  "Recruiter: Dipesh",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  "",
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "rec_madhu_apps",
+                                                "name":  "Madhu â€” Applications",
+                                                "sub":  "Recruiter: Madhu",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  12,
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  9,
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+
+                                                             }
+                                            },
+                                            {
+                                                "id":  "rec_madhu_final",
+                                                "name":  "Madhu â€” Final Rounds",
+                                                "sub":  "Recruiter: Madhu",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  9,
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  1,
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           },
+                                                "promised":  {
+
+                                                             }
+                                            },
+                                            {
+                                                "id":  "rec_madhu_offer",
+                                                "name":  "Madhu â€” Offer Given To",
+                                                "sub":  "Recruiter: Madhu",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  "",
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_dipesh_tenderexecutive_apps",
+                                                "name":  "Tender Executive â€” Applications",
+                                                "sub":  "Recruiter: Dipesh Â· Position: Tender Executive Â· Applications",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  3,
+                                                             "wmqoudofq":  8,
+                                                             "wmqyswxhs":  8,
+                                                             "wmr8vcgjt":  6
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  1,
+                                                               "wmqoudofq":  6,
+                                                               "wmqyswxhs":  3,
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_dipesh_tenderexecutive_offer",
+                                                "name":  "Tender Executive â€” Offer Given To",
+                                                "sub":  "Recruiter: Dipesh Â· Position: Tender Executive Â· Offer Given To",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  "",
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_dipesh_tenderexecutive_final",
+                                                "name":  "Tender Executive â€” Final Rounds",
+                                                "sub":  "Recruiter: Dipesh Â· Position: Tender Executive Â· Final Rounds",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  2,
+                                                             "wmqoudofq":  4,
+                                                             "wmqyswxhs":  2,
+                                                             "wmr8vcgjt":  2
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  1,
+                                                               "wmqoudofq":  1,
+                                                               "wmqyswxhs":  3,
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_dipesh_plantoperationsmanager_apps",
+                                                "name":  "Plant Operations Manager â€” Applications",
+                                                "sub":  "Recruiter: Dipesh Â· Position: Plant Operations Manager Â· Applications",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  3,
+                                                             "wmqoudofq":  5,
+                                                             "wmqyswxhs":  6,
+                                                             "wmr8vcgjt":  5
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  0,
+                                                               "wmqoudofq":  1,
+                                                               "wmqyswxhs":  2,
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_dipesh_plantoperationsmanager_offer",
+                                                "name":  "Plant Operations Manager â€” Offer Given To",
+                                                "sub":  "Recruiter: Dipesh Â· Position: Plant Operations Manager Â· Offer Given To",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  "",
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_dipesh_plantoperationsmanager_final",
+                                                "name":  "Plant Operations Manager â€” Final Rounds",
+                                                "sub":  "Recruiter: Dipesh Â· Position: Plant Operations Manager Â· Final Rounds",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  1,
+                                                             "wmqoudofq":  3,
+                                                             "wmqyswxhs":  2,
+                                                             "wmr8vcgjt":  2
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  1,
+                                                               "wmqoudofq":  0,
+                                                               "wmqyswxhs":  0,
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_madhu_pc_apps",
+                                                "name":  "PC â€” Applications",
+                                                "sub":  "Recruiter: Madhu Â· Position: PC Â· Applications",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  2,
+                                                             "wmqoudofq":  8,
+                                                             "wmqyswxhs":  5,
+                                                             "wmr8vcgjt":  5
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  2,
+                                                               "wmqoudofq":  2,
+                                                               "wmqyswxhs":  9,
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_madhu_pc_offer",
+                                                "name":  "PC â€” Offer Given To",
+                                                "sub":  "Recruiter: Madhu Â· Position: PC Â· Offer Given To",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  "",
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_madhu_pc_final",
+                                                "name":  "PC â€” Final Rounds",
+                                                "sub":  "Recruiter: Madhu Â· Position: PC Â· Final Rounds",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  1,
+                                                             "wmqoudofq":  4,
+                                                             "wmqyswxhs":  2,
+                                                             "wmr8vcgjt":  2
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  0,
+                                                               "wmqoudofq":  0,
+                                                               "wmqyswxhs":  0,
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_madhu_crmsales_apps",
+                                                "name":  "CRM/Sales â€” Applications",
+                                                "sub":  "Recruiter: Madhu Â· Position: CRM/Sales Â· Applications",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  2,
+                                                             "wmqoudofq":  8,
+                                                             "wmqyswxhs":  6,
+                                                             "wmr8vcgjt":  6
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  1,
+                                                               "wmqoudofq":  1,
+                                                               "wmqyswxhs":  5,
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_madhu_crmsales_offer",
+                                                "name":  "CRM/Sales â€” Offer Given To",
+                                                "sub":  "Recruiter: Madhu Â· Position: CRM/Sales Â· Offer Given To",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  "",
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_madhu_crmsales_final",
+                                                "name":  "CRM/Sales â€” Final Rounds",
+                                                "sub":  "Recruiter: Madhu Â· Position: CRM/Sales Â· Final Rounds",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  2,
+                                                             "wmqoudofq":  4,
+                                                             "wmqyswxhs":  4,
+                                                             "wmr8vcgjt":  2
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  0,
+                                                               "wmqoudofq":  0,
+                                                               "wmqyswxhs":  2,
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_madhu_senioraccountant_apps",
+                                                "name":  "Senior Accountant â€” Applications",
+                                                "sub":  "Recruiter: Madhu Â· Position: Senior Accountant Â· Applications",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  2,
+                                                             "wmqoudofq":  4,
+                                                             "wmqyswxhs":  5,
+                                                             "wmr8vcgjt":  5
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  2,
+                                                               "wmqoudofq":  3,
+                                                               "wmqyswxhs":  2,
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_madhu_senioraccountant_offer",
+                                                "name":  "Senior Accountant â€” Offer Given To",
+                                                "sub":  "Recruiter: Madhu Â· Position: Senior Accountant Â· Offer Given To",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  "",
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_madhu_senioraccountant_final",
+                                                "name":  "Senior Accountant â€” Final Rounds",
+                                                "sub":  "Recruiter: Madhu Â· Position: Senior Accountant Â· Final Rounds",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  1,
+                                                             "wmqoudofq":  3,
+                                                             "wmqyswxhs":  2,
+                                                             "wmr8vcgjt":  2
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  1,
+                                                               "wmqoudofq":  1,
+                                                               "wmqyswxhs":  0,
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_dipesh_accountantdausa_apps",
+                                                "name":  "Accountant -Dausa â€” Applications",
+                                                "sub":  "Recruiter: Dipesh Â· Position: Accountant -Dausa Â· Applications",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  5
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  "",
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_dipesh_accountantdausa_offer",
+                                                "name":  "Accountant -Dausa â€” Offer Given To",
+                                                "sub":  "Recruiter: Dipesh Â· Position: Accountant -Dausa Â· Offer Given To",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  ""
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  "",
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            },
+                                            {
+                                                "id":  "pos_dipesh_accountantdausa_final",
+                                                "name":  "Accountant -Dausa â€” Final Rounds",
+                                                "sub":  "Recruiter: Dipesh Â· Position: Accountant -Dausa Â· Final Rounds",
+                                                "unit":  "",
+                                                "dir":  "higher",
+                                                "total":  false,
+                                                "plan":  {
+                                                             "wmqo21ah6":  "",
+                                                             "wmqoudofq":  "",
+                                                             "wmqyswxhs":  "",
+                                                             "wmr8vcgjt":  2
+                                                         },
+                                                "actual":  {
+                                                               "wmqo21ah6":  "",
+                                                               "wmqoudofq":  "",
+                                                               "wmqyswxhs":  "",
+                                                               "wmr8vcgjt":  ""
+                                                           }
+                                            }
+                                        ]
+                        }
+                    ]
 }

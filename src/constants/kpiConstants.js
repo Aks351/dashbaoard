@@ -29,5 +29,14 @@ export const STAGES = [
 /** Metrics whose plan is always forced to 0 ("target = 0" metrics) */
 export const ZERO_PLAN_IDS = new Set(['complaints', 'delclient', 'delfactory', 'matret', 'qty_replaced']);
 
+/**
+ * Metrics whose plan is always a fixed non-zero value.
+ * The UI shows the value as read-only; scoring uses it automatically.
+ * Format: { metricId: fixedPlanValue }
+ */
+export const FIXED_PLAN_VALUES = {
+  avg_closing_days: 2,
+};
+
 /** Metrics hidden from the UI (data preserved in storage) */
 export const HIDDEN_METRIC_IDS = new Set(['gasmt']);
