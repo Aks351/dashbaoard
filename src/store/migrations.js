@@ -295,11 +295,19 @@ function _migrateInjectClosedComplaints(model) {
       unit: 'days',
       dir: 'lower',
       total: false,
-      plan:    blankWeeks(weekIds),
+      plan:    Object.fromEntries(weekIds.map(id => [id, 2])), // force 2
       actual:  blankWeeks(weekIds),
       promised: {},
     };
     crm.metrics.splice(insertAfter + 1, 0, avgM);
+  } else {
+    // Backfill existing empty plans to 2
+    const avgM = crm.metrics.find(m => m.id === 'avg_closing_days');
+    if (avgM && avgM.plan) {
+      Object.keys(avgM.plan).forEach(wid => {
+        avgM.plan[wid] = 2;
+      });
+    }
   }
 }
 

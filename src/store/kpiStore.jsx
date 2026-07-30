@@ -74,16 +74,19 @@ export function KpiProvider({ children }) {
       const j = await r.json();
       if (j.ok) {
         if (j.data?.departments) {
+          // Migrate stale cloud data to the latest schema before using it
+          const migratedData = applyStorageMigrations(j.data);
+
           // Re-apply any pending local edits on top of the fresh cloud data
           Object.values(pendingEdits.current).forEach(edit => {
             const { deptId, metricId, field, weekId, value } = edit;
-            const metric = j.data.departments.find(d => d.id === deptId)?.metrics.find(m => m.id === metricId);
+            const metric = migratedData.departments.find(d => d.id === deptId)?.metrics.find(m => m.id === metricId);
             if (metric && metric[field]) metric[field][weekId] = value;
           });
           
-          saveToLocal(j.data);
-          if (!j.data.weeks.some(w => w.id === activeWeek))
-            setActiveWeek(j.data.weeks[0]?.id || null);
+          saveToLocal(migratedData);
+          if (!migratedData.weeks.some(w => w.id === activeWeek))
+            setActiveWeek(migratedData.weeks[0]?.id || null);
         }
         setConnState('online');
       } else {
@@ -213,7 +216,7 @@ export function KpiProvider({ children }) {
     next.weeks.push({ id, label, range });
     next.departments.forEach(d =>
       d.metrics.forEach(m => {
-        m.plan[id]   = '';
+        m.plan[id]   = FIXED_PLAN_VALUES[m.id] !== undefined ? FIXED_PLAN_VALUES[m.id] : '';
         m.actual[id] = '';
         if (m.promised) m.promised[id] = '';
       })
