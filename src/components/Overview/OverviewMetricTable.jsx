@@ -8,12 +8,16 @@ const B = '1px solid var(--border)';
 // Sticky styles for the frozen first column
 const STICKY_HEAD = {
   position: 'sticky', left: 0, zIndex: 3,
-  background: '#f1f5f9',
+  background: 'rgba(241, 245, 249, 0.85)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
   boxShadow: '2px 0 4px -2px rgba(0,0,0,0.10)',
 };
 const stickyData = (isTotal) => ({
   position: 'sticky', left: 0, zIndex: 1,
-  background: isTotal ? 'rgba(248,250,252,0.97)' : 'var(--surface)',
+  background: isTotal ? 'rgba(248, 250, 252, 0.9)' : 'rgba(255, 255, 255, 0.75)',
+  backdropFilter: 'blur(16px)',
+  WebkitBackdropFilter: 'blur(16px)',
   boxShadow: '2px 0 4px -2px rgba(0,0,0,0.08)',
 });
 
@@ -60,7 +64,7 @@ export default function OverviewMetricTable({ departments, weeks }) {
                     <div className="t-cell head center" style={{ background: '#f1f5f9' }}>
                       {w.label.replace('Week', 'W')} Act
                     </div>
-                    <div className="t-cell head center" style={{ background: '#eff6ff', color: '#3b82f6', fontSize: 9 }}>
+                    <div className="t-cell head center" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', fontSize: 9 }}>
                       Promised
                     </div>
                   </React.Fragment>
@@ -125,9 +129,9 @@ export default function OverviewMetricTable({ departments, weeks }) {
                     <div className="t-cell center" style={{ background: rowBg, borderBottom: bb }}>
                       <span className={`val-actual ${sc.color}`}>{a == null || a === '' ? '—' : formatVal(a, m.unit, m.id)}</span>
                     </div>
-                    <div className="t-cell center" style={{ background: rowBg === 'transparent' ? '#fafbff' : rowBg, borderBottom: bb }}>
+                    <div className="t-cell center" style={{ background: rowBg === 'transparent' ? 'rgba(59, 130, 246, 0.05)' : rowBg, borderBottom: bb }}>
                       {prom != null && prom !== '' ? (
-                        <span className="score-pill" style={{ background: '#eff6ff', color: '#3b82f6' }}>
+                        <span className="score-pill" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' }}>
                           {`${Number(prom) > 0 ? '+' : ''}${Number(prom)}%`}
                         </span>
                       ) : (

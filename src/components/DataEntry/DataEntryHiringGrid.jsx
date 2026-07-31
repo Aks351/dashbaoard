@@ -145,7 +145,7 @@ export default function DataEntryHiringGrid({
                         key={pos}
                         style={{
                           padding: '4px 12px', fontSize: 12, borderRadius: 20,
-                          background: '#eff6ff', color: '#3b82f6',
+                          background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6',
                           border: '1px solid #bfdbfe', cursor: canEdit ? 'pointer' : 'not-allowed',
                           fontWeight: 600
                         }}

@@ -40,7 +40,8 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
           className="d-cell head"
           style={{
             position: 'sticky', left: 0, zIndex: 3,
-            background: '#f1f5f9',
+            background: 'rgba(241, 245, 249, 0.85)',
+            backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
             boxShadow: '2px 0 4px -2px rgba(0,0,0,0.10)',
           }}
         >Metric</div>
@@ -52,7 +53,7 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
               <div className="d-cell head center" style={{ background: bg }}>{w.label.replace('Week', 'W')} Act</div>
               <div className="d-cell head center" style={{ background: bg }}>Score</div>
               {showPromised && (
-                <div className="d-cell head center" style={{ background: '#eff6ff', color: '#3b82f6', fontSize: 9 }}>Promised</div>
+                <div className="d-cell head center" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', fontSize: 9 }}>Promised</div>
               )}
             </React.Fragment>
           );
@@ -73,7 +74,8 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
               <div
                 className="d-cell"
                 style={{
-                  background: m.total ? 'rgba(248,250,252,0.95)' : 'var(--surface)',
+                  background: m.total ? 'rgba(248, 250, 252, 0.9)' : 'rgba(255, 255, 255, 0.75)',
+                  backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
                   borderBottom: bb,
                   position: 'sticky',
                   left: 0,
@@ -107,9 +109,9 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
                       <span className={`score-pill ${sc.color === 'gray' ? 'muted' : sc.color}`}>{sc.label}</span>
                     </div>
                     {showPromised && (
-                      <div className="d-cell center" style={{ background: m.total ? rowBg : '#f8faff', borderBottom: bb }}>
+                      <div className="d-cell center" style={{ background: m.total ? rowBg : 'rgba(59, 130, 246, 0.05)', borderBottom: bb }}>
                         {prom !== '' && prom != null ? (
-                          <span className="score-pill" style={{ background: '#eff6ff', color: '#3b82f6' }}>
+                          <span className="score-pill" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' }}>
                             {`${Number(prom) > 0 ? '+' : ''}${Number(prom)}%`}
                           </span>
                         ) : (

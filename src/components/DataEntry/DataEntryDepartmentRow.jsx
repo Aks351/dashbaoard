@@ -56,7 +56,7 @@ export default function DataEntryDepartmentRow({
                 {m.promised ? (
                   <input className={`de-input ${pr !== '' ? 'filled' : ''}`} type="number" step="any" value={pr} placeholder="%" 
                     disabled={!canEdit}
-                    style={{ color: '#3b82f6', background: pr !== '' ? '#eff6ff' : '' }}
+                    style={{ color: '#3b82f6', background: pr !== '' ? 'rgba(59, 130, 246, 0.15)' : '' }}
                     onChange={e => updateValue(d.id, m.id, 'promised', wk.id, e.target.value)} />
                 ) : (
                   <div style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 12 }}>—</div>
