@@ -36,6 +36,10 @@ export const ZERO_PLAN_IDS = new Set(['complaints', 'closed_complaints', 'delcli
  */
 export const FIXED_PLAN_VALUES = {
   avg_closing_days: 2,
+  ing97: 7,
+  ing975: 7,
+  ing98: 7,
+  ing985: 7,
 };
 
 /** Metrics hidden from the UI (data preserved in storage) */
