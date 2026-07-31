@@ -1,7 +1,7 @@
 // Import the React library to create the component
 import React from 'react';
 // Import utility functions for aggregating data (mtd), calculating scores (calculateScore), and formatting values (formatVal)
-import { mtd, calculateScore, formatVal } from '../../store/kpiStore';
+import { mtd, calculateScore, formatVal, ZERO_PLAN_IDS } from '../../store/kpiStore';
 // Import UI icons (TrendingUp, TrendingDown, AlertCircle) from the lucide-react library
 import { TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
 // Import a helper function that filters a list of weeks down to just the current month's weeks
@@ -21,8 +21,8 @@ export default function OverviewHeroCard({ department: d, weeks }) {
   
   // Loop through all the valid metrics to find which one has the worst score
   validMetrics.forEach(m => {
-    // We skip metrics where the goal direction is 'zero' (e.g. tracking incidents or complaints) because their scoring logic doesn't compare easily by percentage
-    if (m.dir === 'zero') return;
+    // We skip metrics where the goal direction is 'zero' or metrics with zero plans because their scoring logic doesn't compare easily by percentage
+    if (m.dir === 'zero' || ZERO_PLAN_IDS.has(m.id)) return;
     
     // Calculate the Month-To-Date aggregated plan and actual values for this specific metric
     const mt = mtd(m, mw);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { mtd, calculateScore, formatVal } from '../../store/kpiStore';
+import { mtd, calculateScore, formatVal, ZERO_PLAN_IDS } from '../../store/kpiStore';
 import { weeksInMonth } from '../../utils/dateUtils';
 
 const PROMISED_DEPTS = ['purchase', 'production', 'crm'];
@@ -100,6 +100,7 @@ export default function OverviewMetricTable({ departments, weeks }) {
           const msc = calculateScore(mt.plan, mt.actual, m.dir);
           const rowBg = m.total ? 'rgba(248,250,252,0.85)' : 'transparent';
           const bb = isLast ? 'none' : B;
+          const isZeroPlan = ZERO_PLAN_IDS.has(m.id);
 
           return (
             <React.Fragment key={`${d.id}-${m.id}`}>
@@ -124,13 +125,15 @@ export default function OverviewMetricTable({ departments, weeks }) {
                 return (
                   <React.Fragment key={w.id}>
                     <div className="t-cell center" style={{ background: rowBg, borderLeft: B, borderBottom: bb }}>
-                      <span className="plan-num">{p == null || p === '' ? '—' : formatVal(p, m.unit, m.id)}</span>
+                      <span className="plan-num">{isZeroPlan ? '—' : (p == null || p === '' ? '—' : formatVal(p, m.unit, m.id))}</span>
                     </div>
                     <div className="t-cell center" style={{ background: rowBg, borderBottom: bb }}>
-                      <span className={`val-actual ${sc.color}`}>{a == null || a === '' ? '—' : formatVal(a, m.unit, m.id)}</span>
+                      <span className={`val-actual ${isZeroPlan ? '' : sc.color}`}>{a == null || a === '' ? '—' : formatVal(a, m.unit, m.id)}</span>
                     </div>
                     <div className="t-cell center" style={{ background: rowBg === 'transparent' ? 'rgba(59, 130, 246, 0.05)' : rowBg, borderBottom: bb }}>
-                      {prom != null && prom !== '' ? (
+                      {isZeroPlan ? (
+                        <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
+                      ) : prom != null && prom !== '' ? (
                         <span className="score-pill" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' }}>
                           {`${Number(prom) > 0 ? '+' : ''}${Number(prom)}%`}
                         </span>
@@ -144,15 +147,19 @@ export default function OverviewMetricTable({ departments, weeks }) {
 
               {/* MTD Plan */}
               <div className="t-cell center" style={{ background: 'rgba(240,253,244,0.3)', borderLeft: B, borderBottom: bb }}>
-                <span className="plan-num">{mt.plan === null ? '—' : formatVal(mt.plan, m.unit, m.id)}</span>
+                <span className="plan-num">{isZeroPlan ? '—' : (mt.plan === null ? '—' : formatVal(mt.plan, m.unit, m.id))}</span>
               </div>
               {/* MTD Act */}
               <div className="t-cell center" style={{ background: 'rgba(240,253,244,0.3)', borderBottom: bb }}>
-                <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatVal(mt.actual, m.unit, m.id)}</span>
+                <span className={`val-actual ${isZeroPlan ? '' : msc.color}`}>{mt.actual === null ? '—' : formatVal(mt.actual, m.unit, m.id)}</span>
               </div>
               {/* Score */}
               <div className="t-cell center" style={{ background: 'rgba(240,253,244,0.3)', borderBottom: bb }}>
-                <span className={`score-pill ${msc.color === 'gray' ? 'muted' : msc.color}`}>{msc.label}</span>
+                {isZeroPlan ? (
+                  <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
+                ) : (
+                  <span className={`score-pill ${msc.color === 'gray' ? 'muted' : msc.color}`}>{msc.label}</span>
+                )}
               </div>
             </React.Fragment>
           );

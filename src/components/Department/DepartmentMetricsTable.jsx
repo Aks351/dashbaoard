@@ -1,5 +1,5 @@
 import React from 'react';
-import { mtd, calculateScore, formatVal } from '../../store/kpiStore';
+import { mtd, calculateScore, formatVal, ZERO_PLAN_IDS } from '../../store/kpiStore';
 import { weeksInMonth } from '../../utils/dateUtils';
 
 const WEEK_COLORS = [
@@ -67,6 +67,7 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
           const isLast = mIdx === baseMetrics.length - 1;
           const rowBg = m.total ? 'rgba(248,250,252,0.85)' : 'transparent';
           const bb = isLast ? 'none' : B; // border-bottom
+          const isZeroPlan = ZERO_PLAN_IDS.has(m.id);
 
           return (
             <React.Fragment key={m.id}>
@@ -100,17 +101,23 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
                 return (
                   <React.Fragment key={w.id}>
                     <div className="d-cell center" style={{ background: wkBg, borderLeft: B, borderBottom: bb }}>
-                      <span className="plan-num">{p === '' || p == null ? '—' : formatVal(p, m.unit, m.id)}</span>
+                      <span className="plan-num">{isZeroPlan ? '—' : (p === '' || p == null ? '—' : formatVal(p, m.unit, m.id))}</span>
                     </div>
                     <div className="d-cell center" style={{ background: wkBg, borderBottom: bb }}>
-                      <span className={`val-actual ${sc.color}`}>{a === '' || a == null ? '—' : formatVal(a, m.unit, m.id)}</span>
+                      <span className={`val-actual ${isZeroPlan ? '' : sc.color}`}>{a === '' || a == null ? '—' : formatVal(a, m.unit, m.id)}</span>
                     </div>
                     <div className="d-cell center" style={{ background: wkBg, borderBottom: bb }}>
-                      <span className={`score-pill ${sc.color === 'gray' ? 'muted' : sc.color}`}>{sc.label}</span>
+                      {isZeroPlan ? (
+                        <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
+                      ) : (
+                        <span className={`score-pill ${sc.color === 'gray' ? 'muted' : sc.color}`}>{sc.label}</span>
+                      )}
                     </div>
                     {showPromised && (
                       <div className="d-cell center" style={{ background: m.total ? rowBg : 'rgba(59, 130, 246, 0.05)', borderBottom: bb }}>
-                        {prom !== '' && prom != null ? (
+                        {isZeroPlan ? (
+                          <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
+                        ) : prom !== '' && prom != null ? (
                           <span className="score-pill" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' }}>
                             {`${Number(prom) > 0 ? '+' : ''}${Number(prom)}%`}
                           </span>
@@ -126,9 +133,13 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
               {/* MTD */}
               <div className="d-cell center" style={{ borderLeft: B, borderBottom: bb, background: isHiring ? '#f5fff8' : 'rgba(240,253,244,0.3)' }}>
                 <div className="mtd-cell">
-                  <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatVal(mt.actual, m.unit, m.id)}</span>
-                  <span style={{ fontSize: 10, color: 'var(--muted)' }}>Plan: {mt.plan === null ? '—' : formatVal(mt.plan, m.unit, m.id)}</span>
-                  <span className={`score-pill ${msc.color === 'gray' ? 'muted' : msc.color}`}>{msc.label}</span>
+                  <span className={`val-actual ${isZeroPlan ? '' : msc.color}`}>{mt.actual === null ? '—' : formatVal(mt.actual, m.unit, m.id)}</span>
+                  {isZeroPlan ? null : (
+                    <span style={{ fontSize: 10, color: 'var(--muted)' }}>Plan: {mt.plan === null ? '—' : formatVal(mt.plan, m.unit, m.id)}</span>
+                  )}
+                  {isZeroPlan ? null : (
+                    <span className={`score-pill ${msc.color === 'gray' ? 'muted' : msc.color}`}>{msc.label}</span>
+                  )}
                 </div>
               </div>
             </React.Fragment>

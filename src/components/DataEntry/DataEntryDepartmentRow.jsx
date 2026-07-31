@@ -41,7 +41,7 @@ export default function DataEntryDepartmentRow({
             <div className="t-cell">
               {ZERO_PLAN_IDS.has(m.id) ? (
                 <div style={{ textAlign: 'center', fontWeight: 700, color: 'var(--muted)', fontSize: 13, padding: '6px 0' }}
-                  title="Plan is always 0 for this metric">0 <span style={{ fontSize: 10, fontWeight: 400 }}>(fixed)</span></div>
+                  title="Plan is not applicable for this metric">—</div>
               ) : fixedPlan !== undefined ? (
                 <div style={{ textAlign: 'center', fontWeight: 700, color: 'var(--muted)', fontSize: 13, padding: '6px 0' }}
                   title={`Plan is always ${fixedPlan} for this metric`}>{fixedPlan} <span style={{ fontSize: 10, fontWeight: 400 }}>(fixed)</span></div>
@@ -53,7 +53,7 @@ export default function DataEntryDepartmentRow({
             </div>
             {showPromised && (
               <div className="t-cell">
-                {m.promised ? (
+                {m.promised && !ZERO_PLAN_IDS.has(m.id) ? (
                   <input className={`de-input ${pr !== '' ? 'filled' : ''}`} type="number" step="any" value={pr} placeholder="%" 
                     disabled={!canEdit}
                     style={{ color: '#3b82f6', background: pr !== '' ? 'rgba(59, 130, 246, 0.15)' : '' }}
@@ -69,7 +69,11 @@ export default function DataEntryDepartmentRow({
                 onChange={e => updateValue(d.id, m.id, 'actual', wk.id, e.target.value)} />
             </div>
             <div className="t-cell center">
-              <span className={`score-pill ${sc.color}`}>{sc.label}</span>
+              {ZERO_PLAN_IDS.has(m.id) ? (
+                <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
+              ) : (
+                <span className={`score-pill ${sc.color}`}>{sc.label}</span>
+              )}
             </div>
           </div>
         );
