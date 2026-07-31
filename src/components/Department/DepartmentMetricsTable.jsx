@@ -1,5 +1,5 @@
 import React from 'react';
-import { mtd, calculateScore, formatVal } from '../../store/kpiStore';
+import { mtd, calculateScore, calculateMtdScore, formatVal } from '../../store/kpiStore';
 import { weeksInMonth } from '../../utils/dateUtils';
 
 const WEEK_COLORS = [
@@ -62,7 +62,7 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
         {/* ── DATA CELLS — React.Fragment keeps them flat in the grid ── */}
         {baseMetrics.map((m, mIdx) => {
           const mt  = mtd(m, weeksInMonth(weeks));
-          const msc = applyGreen(m.id, calculateScore(mt.plan, mt.actual, m.dir, scoreOpts));
+          const msc = applyGreen(m.id, calculateMtdScore(m, weeksInMonth(weeks), scoreOpts));
           const isLast = mIdx === baseMetrics.length - 1;
           const rowBg = m.total ? 'rgba(248,250,252,0.85)' : 'transparent';
           const bb = isLast ? 'none' : B; // border-bottom
