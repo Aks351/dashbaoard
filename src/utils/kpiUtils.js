@@ -118,50 +118,6 @@ export function calculateScore(plan, actual, dir = 'higher', options = {}) {
 // ─── Aggregation ──────────────────────────────────────────────────────────────
 
 /**
- * Calculates MTD score by taking only the negative values from weekly scores
- * and computing a simple average of those. If no negative scores exist,
- * it falls back to the standard MTD calculation.
- */
-export function calculateMtdScore(metric, weeks, options = {}) {
-  let negativeVariances = [];
-
-  weeks.forEach(w => {
-    const p = metric.plan[w.id];
-    const a = metric.actual[w.id];
-    if (p == null || p === '' || a == null || a === '') return;
-
-    const sc = calculateScore(p, a, metric.dir, options);
-    if (sc.pct !== null) {
-      const variance = sc.pct - 100;
-      if (variance < 0) {
-        negativeVariances.push(variance);
-      }
-    }
-  });
-
-  if (negativeVariances.length > 0) {
-    const avgVariance = Math.round(
-      negativeVariances.reduce((sum, v) => sum + v, 0) / negativeVariances.length
-    );
-    const pct = avgVariance + 100;
-
-    let color = 'red';
-    if (options.strict) {
-      color = avgVariance > -1 ? 'green' : 'red';
-    } else {
-      if (avgVariance >= -20) color = 'green';
-      else if (avgVariance >= -30) color = 'amber';
-      else color = 'red';
-    }
-
-    return { label: `${avgVariance}%`, color, pct }; // avgVariance is negative, so it will have its own - sign
-  }
-
-  // Fallback to standard MTD calculation if there are no negative weekly scores
-  const mt = mtd(metric, weeks);
-  return calculateScore(mt.plan, mt.actual, metric.dir, options);
-}
-/**
  * Month-to-date aggregate for a metric across the given weeks.
  * Average-mode metrics (oilmt, gasmt) return the mean; all others sum.
  *

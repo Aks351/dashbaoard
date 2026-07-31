@@ -1,5 +1,5 @@
 import React from 'react';
-import { mtd, calculateScore, calculateMtdScore, formatVal } from '../../store/kpiStore';
+import { mtd, calculateScore, formatVal } from '../../store/kpiStore';
 import { weeksInMonth } from '../../utils/dateUtils';
 
 const PROMISED_DEPTS = ['purchase', 'production', 'crm'];
@@ -97,7 +97,7 @@ export default function OverviewMetricTable({ departments, weeks }) {
           /* ── METRIC ROW ── */
           const { d, m, showProm, isLast } = row;
           const mt = mtd(m, weeksInMonth(weeks));
-          const msc = calculateMtdScore(m, weeksInMonth(weeks));
+          const msc = calculateScore(mt.plan, mt.actual, m.dir);
           const rowBg = m.total ? 'rgba(248,250,252,0.85)' : 'transparent';
           const bb = isLast ? 'none' : B;
 

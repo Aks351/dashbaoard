@@ -1,7 +1,7 @@
 // Import the React library to create the component
 import React from 'react';
 // Import utility functions for aggregating data (mtd), calculating scores (calculateScore), and formatting values (formatVal)
-import { mtd, calculateScore, calculateMtdScore, formatVal } from '../../store/kpiStore';
+import { mtd, calculateScore, formatVal } from '../../store/kpiStore';
 // Import UI icons (TrendingUp, TrendingDown, AlertCircle) from the lucide-react library
 import { TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
 // Import a helper function that filters a list of weeks down to just the current month's weeks
@@ -28,7 +28,7 @@ export default function OverviewHeroCard({ department: d, weeks }) {
     const mt = mtd(m, mw);
     
     // Calculate a performance score (percentage and color) based on the plan, actual, and target direction
-    const sc = calculateMtdScore(m, mw);
+    const sc = calculateScore(mt.plan, mt.actual, m.dir);
     
     // If the score is a valid percentage, AND (it's the first one we checked OR its percentage is lower/worse than our current worst score)...
     if (sc.pct !== null && sc.pct !== undefined && (worstSc === null || sc.pct < worstSc.pct)) {
@@ -48,7 +48,7 @@ export default function OverviewHeroCard({ department: d, weeks }) {
     worst = validMetrics[0];
     
     // Calculate the score for this fallback metric
-    worstSc = calculateMtdScore(worst, mw);
+    worstSc = calculateScore(mtd(worst, mw).plan, mtd(worst, mw).actual, worst.dir);
     
     // If we still can't get a valid score, don't render the card
     if (!worstSc) return null;
