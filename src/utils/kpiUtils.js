@@ -83,17 +83,21 @@ export function formatVal(v, unit, metricId = null) {
  * @returns {{ label: string, color: 'green'|'amber'|'red'|'gray', pct: number|null }}
  */
 export function calculateScore(plan, actual, dir = 'higher', options = {}) {
-  if (plan === '' || actual === '' || plan == null || actual == null)
+  if (actual === '' || actual == null)
     return { label: '—', color: 'gray', pct: null };
 
-  // Support HH:MM:SS strings
-  const p = typeof plan   === 'string' && /^\d+:\d{2}/.test(plan.trim())   ? parseHMS(plan)   : Number(plan);
   const a = typeof actual === 'string' && /^\d+:\d{2}/.test(actual.trim()) ? parseHMS(actual) : Number(actual);
 
   if (dir === 'zero') {
     if (a === 0) return { pct: 0, color: 'green', label: '0 ✓' };
     return { pct: null, color: a <= 1 ? 'amber' : 'red', label: a + (a === 1 ? ' issue' : ' issues') };
   }
+
+  if (plan === '' || plan == null)
+    return { label: '—', color: 'gray', pct: null };
+
+  // Support HH:MM:SS strings
+  const p = typeof plan   === 'string' && /^\d+:\d{2}/.test(plan.trim())   ? parseHMS(plan)   : Number(plan);
 
   if (p === 0) return a > 0 ? { label: '+∞%', color: 'green', pct: 9999 } : { label: '0%', color: 'gray', pct: 0 };
 

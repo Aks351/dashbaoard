@@ -63,7 +63,8 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
         {/* ── DATA CELLS — React.Fragment keeps them flat in the grid ── */}
         {baseMetrics.map((m, mIdx) => {
           const mt  = mtd(m, weeksInMonth(weeks));
-          const msc = applyGreen(m.id, calculateScore(mt.plan, mt.actual, m.dir, scoreOpts));
+          const scoreDir = ZERO_PLAN_IDS.has(m.id) ? 'zero' : m.dir;
+          const msc = applyGreen(m.id, calculateScore(mt.plan, mt.actual, scoreDir, scoreOpts));
           const isLast = mIdx === baseMetrics.length - 1;
           const rowBg = m.total ? 'rgba(248,250,252,0.85)' : 'transparent';
           const bb = isLast ? 'none' : B; // border-bottom
@@ -94,7 +95,8 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
               {weeks.map((w, idx) => {
                 const p = m.plan[w.id];
                 const a = m.actual[w.id];
-                const sc = applyGreen(m.id, calculateScore(p, a, m.dir, scoreOpts));
+                const scoreDir = ZERO_PLAN_IDS.has(m.id) ? 'zero' : m.dir;
+                const sc = applyGreen(m.id, calculateScore(p, a, scoreDir, scoreOpts));
                 const prom = m.promised ? m.promised[w.id] : null;
                 const wkBg = m.total ? rowBg : (isHiring ? WEEK_COLORS[idx % WEEK_COLORS.length].body : 'transparent');
 
@@ -107,11 +109,7 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
                       <span className={`val-actual ${isZeroPlan ? '' : sc.color}`}>{a === '' || a == null ? '—' : formatVal(a, m.unit, m.id)}</span>
                     </div>
                     <div className="d-cell center" style={{ background: wkBg, borderBottom: bb }}>
-                      {isZeroPlan ? (
-                        <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
-                      ) : (
-                        <span className={`score-pill ${sc.color === 'gray' ? 'muted' : sc.color}`}>{sc.label}</span>
-                      )}
+                      <span className={`score-pill ${sc.color === 'gray' ? 'muted' : sc.color}`}>{sc.label}</span>
                     </div>
                     {showPromised && (
                       <div className="d-cell center" style={{ background: m.total ? rowBg : 'rgba(59, 130, 246, 0.05)', borderBottom: bb }}>
@@ -133,13 +131,11 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
               {/* MTD */}
               <div className="d-cell center" style={{ borderLeft: B, borderBottom: bb, background: isHiring ? '#f5fff8' : 'rgba(240,253,244,0.3)' }}>
                 <div className="mtd-cell">
-                  <span className={`val-actual ${isZeroPlan ? '' : msc.color}`}>{mt.actual === null ? '—' : formatVal(mt.actual, m.unit, m.id)}</span>
+                  <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatVal(mt.actual, m.unit, m.id)}</span>
                   {isZeroPlan ? null : (
                     <span style={{ fontSize: 10, color: 'var(--muted)' }}>Plan: {mt.plan === null ? '—' : formatVal(mt.plan, m.unit, m.id)}</span>
                   )}
-                  {isZeroPlan ? null : (
-                    <span className={`score-pill ${msc.color === 'gray' ? 'muted' : msc.color}`}>{msc.label}</span>
-                  )}
+                  <span className={`score-pill ${msc.color === 'gray' ? 'muted' : msc.color}`}>{msc.label}</span>
                 </div>
               </div>
             </React.Fragment>

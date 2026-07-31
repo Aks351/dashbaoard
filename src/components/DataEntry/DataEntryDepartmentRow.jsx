@@ -28,7 +28,8 @@ export default function DataEntryDepartmentRow({
         // Use fixed plan value for scoring if this metric has one
         const fixedPlan = FIXED_PLAN_VALUES[m.id];
         const effectivePlan = fixedPlan !== undefined ? fixedPlan : p;
-        const sc = calculateScore(effectivePlan, a, m.dir);
+        const scoreDir = ZERO_PLAN_IDS.has(m.id) ? 'zero' : m.dir;
+        const sc = calculateScore(effectivePlan, a, scoreDir);
 
         return (
           <div key={m.id} className="table-row" style={{ gridTemplateColumns: gridCols }}>
@@ -69,11 +70,7 @@ export default function DataEntryDepartmentRow({
                 onChange={e => updateValue(d.id, m.id, 'actual', wk.id, e.target.value)} />
             </div>
             <div className="t-cell center">
-              {ZERO_PLAN_IDS.has(m.id) ? (
-                <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
-              ) : (
-                <span className={`score-pill ${sc.color}`}>{sc.label}</span>
-              )}
+              <span className={`score-pill ${sc.color}`}>{sc.label}</span>
             </div>
           </div>
         );

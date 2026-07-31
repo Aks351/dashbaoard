@@ -97,7 +97,8 @@ export default function OverviewMetricTable({ departments, weeks }) {
           /* ── METRIC ROW ── */
           const { d, m, showProm, isLast } = row;
           const mt = mtd(m, weeksInMonth(weeks));
-          const msc = calculateScore(mt.plan, mt.actual, m.dir);
+          const scoreDir = ZERO_PLAN_IDS.has(m.id) ? 'zero' : m.dir;
+          const msc = calculateScore(mt.plan, mt.actual, scoreDir);
           const rowBg = m.total ? 'rgba(248,250,252,0.85)' : 'transparent';
           const bb = isLast ? 'none' : B;
           const isZeroPlan = ZERO_PLAN_IDS.has(m.id);
@@ -119,7 +120,7 @@ export default function OverviewMetricTable({ departments, weeks }) {
               {weeks.map(w => {
                 const p = m.plan[w.id];
                 const a = m.actual[w.id];
-                const sc = calculateScore(p, a, m.dir);
+                const sc = calculateScore(p, a, scoreDir);
                 const prom = showProm && m.promised ? m.promised[w.id] : null;
 
                 return (
@@ -128,7 +129,7 @@ export default function OverviewMetricTable({ departments, weeks }) {
                       <span className="plan-num">{isZeroPlan ? '—' : (p == null || p === '' ? '—' : formatVal(p, m.unit, m.id))}</span>
                     </div>
                     <div className="t-cell center" style={{ background: rowBg, borderBottom: bb }}>
-                      <span className={`val-actual ${isZeroPlan ? '' : sc.color}`}>{a == null || a === '' ? '—' : formatVal(a, m.unit, m.id)}</span>
+                      <span className={`val-actual ${sc.color}`}>{a == null || a === '' ? '—' : formatVal(a, m.unit, m.id)}</span>
                     </div>
                     <div className="t-cell center" style={{ background: rowBg === 'transparent' ? 'rgba(59, 130, 246, 0.05)' : rowBg, borderBottom: bb }}>
                       {isZeroPlan ? (
@@ -151,15 +152,11 @@ export default function OverviewMetricTable({ departments, weeks }) {
               </div>
               {/* MTD Act */}
               <div className="t-cell center" style={{ background: 'rgba(240,253,244,0.3)', borderBottom: bb }}>
-                <span className={`val-actual ${isZeroPlan ? '' : msc.color}`}>{mt.actual === null ? '—' : formatVal(mt.actual, m.unit, m.id)}</span>
+                <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatVal(mt.actual, m.unit, m.id)}</span>
               </div>
               {/* Score */}
               <div className="t-cell center" style={{ background: 'rgba(240,253,244,0.3)', borderBottom: bb }}>
-                {isZeroPlan ? (
-                  <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
-                ) : (
-                  <span className={`score-pill ${msc.color === 'gray' ? 'muted' : msc.color}`}>{msc.label}</span>
-                )}
+                <span className={`score-pill ${msc.color === 'gray' ? 'muted' : msc.color}`}>{msc.label}</span>
               </div>
             </React.Fragment>
           );
