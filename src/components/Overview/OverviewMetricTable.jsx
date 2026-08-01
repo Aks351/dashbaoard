@@ -21,7 +21,7 @@ const stickyData = (isTotal) => ({
   boxShadow: '2px 0 4px -2px rgba(0,0,0,0.08)',
 });
 
-export default function OverviewMetricTable({ departments, weeks }) {
+export default function OverviewMetricTable({ departments, weeks, period }) {
   // Per-week: Plan | Act | Promised  (3 cols per week)
   // End: MTD Plan | MTD Act | Score  (3 fixed cols)
   const cols =
@@ -96,12 +96,13 @@ export default function OverviewMetricTable({ departments, weeks }) {
 
           /* ── METRIC ROW ── */
           const { d, m, showProm, isLast } = row;
-          const mt = mtd(m, weeksInMonth(weeks));
-          const scoreDir = ZERO_PLAN_IDS.has(m.id) ? 'zero' : m.dir;
-          const msc = calculateScore(mt.plan, mt.actual, scoreDir);
+          const isZeroPlan = ZERO_PLAN_IDS.has(m.id);
+          const mt = mtd(m, weeksInMonth(weeks, period));
+          const scoreDir = isZeroPlan ? 'zero' : m.dir;
+          // For zero-plan metrics, pass null as plan so calculateScore uses only the 'zero' direction logic
+          const msc = calculateScore(isZeroPlan ? null : mt.plan, mt.actual, scoreDir);
           const rowBg = m.total ? 'rgba(248,250,252,0.85)' : 'transparent';
           const bb = isLast ? 'none' : B;
-          const isZeroPlan = ZERO_PLAN_IDS.has(m.id);
 
           return (
             <React.Fragment key={`${d.id}-${m.id}`}>

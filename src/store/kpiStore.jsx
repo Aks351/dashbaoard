@@ -43,6 +43,7 @@ export function KpiProvider({ children }) {
   const [connState, setConnState] = useState('offline'); // offline | online | syncing | error
   const [canEdit,   setCanEdit]   = useState(false);
   const [activeWeek, setActiveWeek] = useState(model.weeks[0]?.id || null);
+  const [selectedPeriod, setSelectedPeriod] = useState(null);
 
   // ── Pending Edits (Offline-first safe merge) ──────────────────────────────
   const pendingEdits = useRef(null);
@@ -350,6 +351,8 @@ export function KpiProvider({ children }) {
       canEdit,
       activeWeek,
       setActiveWeek,
+      selectedPeriod,
+      setSelectedPeriod,
       updateValue,
       unlockEditing,
       addWeek,

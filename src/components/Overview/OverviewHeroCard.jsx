@@ -2,15 +2,15 @@
 import React from 'react';
 // Import utility functions for aggregating data (mtd), calculating scores (calculateScore), and formatting values (formatVal)
 import { mtd, calculateScore, formatVal, ZERO_PLAN_IDS } from '../../store/kpiStore';
+import { weeksInMonth } from '../../utils/dateUtils';
 // Import UI icons (TrendingUp, TrendingDown, AlertCircle) from the lucide-react library
 import { TrendingUp, TrendingDown, AlertCircle } from 'lucide-react';
-// Import a helper function that filters a list of weeks down to just the current month's weeks
-import { weeksInMonth } from '../../utils/dateUtils';
+
+
 
 // Export the OverviewHeroCard component as the default export. It accepts 'department' (renamed to 'd') and 'weeks' as props.
-export default function OverviewHeroCard({ department: d, weeks }) {
-  // Get only the weeks that fall within the current month so we can calculate Month-To-Date (MTD) values
-  const mw = weeksInMonth(weeks); 
+export default function OverviewHeroCard({ department: d, weeks, period }) {
+
   
   // Initialize variables to keep track of the worst-performing metric ('worst') and its score ('worstSc')
   let worst = null, worstSc = null;
@@ -25,7 +25,7 @@ export default function OverviewHeroCard({ department: d, weeks }) {
     if (m.dir === 'zero' || ZERO_PLAN_IDS.has(m.id)) return;
     
     // Calculate the Month-To-Date aggregated plan and actual values for this specific metric
-    const mt = mtd(m, mw);
+    const mt = mtd(m, weeksInMonth(weeks, period));
     
     // Calculate a performance score (percentage and color) based on the plan, actual, and target direction
     const sc = calculateScore(mt.plan, mt.actual, m.dir);
@@ -48,14 +48,14 @@ export default function OverviewHeroCard({ department: d, weeks }) {
     worst = validMetrics[0];
     
     // Calculate the score for this fallback metric
-    worstSc = calculateScore(mtd(worst, mw).plan, mtd(worst, mw).actual, worst.dir);
+    worstSc = calculateScore(mtd(worst, weeksInMonth(weeks, period)).plan, mtd(worst, weeksInMonth(weeks, period)).actual, worst.dir);
     
     // If we still can't get a valid score, don't render the card
     if (!worstSc) return null;
   }
   
   // Recalculate or grab the Month-To-Date totals for our chosen (worst) metric
-  const mt = mtd(worst, mw);
+  const mt = mtd(worst, weeksInMonth(weeks, period));
   
   // Determine the CSS class based on the metric's score color (green -> good, amber -> warning, red -> danger)
   const cls = worstSc.color === 'green' ? 'good' : (worstSc.color === 'amber' ? 'warning' : 'danger');

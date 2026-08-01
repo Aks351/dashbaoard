@@ -158,6 +158,47 @@ function buildGrid_(data) {
 
 
 /* ============================================================
+   MONTHLY SHEET OVERRIDE READ
+   ============================================================ */
+function readMonthlyData_(monthlySheet, period) {
+  if (!monthlySheet || !period) return {};
+  
+  var data = monthlySheet.getDataRange().getDisplayValues();
+  if (data.length < 2) return {};
+  
+  // Clean headers: lowercased, hyphens/underscores to spaces, and extra spaces removed
+  var cleanStr = function(s) { 
+    return String(s).toLowerCase().replace(/[-_]/g, ' ').replace(/\s+/g, ' ').trim(); 
+  };
+  
+  var headers = data[0].map(cleanStr);
+  
+  // Find column indices
+  var metricIdCol = headers.indexOf("metric id");
+  if (metricIdCol === -1) metricIdCol = 0; // fallback to first column
+  
+  var targetPlan = cleanStr(period + " Plan");
+  var targetActual = cleanStr(period + " Actual");
+  
+  var planCol = headers.indexOf(targetPlan);
+  var actualCol = headers.indexOf(targetActual);
+  
+  var result = {};
+  if (planCol !== -1 || actualCol !== -1) {
+    for (var i = 1; i < data.length; i++) {
+      var mId = String(data[i][metricIdCol]).trim();
+      if (!mId) continue;
+      
+      var p = planCol !== -1 ? displayToModel_(data[i][planCol]) : "";
+      var a = actualCol !== -1 ? displayToModel_(data[i][actualCol]) : "";
+      
+      result[mId] = { plan: p, actual: a };
+    }
+  }
+  return result;
+}
+
+/* ============================================================
    GRID READ  (sheet  ->  model JSON)
    Uses getDisplayValues() so we always get strings — never Dates.
    ============================================================ */
@@ -168,10 +209,19 @@ function readGrid_(metaSheet, dataSheet) {
   var dashboardMeta  = metaValues[0][1] ? JSON.parse(metaValues[0][1]) : {};
   var lastUpdatedRaw = metaValues[1][1];
   var version        = parseInt(metaValues[2][1], 10) || 1;
+  var period         = dashboardMeta.period || "";
 
   var weeks = metaValues.slice(5)
     .filter(function(r) { return r[0] !== ""; })
     .map(function(r) { return { id: String(r[0]), label: String(r[1]), range: String(r[2] || "") }; });
+
+  // ── Auto-fetch MTD overrides from 'monthly' sheet ──
+  var monthlyOverrides = {};
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var monthlySheet = ss.getSheetByName("monthly") || ss.getSheetByName("mothy");
+  if (monthlySheet && period) {
+    monthlyOverrides = readMonthlyData_(monthlySheet, period);
+  }
 
   var dataRange = dataSheet.getDataRange();
   if (dataRange.getNumRows() < 2) {
@@ -227,6 +277,13 @@ function readGrid_(metaSheet, dataSheet) {
       plan: plan, actual: actual, promised: promised
     };
     if (activeWeeks.length > 0) metric.activeWeeks = activeWeeks;
+
+    // Apply monthly MTD overrides if they exist in the monthly sheet
+    if (monthlyOverrides[metricId]) {
+      var mo = monthlyOverrides[metricId];
+      if (mo.plan !== "") metric.mtd_plan = mo.plan;
+      if (mo.actual !== "") metric.mtd_actual = mo.actual;
+    }
 
     deptById[deptId].metrics.push(metric);
   });
@@ -376,4 +433,64 @@ function seedSheetFromJSON() {
   validateDashboard(data);
   saveDashboard({ data: data });
   Logger.log("Seeded OK. Depts: " + data.departments.length + "  Weeks: " + data.weeks.length);
+}
+
+/* ============================================================
+   SETUP MONTHLY SHEET
+   Run this function once from the editor to create the 'monthly' sheet
+   ============================================================ */
+function setupMonthlySheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var monthlySheet = ss.getSheetByName("monthly");
+  
+  if (!monthlySheet) {
+    monthlySheet = ss.insertSheet("monthly");
+  } else {
+    monthlySheet.clear(); // Clear existing content for a fresh setup
+  }
+
+  // Get current data to extract metrics and period
+  var current = readDashboard();
+  if (!current || !current.data) {
+    throw new Error("Cannot setup monthly sheet: Dashboard data is empty. Run seedSheetFromJSON first.");
+  }
+  
+  var period = current.data.meta.period || "June 2026";
+  
+  // Create Headers
+  var headers = [
+    "Metric ID", 
+    "Metric Name", 
+    "Department",
+    period + " Plan", 
+    period + " Actual"
+  ];
+  
+  var rows = [headers];
+  
+  // Add all metrics
+  current.data.departments.forEach(function(dept) {
+    dept.metrics.forEach(function(metric) {
+      rows.push([
+        metric.id,
+        metric.name,
+        dept.name,
+        "", // Plan (leave blank for user to fill)
+        ""  // Actual (leave blank for user to fill)
+      ]);
+    });
+  });
+  
+  // Write to sheet
+  monthlySheet.getRange(1, 1, rows.length, headers.length).setValues(rows);
+  
+  // Format the header row
+  var headerRange = monthlySheet.getRange(1, 1, 1, headers.length);
+  headerRange.setFontWeight("bold");
+  headerRange.setBackground("#f3f4f6");
+  
+  // Auto-resize columns for neatness
+  monthlySheet.autoResizeColumns(1, headers.length);
+  
+  Logger.log("Monthly sheet setup successfully!");
 }

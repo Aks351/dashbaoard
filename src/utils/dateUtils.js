@@ -43,20 +43,60 @@ export function parseWeekEndMonth(range, year = new Date().getFullYear()) {
 }
 
 /**
- * Filter a weeks array to only those whose end date falls in the given month.
- * Defaults to the current month so call sites need no extra arguments.
- *
- * @param {Array}  weeks      - Full weeks array [{ id, label, range }]
- * @param {Date}   targetDate - Any date inside the desired month (default: today)
- * @returns {Array} weeks belonging to that month
+ * Parse a period string like "July 2026" or "June 2026" into { month (0-indexed), year }.
+ * Returns null if unparseable.
  */
-export function weeksInMonth(weeks, targetDate = new Date()) {
-  const tm = targetDate.getMonth();
-  const ty = targetDate.getFullYear();
+export function parsePeriod(period) {
+  if (!period) return null;
+  const MONTH_NAMES = [
+    'january','february','march','april','may','june',
+    'july','august','september','october','november','december'
+  ];
+  // Match "Month YYYY" e.g. "July 2026"
+  const match = period.trim().match(/^([a-zA-Z]+)\s+(\d{4})$/);
+  if (!match) return null;
+  const mon = MONTH_NAMES.indexOf(match[1].toLowerCase());
+  if (mon === -1) return null;
+  return { month: mon, year: parseInt(match[2], 10) };
+}
+
+/**
+ * Filter a weeks array to only those whose end date falls in the model's period.
+ *
+ * @param {Array}   weeks   - Full weeks array [{ id, label, range }]
+ * @param {string}  period  - The model's period string e.g. "July 2026"
+ * @returns {Array} weeks belonging to that period's month
+ */
+export function weeksInMonth(weeks, period) {
+  const p = parsePeriod(period);
+  if (!p) return weeks; // no valid period → use all weeks (safe fallback)
+
   const filtered = weeks.filter(w => {
-    const end = parseWeekEndMonth(w.range);
-    return end && end.getMonth() === tm && end.getFullYear() === ty;
+    const end = parseWeekEndMonth(w.range, p.year);
+    return end && end.getMonth() === p.month && end.getFullYear() === p.year;
   });
-  // Fall back to all weeks if none match (e.g. ranges missing / unparseable)
+  // Fall back to all weeks if no ranges are parseable
   return filtered.length > 0 ? filtered : weeks;
+}
+
+/**
+ * Derive all unique month-period strings present in a weeks array.
+ * Returns an array like ["June 2026", "July 2026", "August 2026"] sorted chronologically.
+ */
+const FULL_MONTHS = [
+  'January','February','March','April','May','June',
+  'July','August','September','October','November','December'
+];
+export function getAvailableMonths(weeks, fallbackPeriod = '') {
+  const seen = new Map(); // "Month YYYY" → { month, year }
+  weeks.forEach(w => {
+    const end = parseWeekEndMonth(w.range, new Date().getFullYear());
+    if (!end) return;
+    const key = `${FULL_MONTHS[end.getMonth()]} ${end.getFullYear()}`;
+    if (!seen.has(key)) seen.set(key, { month: end.getMonth(), year: end.getFullYear() });
+  });
+  if (seen.size === 0 && fallbackPeriod) return [fallbackPeriod];
+  return [...seen.entries()]
+    .sort((a, b) => a[1].year - b[1].year || a[1].month - b[1].month)
+    .map(([key]) => key);
 }

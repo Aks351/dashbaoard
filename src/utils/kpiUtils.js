@@ -20,7 +20,7 @@ export function parseHMS(v) {
   }
   const n = Number(v);
   if (isNaN(n)) return null;
-  
+
   // Interpret decimal values as HH.MM (e.g. 50.26 -> 50 hours, 26 mins)
   const h = Math.floor(n);
   const m = Math.round((n - h) * 100);
@@ -97,7 +97,7 @@ export function calculateScore(plan, actual, dir = 'higher', options = {}) {
     return { label: '—', color: 'gray', pct: null };
 
   // Support HH:MM:SS strings
-  const p = typeof plan   === 'string' && /^\d+:\d{2}/.test(plan.trim())   ? parseHMS(plan)   : Number(plan);
+  const p = typeof plan === 'string' && /^\d+:\d{2}/.test(plan.trim()) ? parseHMS(plan) : Number(plan);
 
   if (p === 0) return a > 0 ? { label: '+∞%', color: 'green', pct: 9999 } : { label: '0%', color: 'gray', pct: 0 };
 
@@ -105,11 +105,11 @@ export function calculateScore(plan, actual, dir = 'higher', options = {}) {
   if (dir === 'lower') pct = a === 0 ? 100 : Math.round((p / a) * 100);
 
   const variance = pct - 100;
-  const prefix   = variance > 0 ? '+' : '';
+  const prefix = variance > 0 ? '+' : '';
 
   // Strict mode (Production only): green requires ≥ 100% of plan, everything else is red
   if (options.strict) {
-    if (variance > -1)  return { label: `${prefix}${variance}%`, color: 'green', pct };
+    if (variance > -1) return { label: `${prefix}${variance}%`, color: 'green', pct };
     return { label: `${prefix}${variance}%`, color: 'red', pct };
   }
 
@@ -123,11 +123,23 @@ export function calculateScore(plan, actual, dir = 'higher', options = {}) {
 
 /**
  * Month-to-date aggregate for a metric across the given weeks.
- * Average-mode metrics (oilmt, gasmt) return the mean; all others sum.
+ *
+ *  • oilmt / oilpermt  → use pre-calculated values from backend (monthly sheet)
+ *  • ZERO_PLAN metrics → plan = null, actual = sum of all weekly actuals
+ *  • everything else   → plan = sum of all weekly plans, actual = sum of all weekly actuals
  *
  * @returns {{ plan: number|null, actual: number|null }}
  */
 export function mtd(metric, weeks) {
+  // 1. Use backend-supplied values from the monthly sheet if they exist for this metric
+  if (metric.mtd_actual !== undefined || metric.mtd_plan !== undefined) {
+    return {
+      plan:   metric.mtd_plan   !== undefined ? num(metric.mtd_plan)   : null,
+      actual: metric.mtd_actual !== undefined ? num(metric.mtd_actual) : null,
+    };
+  }
+
+  // 2. Sum actuals (and plans where applicable) across all weeks
   let plan = 0, act = 0, planCount = 0, actCount = 0;
 
   weeks.forEach(w => {
@@ -135,9 +147,8 @@ export function mtd(metric, weeks) {
     const a = num(metric.actual[w.id]); if (a !== null) { act  += a; actCount++;  }
   });
 
-  const isAverage = metric.id === 'oilmt' || metric.id === 'gasmt';
   return {
-    plan:   planCount > 0 ? (isAverage ? plan / planCount : plan) : null,
-    actual: actCount  > 0 ? (isAverage ? act  / actCount  : act)  : null,
+    plan:   planCount > 0 ? plan : null,   // null = no data entered for this month
+    actual: actCount  > 0 ? act  : null,
   };
 }

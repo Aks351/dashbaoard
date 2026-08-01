@@ -2,6 +2,7 @@ import React from 'react';
 import { mtd, calculateScore, formatVal, ZERO_PLAN_IDS } from '../../store/kpiStore';
 import { weeksInMonth } from '../../utils/dateUtils';
 
+
 const WEEK_COLORS = [
   { head: '#fef9ec', body: '#fffdf5' },
   { head: '#f0f4ff', body: '#f5f8ff' },
@@ -16,7 +17,7 @@ const applyGreen = (id, sc) => ALWAYS_GREEN_IDS.has(id) && sc.color !== 'gray' ?
 
 const B = '1px solid var(--border)'; // shorthand border
 
-export default function DepartmentMetricsTable({ department: d, weeks, baseMetrics }) {
+export default function DepartmentMetricsTable({ department: d, weeks, baseMetrics, period }) {
   const showPromised = ['purchase', 'production', 'crm'].includes(d.id);
   const isHiring = d.id === 'hiring';
   const isProduction = d.id === 'production';
@@ -62,13 +63,14 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
 
         {/* ── DATA CELLS — React.Fragment keeps them flat in the grid ── */}
         {baseMetrics.map((m, mIdx) => {
-          const mt  = mtd(m, weeksInMonth(weeks));
-          const scoreDir = ZERO_PLAN_IDS.has(m.id) ? 'zero' : m.dir;
-          const msc = applyGreen(m.id, calculateScore(mt.plan, mt.actual, scoreDir, scoreOpts));
+          const mt  = mtd(m, weeksInMonth(weeks, period));
+          const isZeroPlan = ZERO_PLAN_IDS.has(m.id);
+          const scoreDir = isZeroPlan ? 'zero' : m.dir;
+          // For zero-plan metrics, pass null as plan so calculateScore uses only the 'zero' direction logic
+          const msc = applyGreen(m.id, calculateScore(isZeroPlan ? null : mt.plan, mt.actual, scoreDir, scoreOpts));
           const isLast = mIdx === baseMetrics.length - 1;
           const rowBg = m.total ? 'rgba(248,250,252,0.85)' : 'transparent';
           const bb = isLast ? 'none' : B; // border-bottom
-          const isZeroPlan = ZERO_PLAN_IDS.has(m.id);
 
           return (
             <React.Fragment key={m.id}>
