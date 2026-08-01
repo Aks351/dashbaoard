@@ -132,10 +132,10 @@ export function calculateScore(plan, actual, dir = 'higher', options = {}) {
  */
 export function mtd(metric, weeks) {
   // 1. Use backend-supplied values from the monthly sheet if they exist for this metric
-  if (metric.mtd_actual !== undefined || metric.mtd_plan !== undefined) {
+  if (metric.is_monthly_override) {
     return {
-      plan:   metric.mtd_plan   !== undefined ? num(metric.mtd_plan)   : null,
-      actual: metric.mtd_actual !== undefined ? num(metric.mtd_actual) : null,
+      plan:   metric.mtd_plan   !== undefined && metric.mtd_plan   !== "" ? num(metric.mtd_plan)   : null,
+      actual: metric.mtd_actual !== undefined && metric.mtd_actual !== "" ? num(metric.mtd_actual) : null,
     };
   }
 

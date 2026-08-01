@@ -281,8 +281,9 @@ function readGrid_(metaSheet, dataSheet) {
     // Apply monthly MTD overrides if they exist in the monthly sheet
     if (monthlyOverrides[metricId]) {
       var mo = monthlyOverrides[metricId];
-      if (mo.plan !== "") metric.mtd_plan = mo.plan;
-      if (mo.actual !== "") metric.mtd_actual = mo.actual;
+      metric.mtd_plan = mo.plan;
+      metric.mtd_actual = mo.actual;
+      metric.is_monthly_override = true;
     }
 
     deptById[deptId].metrics.push(metric);
