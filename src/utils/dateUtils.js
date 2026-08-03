@@ -61,6 +61,17 @@ export function parsePeriod(period) {
 }
 
 /**
+ * Returns the anchor date (Thursday) for a week given its end date (Sunday).
+ * This aligns week-to-month mapping with ISO week logic (week belongs to the month of its Thursday).
+ */
+export function getWeekAnchorDate(endDate) {
+  if (!endDate) return null;
+  const anchor = new Date(endDate);
+  anchor.setDate(anchor.getDate() - 3); // Sunday - 3 days = Thursday
+  return anchor;
+}
+
+/**
  * Filter a weeks array to only those whose end date falls in the model's period.
  *
  * @param {Array}   weeks   - Full weeks array [{ id, label, range }]
@@ -73,7 +84,8 @@ export function weeksInMonth(weeks, period) {
 
   const filtered = weeks.filter(w => {
     const end = parseWeekEndMonth(w.range, p.year);
-    return end && end.getMonth() === p.month && end.getFullYear() === p.year;
+    const anchor = getWeekAnchorDate(end);
+    return anchor && anchor.getMonth() === p.month && anchor.getFullYear() === p.year;
   });
   // Fall back to all weeks if no ranges are parseable
   return filtered.length > 0 ? filtered : weeks;
@@ -91,9 +103,10 @@ export function getAvailableMonths(weeks, fallbackPeriod = '') {
   const seen = new Map(); // "Month YYYY" → { month, year }
   weeks.forEach(w => {
     const end = parseWeekEndMonth(w.range, new Date().getFullYear());
-    if (!end) return;
-    const key = `${FULL_MONTHS[end.getMonth()]} ${end.getFullYear()}`;
-    if (!seen.has(key)) seen.set(key, { month: end.getMonth(), year: end.getFullYear() });
+    const anchor = getWeekAnchorDate(end);
+    if (!anchor) return;
+    const key = `${FULL_MONTHS[anchor.getMonth()]} ${anchor.getFullYear()}`;
+    if (!seen.has(key)) seen.set(key, { month: anchor.getMonth(), year: anchor.getFullYear() });
   });
   if (seen.size === 0 && fallbackPeriod) return [fallbackPeriod];
   return [...seen.entries()]
