@@ -1,5 +1,5 @@
 import React from 'react';
-import { calculateScore, ZERO_PLAN_IDS, FIXED_PLAN_VALUES } from '../../store/kpiStore';
+import { calculateScore, FIXED_PLAN_VALUES } from '../../store/kpiStore';
 
 export default function DataEntryDepartmentRow({
   department: d,
@@ -28,8 +28,7 @@ export default function DataEntryDepartmentRow({
         // Use fixed plan value for scoring if this metric has one
         const fixedPlan = FIXED_PLAN_VALUES[m.id];
         const effectivePlan = fixedPlan !== undefined ? fixedPlan : p;
-        const scoreDir = ZERO_PLAN_IDS.has(m.id) ? 'zero' : m.dir;
-        const sc = calculateScore(effectivePlan, a, scoreDir);
+        const sc = calculateScore(effectivePlan, a, m.dir);
 
         return (
           <div key={m.id} className="table-row" style={{ gridTemplateColumns: gridCols }}>
@@ -40,7 +39,7 @@ export default function DataEntryDepartmentRow({
               </div>
             </div>
             <div className="t-cell">
-              {ZERO_PLAN_IDS.has(m.id) ? (
+              {m.dir === 'zero' ? (
                 <div style={{ textAlign: 'center', fontWeight: 700, color: 'var(--muted)', fontSize: 13, padding: '6px 0' }}
                   title="Plan is not applicable for this metric">—</div>
               ) : fixedPlan !== undefined ? (
@@ -54,7 +53,7 @@ export default function DataEntryDepartmentRow({
             </div>
             {showPromised && (
               <div className="t-cell">
-                {m.promised && !ZERO_PLAN_IDS.has(m.id) ? (
+                {m.promised && m.dir !== 'zero' ? (
                   <input className={`de-input ${pr !== '' ? 'filled' : ''}`} type="number" step="any" value={pr} placeholder="%" 
                     disabled={!canEdit}
                     style={{ color: '#3b82f6', background: pr !== '' ? 'rgba(59, 130, 246, 0.15)' : '' }}

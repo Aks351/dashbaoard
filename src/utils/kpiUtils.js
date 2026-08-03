@@ -1,7 +1,9 @@
 // ─── Pure utility functions for KPI calculations ─────────────────────────────
 // No React, no side-effects. Safe to import anywhere and easy to unit-test.
+import { MONTHLY_OVERRIDE_IDS, ZERO_PLAN_IDS } from '../constants/kpiConstants';
 
 // ─── Time / number parsing ────────────────────────────────────────────────────
+
 
 /**
  * Parse a value that may be a decimal number OR an "HH:MM:SS" / "HH:MM" /
@@ -67,6 +69,7 @@ export function formatTime(v) {
 /** Smart formatter — uses HH:MM for 'hrs' unit, plain number otherwise. */
 export function formatVal(v, unit, metricId = null) {
   if (unit === 'hrs') return formatTime(v);
+  if (metricId && ZERO_PLAN_IDS.has(metricId)) return formatNum(v, 0);
   if (metricId === 'fg') return formatNum(v, 0);
   return formatNum(v, 2);
 }
@@ -124,31 +127,36 @@ export function calculateScore(plan, actual, dir = 'higher', options = {}) {
 /**
  * Month-to-date aggregate for a metric across the given weeks.
  *
- *  • oilmt / oilpermt  → use pre-calculated values from backend (monthly sheet)
+ *  • MONTHLY_OVERRIDE_IDS → read from the 'monthly' sheet data directly
  *  • ZERO_PLAN metrics → plan = null, actual = sum of all weekly actuals
  *  • everything else   → plan = sum of all weekly plans, actual = sum of all weekly actuals
  *
  * @returns {{ plan: number|null, actual: number|null }}
  */
 export function mtd(metric, weeks) {
-  // 1. Use backend-supplied values from the monthly sheet if they exist for this metric
-  if (metric.is_monthly_override) {
+  // 1. Use backend-supplied values from the monthly sheet if they exist for this metric AND it is in the whitelist
+  if (metric.is_monthly_override && MONTHLY_OVERRIDE_IDS.has(metric.id)) {
     return {
       plan:   metric.mtd_plan   !== undefined && metric.mtd_plan   !== "" ? num(metric.mtd_plan)   : null,
       actual: metric.mtd_actual !== undefined && metric.mtd_actual !== "" ? num(metric.mtd_actual) : null,
     };
   }
 
-  // 2. Sum actuals (and plans where applicable) across all weeks
+  // 2. REGULAR METRICS (and Averages)
   let plan = 0, act = 0, planCount = 0, actCount = 0;
 
   weeks.forEach(w => {
-    const p = num(metric.plan[w.id]);   if (p !== null) { plan += p; planCount++; }
-    const a = num(metric.actual[w.id]); if (a !== null) { act  += a; actCount++;  }
+    const p = num(metric.plan[w.id]);
+    if (p !== null) { plan += p; planCount++; }
+    
+    const a = num(metric.actual[w.id]);
+    if (a !== null) { act += a; actCount++; }
   });
 
+  const isAverage = metric.id === 'avg_closing_days' || metric.id === 'oilmt' || metric.id === 'oilpermt' || metric.id === 'gasmt';
+
   return {
-    plan:   planCount > 0 ? plan : null,   // null = no data entered for this month
-    actual: actCount  > 0 ? act  : null,
+    plan:   planCount > 0 ? (isAverage ? plan / planCount : plan) : null,
+    actual: actCount  > 0 ? (isAverage ? act / actCount : act)  : null,
   };
 }

@@ -16,6 +16,8 @@ import { STORAGE_KEY, BACKEND_URL, EDIT_KEY } from '../constants/kpiConstants';
 import { applyInitialMigrations, applyStorageMigrations } from './migrations';
 import { buildComputedModel } from './computedModel';
 
+import { getAvailableMonths } from '../utils/dateUtils';
+
 // ─── Re-exports (keeps all existing component imports working) ────────────────
 export * from '../constants/kpiConstants';
 export * from '../utils/kpiUtils';
@@ -342,6 +344,10 @@ export function KpiProvider({ children }) {
 
   // ── Computed (display-ready) model ─────────────────────────────────────────
   const computedModel = useMemo(() => buildComputedModel(model), [model]);
+  
+  // ── Active Period Logic ────────────────────────────────────────────────────
+  const availableMonths = useMemo(() => getAvailableMonths(computedModel.weeks, computedModel.meta?.period), [computedModel]);
+  const activePeriod = selectedPeriod || (availableMonths.length ? availableMonths[availableMonths.length - 1] : computedModel.meta?.period || '');
 
   // ── Context value ───────────────────────────────────────────────────────────
   return (
@@ -353,6 +359,7 @@ export function KpiProvider({ children }) {
       setActiveWeek,
       selectedPeriod,
       setSelectedPeriod,
+      activePeriod,
       updateValue,
       unlockEditing,
       addWeek,

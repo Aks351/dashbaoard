@@ -96,11 +96,8 @@ export default function OverviewMetricTable({ departments, weeks, period }) {
 
           /* ── METRIC ROW ── */
           const { d, m, showProm, isLast } = row;
-          const isZeroPlan = ZERO_PLAN_IDS.has(m.id);
           const mt = mtd(m, weeksInMonth(weeks, period));
-          const scoreDir = isZeroPlan ? 'zero' : m.dir;
-          // For zero-plan metrics, pass null as plan so calculateScore uses only the 'zero' direction logic
-          const msc = calculateScore(isZeroPlan ? null : mt.plan, mt.actual, scoreDir);
+          const msc = calculateScore(mt.plan, mt.actual, m.dir);
           const rowBg = m.total ? 'rgba(248,250,252,0.85)' : 'transparent';
           const bb = isLast ? 'none' : B;
 
@@ -121,19 +118,19 @@ export default function OverviewMetricTable({ departments, weeks, period }) {
               {weeks.map(w => {
                 const p = m.plan[w.id];
                 const a = m.actual[w.id];
-                const sc = calculateScore(p, a, scoreDir);
+                const sc = calculateScore(p, a, m.dir);
                 const prom = showProm && m.promised ? m.promised[w.id] : null;
 
                 return (
                   <React.Fragment key={w.id}>
                     <div className="t-cell center" style={{ background: rowBg, borderLeft: B, borderBottom: bb }}>
-                      <span className="plan-num">{isZeroPlan ? '—' : (p == null || p === '' ? '—' : formatVal(p, m.unit, m.id))}</span>
+                      <span className="plan-num">{p == null || p === '' ? '—' : formatVal(p, m.unit, m.id)}</span>
                     </div>
                     <div className="t-cell center" style={{ background: rowBg, borderBottom: bb }}>
                       <span className={`val-actual ${sc.color}`}>{a == null || a === '' ? '—' : formatVal(a, m.unit, m.id)}</span>
                     </div>
                     <div className="t-cell center" style={{ background: rowBg === 'transparent' ? 'rgba(59, 130, 246, 0.05)' : rowBg, borderBottom: bb }}>
-                      {isZeroPlan ? (
+                      {m.dir === 'zero' ? (
                         <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
                       ) : prom != null && prom !== '' ? (
                         <span className="score-pill" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' }}>
@@ -149,7 +146,7 @@ export default function OverviewMetricTable({ departments, weeks, period }) {
 
               {/* MTD Plan */}
               <div className="t-cell center" style={{ background: 'rgba(240,253,244,0.3)', borderLeft: B, borderBottom: bb }}>
-                <span className="plan-num">{isZeroPlan ? '—' : (mt.plan === null ? '—' : formatVal(mt.plan, m.unit, m.id))}</span>
+                <span className="plan-num">{mt.plan === null ? '—' : formatVal(mt.plan, m.unit, m.id)}</span>
               </div>
               {/* MTD Act */}
               <div className="t-cell center" style={{ background: 'rgba(240,253,244,0.3)', borderBottom: bb }}>

@@ -7,15 +7,11 @@ import { getAvailableMonths } from '../utils/dateUtils';
 import { Calendar } from 'lucide-react';
 
 export default function Overview() {
-  const { model, selectedPeriod, setSelectedPeriod } = useContext(KpiContext);
+  const { model, selectedPeriod, setSelectedPeriod, activePeriod } = useContext(KpiContext);
   const { weeks, departments, meta } = model;
   const defaultPeriod = meta?.period || '';
 
   const availableMonths = getAvailableMonths(weeks, defaultPeriod);
-  const period = selectedPeriod || defaultPeriod || (availableMonths.length ? availableMonths[availableMonths.length - 1] : '');
-  
-  // Local fallback for select input in case it's not set globally yet
-  const displayPeriod = selectedPeriod || period;
 
   return (
     <motion.div
@@ -32,7 +28,7 @@ export default function Overview() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Calendar size={16} style={{ color: 'var(--muted)' }} />
             <select
-              value={displayPeriod}
+              value={activePeriod}
               onChange={e => setSelectedPeriod(e.target.value)}
               style={{
                 padding: '6px 12px',
@@ -57,11 +53,11 @@ export default function Overview() {
 
       <div className="hero-grid">
         {departments.map(d => (
-          <OverviewHeroCard key={d.id} department={d} weeks={weeks} period={period} />
+          <OverviewHeroCard key={d.id} department={d} weeks={weeks} period={activePeriod} />
         ))}
       </div>
 
-      <OverviewMetricTable departments={departments} weeks={weeks} period={period} />
+      <OverviewMetricTable departments={departments} weeks={weeks} period={activePeriod} />
 
     </motion.div>
   );

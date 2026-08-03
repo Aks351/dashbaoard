@@ -153,6 +153,7 @@ function _applyZeroPlanOverrides(model) {
     dept.metrics.forEach(m => {
       if (ZERO_PLAN_IDS.has(m.id)) {
         model.weeks.forEach(w => { m.plan[w.id] = 0; });
+        m.dir = 'zero'; // Enforce zero-direction for scoring
       }
     });
   });
@@ -273,14 +274,15 @@ function _mirrorCrmMetricsToProduction(model) {
   ];
 
   IDS_TO_MIRROR.forEach(({ id, name }) => {
-    // Skip if already mirrored (idempotent)
-    if (prod.metrics.some(m => m.id === id)) return;
-
     const source = crm.metrics.find(m => m.id === id);
     if (!source) return;
 
-    // Shallow clone — both depts point to same underlying data object
-    prod.metrics.push({ ...source, name });
+    const existingIdx = prod.metrics.findIndex(m => m.id === id);
+    if (existingIdx !== -1) {
+      prod.metrics[existingIdx] = { ...source, name };
+    } else {
+      prod.metrics.push({ ...source, name });
+    }
   });
 
   // Move qty_replaced to immediately after matret
@@ -307,9 +309,14 @@ function _mirrorProductionMetricsToCrm(model) {
   ];
 
   IDS_TO_MIRROR.forEach(({ id, name }) => {
-    if (crm.metrics.some(m => m.id === id)) return;
     const source = prod.metrics.find(m => m.id === id);
     if (!source) return;
-    crm.metrics.push({ ...source, name });
+
+    const existingIdx = crm.metrics.findIndex(m => m.id === id);
+    if (existingIdx !== -1) {
+      crm.metrics[existingIdx] = { ...source, name };
+    } else {
+      crm.metrics.push({ ...source, name });
+    }
   });
 }

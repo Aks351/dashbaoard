@@ -6,15 +6,11 @@ import DepartmentHiringMatrix from './Department/DepartmentHiringMatrix';
 import { getAvailableMonths } from '../utils/dateUtils';
 
 export default function Department({ department: d }) {
-  const { model, selectedPeriod, setSelectedPeriod } = useContext(KpiContext);
+  const { model, selectedPeriod, setSelectedPeriod, activePeriod } = useContext(KpiContext);
   const { weeks, meta } = model;
   const defaultPeriod = meta?.period || '';
 
   const availableMonths = getAvailableMonths(weeks, defaultPeriod);
-  const period = selectedPeriod || defaultPeriod || (availableMonths.length ? availableMonths[availableMonths.length - 1] : '');
-  
-  // Local fallback for select input in case it's not set globally yet
-  const displayPeriod = selectedPeriod || period;
 
   const [hireMxWeek, setHireMxWeek] = useState(weeks.length ? weeks[weeks.length - 1].id : null);
 
@@ -87,7 +83,7 @@ export default function Department({ department: d }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Calendar size={16} style={{ color: 'var(--muted)' }} />
               <select
-                value={displayPeriod}
+                value={activePeriod}
                 onChange={e => setSelectedPeriod(e.target.value)}
                 style={{
                   padding: '6px 12px',
@@ -115,7 +111,7 @@ export default function Department({ department: d }) {
         department={d}
         weeks={weeks}
         baseMetrics={baseMetrics}
-        period={period}
+        period={activePeriod}
       />
 
       <DepartmentHiringMatrix

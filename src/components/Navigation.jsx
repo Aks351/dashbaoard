@@ -3,7 +3,7 @@ import { KpiContext } from '../store/kpiStore';
 import { Database, Activity, RefreshCw } from 'lucide-react';
 
 export default function Navigation({ activeTab, setActiveTab }) {
-  const { model, connState, unlockEditing, pullFromCloud } = useContext(KpiContext);
+  const { model, connState, unlockEditing, pullFromCloud, activePeriod } = useContext(KpiContext);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const tabs = [
@@ -41,7 +41,7 @@ export default function Navigation({ activeTab, setActiveTab }) {
       </div>
 
       <div className="nav-right">
-        <div className="nav-period">KPI Review · {new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}</div>
+        <div className="nav-period">KPI Review · {activePeriod || new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}</div>
         <button 
           className="btn-refresh" 
           onClick={handleRefresh}
