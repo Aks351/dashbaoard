@@ -12,7 +12,7 @@
 import { createContext, useContext, useState, useEffect, useMemo, useRef } from 'react';
 import SEED from '../../seed.json';
 
-import { STORAGE_KEY, BACKEND_URL, EDIT_KEY } from '../constants/kpiConstants';
+import { STORAGE_KEY, BACKEND_URL, EDIT_KEY, FIXED_PLAN_VALUES } from '../constants/kpiConstants';
 import { applyInitialMigrations, applyStorageMigrations } from './migrations';
 import { buildComputedModel } from './computedModel';
 
