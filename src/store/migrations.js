@@ -20,8 +20,11 @@ export function applyInitialMigrations(data) {
   _migrateComplaintsRename(data);
   _migrateInjectClosedComplaints(data);
   _migrateFixDurationCorruption(data);
+  _migrateForceFixedPlans(data);
   return data;
 }
+
+import { FIXED_PLAN_VALUES } from '../constants/kpiConstants';
 
 // ─── Save-time migrations (run every saveToLocal call) ────────────────────────
 
@@ -39,7 +42,24 @@ export function applyStorageMigrations(model) {
   _migrateComplaintsRename(model);
   _migrateInjectClosedComplaints(model);
   _migrateFixDurationCorruption(model);
+  _migrateForceFixedPlans(model);
   return model;
+}
+
+// ─── Individual migration helpers ─────────────────────────────────────────────
+
+/** Force fixed plan values onto all existing weeks (e.g. ingots=6, avg_closing=2) */
+function _migrateForceFixedPlans(data) {
+  if (!data.weeks || !data.departments) return;
+  data.departments.forEach(d => {
+    d.metrics.forEach(m => {
+      if (FIXED_PLAN_VALUES[m.id] !== undefined) {
+        data.weeks.forEach(w => {
+          m.plan[w.id] = FIXED_PLAN_VALUES[m.id];
+        });
+      }
+    });
+  });
 }
 
 // ─── Individual migration helpers ─────────────────────────────────────────────
