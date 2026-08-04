@@ -14,7 +14,7 @@ export default function Navigation({ activeTab, setActiveTab }) {
     })),
     { id: 'data', label: 'Data Entry', icon: <Database size={16} /> }
   ];
-  
+
   const handleRefresh = async () => {
     setIsRefreshing(true);
     await pullFromCloud();
@@ -26,7 +26,7 @@ export default function Navigation({ activeTab, setActiveTab }) {
       <div className="nav-brand">
         <div className="nav-logo">Vinayak Enterprises</div>
       </div>
-      
+
       <div className="nav-tabs">
         {tabs.map(t => (
           <button
@@ -42,8 +42,8 @@ export default function Navigation({ activeTab, setActiveTab }) {
 
       <div className="nav-right">
         <div className="nav-period">KPI Review · {activePeriod || new Date().toLocaleString('en-US', { month: 'long', year: 'numeric' })}</div>
-        <button 
-          className="btn-refresh" 
+        <button
+          className="btn-refresh"
           onClick={handleRefresh}
           disabled={isRefreshing}
           style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '4px 10px', borderRadius: 4, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'rgba(255, 255, 255, 0.85)', transition: 'all 0.2s' }}

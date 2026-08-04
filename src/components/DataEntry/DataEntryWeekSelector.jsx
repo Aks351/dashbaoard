@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, X, Edit2, Check } from 'lucide-react';
-import { calculateNextWeekRange } from '../../utils/dateUtils';
+import { calculateNextWeekRange, parseWeekEndMonth, getWeekAnchorDate } from '../../utils/dateUtils';
 
 export default function DataEntryWeekSelector({ 
   weeks, 
@@ -20,10 +20,29 @@ export default function DataEntryWeekSelector({
       alert('You are in view mode. Click "Unlock Editing" first.');
       return;
     }
-    const label = `Week ${weeks.length + 1}`;
+    let label = `Week ${weeks.length + 1}`;
     let range = '';
     if (weeks.length > 0) {
       range = calculateNextWeekRange(weeks[weeks.length - 1].range);
+      
+      // Calculate the relative week number for the new month based on ISO anchor
+      const dummyEnd = parseWeekEndMonth(range, new Date().getFullYear());
+      if (dummyEnd) {
+        const anchor = getWeekAnchorDate(dummyEnd);
+        if (anchor) {
+          const targetMonth = anchor.getMonth();
+          const targetYear = anchor.getFullYear();
+          let count = 0;
+          weeks.forEach(w => {
+            const wEnd = parseWeekEndMonth(w.range, new Date().getFullYear());
+            const wAnchor = getWeekAnchorDate(wEnd);
+            if (wAnchor && wAnchor.getMonth() === targetMonth && wAnchor.getFullYear() === targetYear) {
+              count++;
+            }
+          });
+          label = `Week ${count + 1}`;
+        }
+      }
     }
     setEditLabel(label);
     setEditRange(range);
