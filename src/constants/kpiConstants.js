@@ -1,7 +1,7 @@
 // ─── App-wide constants ───────────────────────────────────────────────────────
 
 export const STORAGE_KEY = 've_kpi_model_react_v1';
-export const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbyFFLZkfZW9TJdxRpAXyaK-SJZ0jaJpStq8aeqqGBjCoglz5gIxKm8OxlHq378oT1nk/exec';
+export const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbxP94sCqfEJof4Qc2-svCt3Bcs5UJNQlaSQn9aXqMDp52oRcwuJUoqhqhYlAdg1vZXj/exec';
 export const EDIT_KEY = 'vinayak2026';
 
 // ─── Navigation / solution links ─────────────────────────────────────────────
@@ -27,8 +27,7 @@ export const STAGES = [
 // ─── Metric rule sets ─────────────────────────────────────────────────────────
 
 /** Metrics that exclusively read their MTD values from the 'monthly' sheet */
-export const MONTHLY_OVERRIDE_IDS = new Set(['oilmt', 'oilpermt', 'gasmt'
-]);
+export const MONTHLY_OVERRIDE_IDS = new Set(['oilmt', 'oilpermt']);
 
 /** Metrics whose plan is always forced to 0 ("target = 0" metrics) */
 export const ZERO_PLAN_IDS = new Set(['complaints', 'closed_complaints', 'delclient', 'delfactory', 'matret', 'qty_replaced']);
@@ -47,4 +46,4 @@ export const FIXED_PLAN_VALUES = {
 };
 
 /** Metrics hidden from the UI (data preserved in storage) */
-export const HIDDEN_METRIC_IDS = new Set(['gasmt']);
+export const HIDDEN_METRIC_IDS = new Set([]);

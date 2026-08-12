@@ -227,9 +227,9 @@ function _normalizeProductionNames(model) {
 const PRODUCTION_ORDER = [
   'fg',                // Finished Goods
   'hrslost',           // Hours Lost
+  'total_cuts',        // Total Cuts
   'oilpermt',          // Oil / MT
   'oilmt',             // Melting cost per ton
-  'gasmt',             // Gas / MT (hidden)
   'complaints',        // Open Complaints (mirrored from CRM)
   'closed_complaints', // Closed Complaints (mirrored from CRM)
   'avg_closing_days',  // Avg. Closing Days (mirrored from CRM)

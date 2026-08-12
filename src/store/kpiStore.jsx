@@ -77,6 +77,11 @@ export function KpiProvider({ children }) {
       const j = await r.json();
       if (j.ok) {
         if (j.data?.departments) {
+          // Collect all metric IDs present in cloud before migration
+          const cloudMetricIds = new Set(
+            j.data.departments.flatMap(d => d.metrics.map(m => m.id))
+          );
+
           // Migrate stale cloud data to the latest schema before using it
           const migratedData = applyStorageMigrations(j.data);
 
@@ -90,6 +95,19 @@ export function KpiProvider({ children }) {
           saveToLocal(migratedData);
           if (!migratedData.weeks.some(w => w.id === activeWeek))
             setActiveWeek(migratedData.weeks[0]?.id || null);
+
+          // ── Self-healing push ─────────────────────────────────────────────
+          // If the cloud schema is missing metrics that now exist after
+          // reconciliation (e.g. total_cuts was added locally but never pushed),
+          // trigger a full save so they are registered in the sheet.
+          // Without this, delta saves silently skip unknown metrics and data
+          // entered for them is lost on the next pull.
+          const newMetricIds = migratedData.departments.flatMap(d => d.metrics.map(m => m.id));
+          const cloudIsMissingMetrics = newMetricIds.some(id => !cloudMetricIds.has(id));
+          if (cloudIsMissingMetrics && canEdit) {
+            console.info('[kpiStore] Cloud is missing metrics after reconciliation — pushing full schema.');
+            pushFullModelToCloud(migratedData);
+          }
         }
         setConnState('online');
       } else {
@@ -101,6 +119,7 @@ export function KpiProvider({ children }) {
       setConnState('error');
     }
   };
+
 
   const pushFullModelToCloud = async (currentModel) => {
     if (!BACKEND_URL || !canEdit) return;
@@ -156,10 +175,16 @@ export function KpiProvider({ children }) {
       let j = {};
       try { j = await r.json(); } catch { }
 
-      if (r.ok || j?.ok) {
+      if (r.ok && j?.ok) {
         setConnState('online');
         keysBeingPushed.forEach(k => delete pendingEdits.current[k]);
         try { localStorage.setItem('ve_pending_edits', JSON.stringify(pendingEdits.current)); } catch {}
+      } else if (j?.code === 'SCHEMA_MISMATCH') {
+        // Cloud sheet is missing a metric (e.g. total_cuts newly added).
+        // Fall back to full save — this writes the entire schema + all data.
+        // Pending edits are kept so the full push includes the new values.
+        console.info('[kpiStore] SCHEMA_MISMATCH from delta — falling back to full push.');
+        await pushFullModelToCloud(model);
       } else {
         setConnState('error');
         if (j?.ok === false) {
@@ -172,6 +197,7 @@ export function KpiProvider({ children }) {
       setConnState('error');
     }
   };
+
 
   // ── Value mutations ─────────────────────────────────────────────────────────
   const updateValue = (deptId, metricId, field, weekId, value) => {

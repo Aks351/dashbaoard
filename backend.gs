@@ -371,6 +371,23 @@ function saveDelta(body) {
     var data  = current.data;
     var edits = body.edits || [];
 
+    // ── Check for metrics that don't exist in the cloud sheet yet ──────────
+    // If we silently skip them and return ok:true, the frontend clears the
+    // pending edit thinking it was saved — but the data is lost on next pull.
+    var missingMetrics = [];
+    edits.forEach(function(edit) {
+      var dept = data.departments.filter(function(d) { return d.id === edit.deptId; })[0];
+      if (!dept) { missingMetrics.push(edit.metricId); return; }
+      var metric = dept.metrics.filter(function(m) { return m.id === edit.metricId; })[0];
+      if (!metric) missingMetrics.push(edit.metricId);
+    });
+
+    if (missingMetrics.length > 0) {
+      // Tell the frontend to do a full save — it has the complete schema
+      return { ok: false, code: "SCHEMA_MISMATCH", missingMetrics: missingMetrics,
+               message: "Unknown metric(s): " + missingMetrics.join(", ") + ". Full save required." };
+    }
+
     edits.forEach(function(edit) {
       var dept = data.departments.filter(function(d) { return d.id === edit.deptId; })[0];
       if (!dept) return;
