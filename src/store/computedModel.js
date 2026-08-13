@@ -3,6 +3,7 @@
 // Pure function — takes the raw model, returns a new object (deep copy).
 
 import { ZERO_PLAN_IDS, HIDDEN_METRIC_IDS, RECRUITERS } from '../constants/kpiConstants';
+import { parsePeriod, parseWeekEndMonth, getWeekAnchorDate } from '../utils/dateUtils';
 
 const CORE_HIRING_STAGES = [
   { id: 'apps',  name: 'Applications' },
@@ -15,10 +16,14 @@ const CORE_HIRING_STAGES = [
  * Build the display-ready computed model from raw stored state.
  * Called inside a useMemo in KpiProvider.
  */
-export function buildComputedModel(rawModel) {
+export function buildComputedModel(rawModel, purchaseStockData = null) {
   if (!rawModel) return rawModel;
 
   const model = JSON.parse(JSON.stringify(rawModel));
+
+  if (purchaseStockData) {
+    _overridePurchaseStockMetrics(model, purchaseStockData);
+  }
 
   _computeHiringAggregates(model);
   _hideHiddenMetrics(model);
@@ -318,5 +323,125 @@ function _mirrorProductionMetricsToCrm(model) {
     } else {
       crm.metrics.push({ ...source, name });
     }
+  });
+}
+
+// ─── Purchase Stock Data Overrides ──────────────────────────────────────────
+
+const FULL_MONTHS_LIST = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function _getWeekDates(range, fallbackYear, fallbackMonth) {
+  let endDate = parseWeekEndMonth(range, fallbackYear);
+  if (!endDate) {
+    const m = range ? range.match(/(\d+)\s*[-–]\s*(\d+)/) : null;
+    if (m) {
+      const endDay = parseInt(m[2], 10);
+      endDate = new Date(fallbackYear, fallbackMonth, endDay);
+    }
+  }
+  if (!endDate || isNaN(endDate.getTime())) return [];
+
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(endDate);
+    d.setDate(d.getDate() - i);
+    days.push(d);
+  }
+  return days;
+}
+
+function _extractMetricStockInfo(metricId, monthItems) {
+  if (!Array.isArray(monthItems)) return null;
+
+  for (const item of monthItems) {
+    if (!item.days) continue;
+    const itemDesc = String(item.description || '').trim();
+    const itemMaxLevel = Number(item.maxLevel || 0);
+
+    if (metricId === 'ing97') {
+      if ((itemDesc.includes('97') || itemDesc.includes('Ingot - 97')) && !itemDesc.includes('97.5')) {
+        return { days: item.days, maxLevel: itemMaxLevel };
+      }
+    } else if (metricId === 'ing975') {
+      if (itemDesc.includes('97.5')) {
+        return { days: item.days, maxLevel: itemMaxLevel };
+      }
+    } else if (metricId === 'ing98') {
+      if ((itemDesc.includes('0.98') || itemDesc.includes('98')) && !itemDesc.includes('98.5')) {
+        return { days: item.days, maxLevel: itemMaxLevel };
+      }
+    } else if (metricId === 'ing985') {
+      if (itemDesc.includes('98.5')) {
+        return { days: item.days, maxLevel: itemMaxLevel };
+      }
+    }
+  }
+
+  // Fallback for ing975 if 97.5% is part of a combined 97% category in a month
+  if (metricId === 'ing975') {
+    for (const item of monthItems) {
+      if (!item.days) continue;
+      const itemDesc = String(item.description || '').trim();
+      if (itemDesc.includes('97')) {
+        return { days: item.days, maxLevel: Number(item.maxLevel || 0) };
+      }
+    }
+  }
+
+  return null;
+}
+
+function _overridePurchaseStockMetrics(model, stockData) {
+  if (!model || !stockData || !stockData.months) return;
+
+  const purchaseDept = model.departments.find(d => d.id === 'purchase');
+  if (!purchaseDept) return;
+
+  const targetMetricIds = ['ing97', 'ing975', 'ing98', 'ing985'];
+  const targetMetrics = purchaseDept.metrics.filter(m => targetMetricIds.includes(m.id));
+  if (targetMetrics.length === 0) return;
+
+  const defaultPeriod = model.meta?.period || '';
+  const parsedDefaultPeriod = parsePeriod(defaultPeriod);
+  const stockMonths = stockData.months;
+
+  targetMetrics.forEach(metric => {
+    if (!metric.actual) metric.actual = {};
+
+    model.weeks.forEach(w => {
+      const end = parseWeekEndMonth(w.range, parsedDefaultPeriod?.year || new Date().getFullYear());
+      const pInfo = parsedDefaultPeriod || { month: new Date().getMonth(), year: new Date().getFullYear() };
+      const weekDates = _getWeekDates(w.range, pInfo.year, pInfo.month);
+
+      let countExceeded = 0;
+      let hasValidData = false;
+
+      weekDates.forEach(date => {
+        const dMonthName = FULL_MONTHS_LIST[date.getMonth()];
+        const dYear = date.getFullYear();
+        const dPeriodKey = `${dMonthName} ${dYear}`;
+
+        const monthItems = stockMonths[dPeriodKey] || stockMonths[defaultPeriod];
+        if (!monthItems) return;
+
+        const info = _extractMetricStockInfo(metric.id, monthItems);
+        if (!info || !info.days) return;
+
+        const dayNum = date.getDate();
+        const dayIdx = dayNum - 1;
+
+        if (dayIdx >= 0 && dayIdx < info.days.length) {
+          hasValidData = true;
+          const val = Number(info.days[dayIdx]);
+          if (!isNaN(val) && val > info.maxLevel) {
+            countExceeded += 1;
+          }
+        }
+      });
+
+      if (hasValidData) {
+        metric.actual[w.id] = countExceeded;
+      }
+    });
   });
 }

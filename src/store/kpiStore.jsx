@@ -12,7 +12,7 @@
 import { createContext, useContext, useState, useEffect, useMemo, useRef } from 'react';
 import SEED from '../../seed.json';
 
-import { STORAGE_KEY, BACKEND_URL, EDIT_KEY, FIXED_PLAN_VALUES } from '../constants/kpiConstants';
+import { STORAGE_KEY, BACKEND_URL, PURCHASE_STOCK_URL, EDIT_KEY, FIXED_PLAN_VALUES } from '../constants/kpiConstants';
 import { applyInitialMigrations, applyStorageMigrations } from './migrations';
 import { buildComputedModel } from './computedModel';
 
@@ -46,6 +46,12 @@ export function KpiProvider({ children }) {
   const [canEdit,   setCanEdit]   = useState(false);
   const [activeWeek, setActiveWeek] = useState(model.weeks[0]?.id || null);
   const [selectedPeriod, setSelectedPeriod] = useState(null);
+  const [purchaseStockData, setPurchaseStockData] = useState(() => {
+    try {
+      const stored = localStorage.getItem('ve_purchase_stock_data');
+      return stored ? JSON.parse(stored) : null;
+    } catch { return null; }
+  });
 
   // ── Pending Edits (Offline-first safe merge) ──────────────────────────────
   const pendingEdits = useRef(null);
@@ -68,8 +74,23 @@ export function KpiProvider({ children }) {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch { }
   };
 
+  const fetchPurchaseStock = async () => {
+    if (!PURCHASE_STOCK_URL) return;
+    try {
+      const r = await fetch(`${PURCHASE_STOCK_URL}?t=${Date.now()}`);
+      const j = await r.json();
+      if (j && j.months) {
+        setPurchaseStockData(j);
+        try { localStorage.setItem('ve_purchase_stock_data', JSON.stringify(j)); } catch {}
+      }
+    } catch (e) {
+      console.error('Failed to fetch purchase stock data:', e);
+    }
+  };
+
   // ── Cloud sync ─────────────────────────────────────────────────────────────
   const pullFromCloud = async () => {
+    fetchPurchaseStock();
     if (!BACKEND_URL) { setConnState('offline'); return; }
     setConnState('syncing');
     try {
@@ -369,7 +390,7 @@ export function KpiProvider({ children }) {
   };
 
   // ── Computed (display-ready) model ─────────────────────────────────────────
-  const computedModel = useMemo(() => buildComputedModel(model), [model]);
+  const computedModel = useMemo(() => buildComputedModel(model, purchaseStockData), [model, purchaseStockData]);
   
   // ── Active Period Logic ────────────────────────────────────────────────────
   const availableMonths = useMemo(() => getAvailableMonths(computedModel.weeks, computedModel.meta?.period), [computedModel]);

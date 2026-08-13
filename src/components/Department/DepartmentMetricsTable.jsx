@@ -50,11 +50,23 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
           const bg = isHiring ? WEEK_COLORS[idx % WEEK_COLORS.length].head : '#f1f5f9';
           return (
             <React.Fragment key={w.id}>
-              <div className="d-cell head center" style={{ background: bg, borderLeft: B }}>{w.label.replace('Week', 'W')} Plan</div>
-              <div className="d-cell head center" style={{ background: bg }}>{w.label.replace('Week', 'W')} Act</div>
-              <div className="d-cell head center" style={{ background: bg }}>Score</div>
+              <div className="d-cell head center" style={{ background: bg, borderLeft: B }}>
+                <div>{w.label.replace('Week', 'W')} Plan</div>
+                {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#64748b', fontWeight: 400, marginTop: '1px' }}>{w.range}</div>}
+              </div>
+              <div className="d-cell head center" style={{ background: bg }}>
+                <div>{w.label.replace('Week', 'W')} Act</div>
+                {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#64748b', fontWeight: 400, marginTop: '1px' }}>{w.range}</div>}
+              </div>
+              <div className="d-cell head center" style={{ background: bg }}>
+                <div>Score</div>
+                {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#64748b', fontWeight: 400, marginTop: '1px' }}>{w.range}</div>}
+              </div>
               {showPromised && (
-                <div className="d-cell head center" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', fontSize: 9 }}>Promised</div>
+                <div className="d-cell head center" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', fontSize: 9 }}>
+                  <div>Promised</div>
+                  {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#3b82f6', opacity: 0.8, fontWeight: 400, marginTop: '1px' }}>{w.range}</div>}
+                </div>
               )}
             </React.Fragment>
           );
