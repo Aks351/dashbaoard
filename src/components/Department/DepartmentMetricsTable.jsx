@@ -12,7 +12,7 @@ const WEEK_COLORS = [
 ];
 
 // These CRM metrics always display green — they represent positive counts (higher = better, no penalty)
-const ALWAYS_GREEN_IDS = new Set(['planned_dispatch', 'ontime_dispatch', 'planned_payment', 'ontime_payment']);
+const ALWAYS_GREEN_IDS = new Set(['otd', 'otd_ontime', 'paycoll', 'paycoll_ontime']);
 const applyGreen = (id, sc) => ALWAYS_GREEN_IDS.has(id) && sc.color !== 'gray' ? { ...sc, color: 'green' } : sc;
 
 const B = '1px solid var(--border)'; // shorthand border
