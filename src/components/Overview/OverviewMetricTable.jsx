@@ -59,13 +59,16 @@ export default function OverviewMetricTable({ departments, weeks, period }) {
                 {weeks.map(w => (
                   <React.Fragment key={w.id}>
                     <div className="t-cell head center" style={{ background: '#f1f5f9', borderLeft: B }}>
-                      {w.label.replace('Week', 'W')} Plan
+                      <div>{w.label.replace('Week', 'W')} Plan</div>
+                      {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#64748b', fontWeight: 400, marginTop: '1px' }}>{w.range}</div>}
                     </div>
                     <div className="t-cell head center" style={{ background: '#f1f5f9' }}>
-                      {w.label.replace('Week', 'W')} Act
+                      <div>{w.label.replace('Week', 'W')} Act</div>
+                      {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#64748b', fontWeight: 400, marginTop: '1px' }}>{w.range}</div>}
                     </div>
                     <div className="t-cell head center" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', fontSize: 9 }}>
-                      Promised
+                      <div>Promised</div>
+                      {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#3b82f6', opacity: 0.8, fontWeight: 400, marginTop: '1px' }}>{w.range}</div>}
                     </div>
                   </React.Fragment>
                 ))}

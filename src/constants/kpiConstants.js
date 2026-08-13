@@ -2,6 +2,7 @@
 
 export const STORAGE_KEY = 've_kpi_model_react_v1';
 export const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbxP94sCqfEJof4Qc2-svCt3Bcs5UJNQlaSQn9aXqMDp52oRcwuJUoqhqhYlAdg1vZXj/exec';
+export const PURCHASE_STOCK_URL = 'https://script.google.com/macros/s/AKfycbxNBMLIik2OYz8Z9d_st75cPf5MY_2U1li5g9pWqxyyu6NFQfKwZY6eRGZ4GYoeAQNL/exec';
 export const EDIT_KEY = 'vinayak2026';
 
 // ─── Navigation / solution links ─────────────────────────────────────────────
