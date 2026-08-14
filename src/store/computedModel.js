@@ -235,9 +235,6 @@ const PRODUCTION_ORDER = [
   'total_cuts',        // Total Cuts
   'oilpermt',          // Oil / MT
   'oilmt',             // Melting cost per ton
-  'complaints',        // Open Complaints (mirrored from CRM)
-  'closed_complaints', // Closed Complaints (mirrored from CRM)
-  'avg_closing_days',  // Avg. Closing Days (mirrored from CRM)
   'matret',            // Material Returns (mirrored from CRM)
   'qty_replaced',      // Qty Replaced
 ];
@@ -272,10 +269,7 @@ function _mirrorCrmMetricsToProduction(model) {
   if (!prod || !crm) return;
 
   const IDS_TO_MIRROR = [
-    { id: 'complaints',        name: 'Open Complaints'   },
-    { id: 'closed_complaints', name: 'Closed Complaints' },
-    { id: 'avg_closing_days',  name: 'Avg. Closing Days' },
-    { id: 'matret',            name: 'Material Returns'  },
+    { id: 'matret', name: 'Material Returns' },
   ];
 
   IDS_TO_MIRROR.forEach(({ id, name }) => {
