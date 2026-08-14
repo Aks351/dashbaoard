@@ -427,7 +427,7 @@ function _overridePurchaseStockMetrics(model, stockData) {
         if (dayIdx >= 0 && dayIdx < info.days.length) {
           hasValidData = true;
           const val = Number(info.days[dayIdx]);
-          if (!isNaN(val) && val > info.maxLevel) {
+          if (!isNaN(val) && val > info.maxLevel * 0.33) {
             countExceeded += 1;
           }
         }
