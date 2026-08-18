@@ -31,7 +31,7 @@ export const STAGES = [
 export const MONTHLY_OVERRIDE_IDS = new Set(['oilmt', 'oilpermt']);
 
 /** Metrics whose plan is always forced to 0 ("target = 0" metrics) */
-export const ZERO_PLAN_IDS = new Set(['complaints', 'closed_complaints', 'delclient', 'delfactory', 'matret', 'qty_replaced']);
+export const ZERO_PLAN_IDS = new Set(['total_crm_complaints', 'complaints', 'closed_complaints', 'delclient', 'delfactory', 'matret', 'qty_replaced']);
 
 /**
  * Metrics whose plan is always a fixed non-zero value.

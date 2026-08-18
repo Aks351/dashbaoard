@@ -432,6 +432,27 @@
                     "promised": {}
                 },
                 {
+                    "id": "total_crm_complaints",
+                    "name": "Total Complaints",
+                    "sub": "",
+                    "unit": "",
+                    "dir": "zero",
+                    "total": false,
+                    "plan": {
+                        "wmqo21ah6": "",
+                        "wmqoudofq": "",
+                        "wmqyswxhs": "",
+                        "wmr8vcgjt": ""
+                    },
+                    "actual": {
+                        "wmqo21ah6": "",
+                        "wmqoudofq": "",
+                        "wmqyswxhs": "",
+                        "wmr8vcgjt": ""
+                    },
+                    "promised": {}
+                },
+                {
                     "id": "complaints",
                     "name": "Open Complaints",
                     "sub": "",
