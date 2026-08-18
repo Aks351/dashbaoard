@@ -6,8 +6,8 @@ import { ZERO_PLAN_IDS, HIDDEN_METRIC_IDS, RECRUITERS } from '../constants/kpiCo
 import { parsePeriod, parseWeekEndMonth, getWeekAnchorDate } from '../utils/dateUtils';
 
 const CORE_HIRING_STAGES = [
-  { id: 'apps',  name: 'Applications' },
-  { id: 'rono',  name: 'Interview with Rono' },
+  { id: 'apps', name: 'Applications' },
+  { id: 'rono', name: 'Interview with Rono' },
   { id: 'final', name: 'Final Round Interviews' },
   { id: 'offer', name: 'Offer Given To' },
 ];
@@ -124,21 +124,21 @@ function _computeHiringAggregates(model) {
     if (tA !== tB) return tA - tB;
 
     if (tA === 1) return getStageIdx(a.id) - getStageIdx(b.id);
-    
+
     if (tA === 2) {
       const recA = a.id.split('_')[1] || '';
       const recB = b.id.split('_')[1] || '';
       if (recA !== recB) return recA.localeCompare(recB);
       return getStageIdx(a.id) - getStageIdx(b.id);
     }
-    
+
     if (tA === 3) {
       const baseA = a.id.substring(0, a.id.lastIndexOf('_'));
       const baseB = b.id.substring(0, b.id.lastIndexOf('_'));
       if (baseA !== baseB) return baseA.localeCompare(baseB);
       return getStageIdx(a.id) - getStageIdx(b.id);
     }
-    
+
     return 0;
   });
 }
@@ -184,6 +184,7 @@ const CRM_ORDER = [
   'delfactory',       // Delayed Dispatch — Factory
   'paycoll',          // Total Payment collection
   'paycoll_ontime',   // On-time Payment
+  'total_crm_complaints', // Total CRM Complaints
   'complaints',       // Open Complaints
   'closed_complaints',// Closed Complaints
   'avg_closing_days', // Avg. Closing Days
@@ -235,6 +236,7 @@ const PRODUCTION_ORDER = [
   'total_cuts',        // Total Cuts
   'oilpermt',          // Oil / MT
   'oilmt',             // Melting cost per ton
+  'total_crm_complaints', // Total Complaints (mirrored from CRM)
   'matret',            // Material Returns (mirrored from CRM)
   'qty_replaced',      // Qty Replaced
 ];
@@ -260,7 +262,7 @@ function _reorderProductionMetrics(model) {
 // ─── Mirror CRM metrics into Production ───────────────────────────────────
 
 /**
- * Copy 'complaints' and 'matret' from CRM into Production so they appear
+ * Copy 'total_crm_complaints' and 'matret' from CRM into Production so they appear
  * in both department views. The data is shared — not duplicated in storage.
  */
 function _mirrorCrmMetricsToProduction(model) {
@@ -269,6 +271,7 @@ function _mirrorCrmMetricsToProduction(model) {
   if (!prod || !crm) return;
 
   const IDS_TO_MIRROR = [
+    { id: 'total_crm_complaints', name: 'Total Complaints' },
     { id: 'matret', name: 'Material Returns' },
   ];
 
@@ -322,7 +325,7 @@ function _mirrorProductionMetricsToCrm(model) {
 
 // ─── Purchase Stock Data Overrides ──────────────────────────────────────────
 
-const FULL_MONTHS_LIST = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const FULL_MONTHS_LIST = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 function _getWeekDates(range, fallbackYear, fallbackMonth) {
   let endDate = parseWeekEndMonth(range, fallbackYear);
