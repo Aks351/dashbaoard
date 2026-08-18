@@ -413,7 +413,7 @@ function _overridePurchaseStockMetrics(model, stockData) {
       const pInfo = parsedDefaultPeriod || { month: new Date().getMonth(), year: new Date().getFullYear() };
       const weekDates = _getWeekDates(w.range, pInfo.year, pInfo.month);
 
-      let countExceeded = 0;
+      let countNormalDays = 0;
       let hasValidData = false;
 
       weekDates.forEach(date => {
@@ -433,14 +433,15 @@ function _overridePurchaseStockMetrics(model, stockData) {
         if (dayIdx >= 0 && dayIdx < info.days.length) {
           hasValidData = true;
           const val = Number(info.days[dayIdx]);
-          if (!isNaN(val) && val > info.maxLevel) {
-            countExceeded += 1;
+          const normalThreshold = info.maxLevel * 0.65;
+          if (!isNaN(val) && val >= normalThreshold) {
+            countNormalDays += 1;
           }
         }
       });
 
       if (hasValidData) {
-        metric.actual[w.id] = countExceeded;
+        metric.actual[w.id] = countNormalDays;
       }
     });
   });

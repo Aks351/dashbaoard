@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useLayoutEffect } from 'react';
 import { mtd, calculateScore, formatVal, ZERO_PLAN_IDS } from '../../store/kpiStore';
 import { weeksInMonth } from '../../utils/dateUtils';
 
@@ -22,6 +22,14 @@ const stickyData = (isTotal) => ({
 });
 
 export default function OverviewMetricTable({ departments, weeks, period }) {
+  const tableRef = useRef(null);
+
+  useLayoutEffect(() => {
+    if (tableRef.current) {
+      tableRef.current.scrollLeft = tableRef.current.scrollWidth;
+    }
+  }, [weeks, period]);
+
   // Per-week: Plan | Act | Promised  (3 cols per week)
   // End: MTD Plan | MTD Act | Score  (3 fixed cols)
   const cols =
@@ -46,7 +54,7 @@ export default function OverviewMetricTable({ departments, weeks, period }) {
   });
 
   return (
-    <div className="metric-table-container">
+    <div className="metric-table-container" ref={tableRef}>
       <div style={{ display: 'grid', gridTemplateColumns: cols, minWidth: 'max-content', width: '100%' }}>
 
         {rows.map((row, rIdx) => {
