@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useLayoutEffect } from 'react';
 import { mtd, calculateScore, formatVal, ZERO_PLAN_IDS } from '../../store/kpiStore';
 import { weeksInMonth } from '../../utils/dateUtils';
 
@@ -23,13 +23,21 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
   const isProduction = d.id === 'production';
   const scoreOpts = isProduction ? { strict: true } : {};
 
+  const tableRef = useRef(null);
+
+  useLayoutEffect(() => {
+    if (tableRef.current) {
+      tableRef.current.scrollLeft = tableRef.current.scrollWidth;
+    }
+  }, [d.id, weeks, period]);
+
   // All rows share this SINGLE gridTemplateColumns string on ONE container grid.
   // This guarantees fr units compute identically for every row — no shifting.
   const colsPerWeek = showPromised ? `0.65fr 0.8fr 0.65fr 0.65fr` : `0.65fr 0.8fr 0.65fr`;
   const cols = `1.9fr ` + weeks.map(() => colsPerWeek).join(' ') + ` 1.1fr`;
 
   return (
-    <div className="metric-table">
+    <div className="metric-table" ref={tableRef}>
       {/*
         KEY FIX: ONE flat grid. Header cells + all data cells are direct children
         of this single grid. fr units compute once, columns lock perfectly.

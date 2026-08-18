@@ -407,7 +407,7 @@ function _overridePurchaseStockMetrics(model, stockData) {
       const pInfo = parsedDefaultPeriod || { month: new Date().getMonth(), year: new Date().getFullYear() };
       const weekDates = _getWeekDates(w.range, pInfo.year, pInfo.month);
 
-      let countExceeded = 0;
+      let countNormalDays = 0;
       let hasValidData = false;
 
       weekDates.forEach(date => {
@@ -434,7 +434,7 @@ function _overridePurchaseStockMetrics(model, stockData) {
       });
 
       if (hasValidData) {
-        metric.actual[w.id] = countExceeded;
+        metric.actual[w.id] = countNormalDays;
       }
     });
   });
