@@ -29,7 +29,7 @@
         {
             "id": "purchase",
             "name": "Purchase",
-            "emoji": "ðŸ“¦",
+            "emoji": "📦",
             "metrics": [
                 {
                     "id": "ing97",
@@ -198,7 +198,7 @@
         {
             "id": "production",
             "name": "Production",
-            "emoji": "ðŸ­",
+            "emoji": "🏭",
             "metrics": [
                 {
                     "id": "fg",
@@ -226,7 +226,7 @@
                 {
                     "id": "hrslost",
                     "name": "Hours Lost",
-                    "sub": "hrs Â· lower is better",
+                    "sub": "hrs · lower is better",
                     "unit": "hrs",
                     "dir": "lower",
                     "total": false,
@@ -293,7 +293,7 @@
                 {
                     "id": "oilpermt",
                     "name": "Oil / MT",
-                    "sub": "L/MT Â· lower is better",
+                    "sub": "L/MT · lower is better",
                     "unit": "L/MT",
                     "dir": "lower",
                     "total": false,
@@ -314,7 +314,7 @@
                 {
                     "id": "qty_replaced",
                     "name": "Qty Replaced",
-                    "sub": "MT Â· lower is better",
+                    "sub": "MT · lower is better",
                     "unit": "MT",
                     "dir": "zero",
                     "total": false,
@@ -337,7 +337,7 @@
         {
             "id": "crm",
             "name": "CRM",
-            "emoji": "ðŸ¤",
+            "emoji": "🤝",
             "metrics": [
                 {
                     "id": "otd",
@@ -365,6 +365,27 @@
                     }
                 },
                 {
+                    "id": "otd_ontime",
+                    "name": "On-Time Dispatch",
+                    "sub": "",
+                    "unit": "",
+                    "dir": "higher",
+                    "total": false,
+                    "plan": {
+                        "wmqo21ah6": "",
+                        "wmqoudofq": "",
+                        "wmqyswxhs": "",
+                        "wmr8vcgjt": ""
+                    },
+                    "actual": {
+                        "wmqo21ah6": "",
+                        "wmqoudofq": "",
+                        "wmqyswxhs": "",
+                        "wmr8vcgjt": ""
+                    },
+                    "promised": {}
+                },
+                {
                     "id": "paycoll",
                     "name": "Total Payement collection",
                     "sub": "No. received",
@@ -388,6 +409,27 @@
                         "wmqyswxhs": -40,
                         "wmr8vcgjt": -20
                     }
+                },
+                {
+                    "id": "paycoll_ontime",
+                    "name": "On-Time Payment",
+                    "sub": "",
+                    "unit": "",
+                    "dir": "higher",
+                    "total": false,
+                    "plan": {
+                        "wmqo21ah6": "",
+                        "wmqoudofq": "",
+                        "wmqyswxhs": "",
+                        "wmr8vcgjt": ""
+                    },
+                    "actual": {
+                        "wmqo21ah6": "",
+                        "wmqoudofq": "",
+                        "wmqyswxhs": "",
+                        "wmr8vcgjt": ""
+                    },
+                    "promised": {}
                 },
                 {
                     "id": "complaints",
@@ -457,7 +499,7 @@
                 },
                 {
                     "id": "delclient",
-                    "name": "Delayed Dispatch â€” Client",
+                    "name": "Delayed Dispatch — Client",
                     "sub": "Target = 0",
                     "unit": "",
                     "dir": "zero",
@@ -478,7 +520,7 @@
                 },
                 {
                     "id": "delfactory",
-                    "name": "Delayed Dispatch â€” Factory",
+                    "name": "Delayed Dispatch — Factory",
                     "sub": "Target = 0",
                     "unit": "",
                     "dir": "zero",
@@ -525,7 +567,7 @@
         {
             "id": "hiring",
             "name": "Hiring",
-            "emoji": "ðŸ‘¥",
+            "emoji": "👥",
             "metrics": [
                 {
                     "id": "apps",
@@ -591,7 +633,7 @@
                 },
                 {
                     "id": "rec_dipesh_apps",
-                    "name": "Dipesh â€” Applications",
+                    "name": "Dipesh — Applications",
                     "sub": "Recruiter: Dipesh",
                     "unit": "",
                     "dir": "higher",
@@ -612,7 +654,7 @@
                 },
                 {
                     "id": "rec_dipesh_final",
-                    "name": "Dipesh â€” Final Rounds",
+                    "name": "Dipesh — Final Rounds",
                     "sub": "Recruiter: Dipesh",
                     "unit": "",
                     "dir": "higher",
@@ -633,7 +675,7 @@
                 },
                 {
                     "id": "rec_dipesh_offer",
-                    "name": "Dipesh â€” Offer Given To",
+                    "name": "Dipesh — Offer Given To",
                     "sub": "Recruiter: Dipesh",
                     "unit": "",
                     "dir": "higher",
@@ -653,7 +695,7 @@
                 },
                 {
                     "id": "rec_madhu_apps",
-                    "name": "Madhu â€” Applications",
+                    "name": "Madhu — Applications",
                     "sub": "Recruiter: Madhu",
                     "unit": "",
                     "dir": "higher",
@@ -674,7 +716,7 @@
                 },
                 {
                     "id": "rec_madhu_final",
-                    "name": "Madhu â€” Final Rounds",
+                    "name": "Madhu — Final Rounds",
                     "sub": "Recruiter: Madhu",
                     "unit": "",
                     "dir": "higher",
@@ -695,7 +737,7 @@
                 },
                 {
                     "id": "rec_madhu_offer",
-                    "name": "Madhu â€” Offer Given To",
+                    "name": "Madhu — Offer Given To",
                     "sub": "Recruiter: Madhu",
                     "unit": "",
                     "dir": "higher",
@@ -715,8 +757,8 @@
                 },
                 {
                     "id": "pos_dipesh_tenderexecutive_apps",
-                    "name": "Tender Executive â€” Applications",
-                    "sub": "Recruiter: Dipesh Â· Position: Tender Executive Â· Applications",
+                    "name": "Tender Executive — Applications",
+                    "sub": "Recruiter: Dipesh · Position: Tender Executive · Applications",
                     "unit": "",
                     "dir": "higher",
                     "total": false,
@@ -735,8 +777,8 @@
                 },
                 {
                     "id": "pos_dipesh_tenderexecutive_offer",
-                    "name": "Tender Executive â€” Offer Given To",
-                    "sub": "Recruiter: Dipesh Â· Position: Tender Executive Â· Offer Given To",
+                    "name": "Tender Executive — Offer Given To",
+                    "sub": "Recruiter: Dipesh · Position: Tender Executive · Offer Given To",
                     "unit": "",
                     "dir": "higher",
                     "total": false,
@@ -755,8 +797,8 @@
                 },
                 {
                     "id": "pos_dipesh_tenderexecutive_final",
-                    "name": "Tender Executive â€” Final Rounds",
-                    "sub": "Recruiter: Dipesh Â· Position: Tender Executive Â· Final Rounds",
+                    "name": "Tender Executive — Final Rounds",
+                    "sub": "Recruiter: Dipesh · Position: Tender Executive · Final Rounds",
                     "unit": "",
                     "dir": "higher",
                     "total": false,
@@ -775,8 +817,8 @@
                 },
                 {
                     "id": "pos_dipesh_plantoperationsmanager_apps",
-                    "name": "Plant Operations Manager â€” Applications",
-                    "sub": "Recruiter: Dipesh Â· Position: Plant Operations Manager Â· Applications",
+                    "name": "Plant Operations Manager — Applications",
+                    "sub": "Recruiter: Dipesh · Position: Plant Operations Manager · Applications",
                     "unit": "",
                     "dir": "higher",
                     "total": false,
@@ -795,8 +837,8 @@
                 },
                 {
                     "id": "pos_dipesh_plantoperationsmanager_offer",
-                    "name": "Plant Operations Manager â€” Offer Given To",
-                    "sub": "Recruiter: Dipesh Â· Position: Plant Operations Manager Â· Offer Given To",
+                    "name": "Plant Operations Manager — Offer Given To",
+                    "sub": "Recruiter: Dipesh · Position: Plant Operations Manager · Offer Given To",
                     "unit": "",
                     "dir": "higher",
                     "total": false,
@@ -815,8 +857,8 @@
                 },
                 {
                     "id": "pos_dipesh_plantoperationsmanager_final",
-                    "name": "Plant Operations Manager â€” Final Rounds",
-                    "sub": "Recruiter: Dipesh Â· Position: Plant Operations Manager Â· Final Rounds",
+                    "name": "Plant Operations Manager — Final Rounds",
+                    "sub": "Recruiter: Dipesh · Position: Plant Operations Manager · Final Rounds",
                     "unit": "",
                     "dir": "higher",
                     "total": false,
@@ -835,8 +877,8 @@
                 },
                 {
                     "id": "pos_madhu_pc_apps",
-                    "name": "PC â€” Applications",
-                    "sub": "Recruiter: Madhu Â· Position: PC Â· Applications",
+                    "name": "PC — Applications",
+                    "sub": "Recruiter: Madhu · Position: PC · Applications",
                     "unit": "",
                     "dir": "higher",
                     "total": false,
@@ -855,8 +897,8 @@
                 },
                 {
                     "id": "pos_madhu_pc_offer",
-                    "name": "PC â€” Offer Given To",
-                    "sub": "Recruiter: Madhu Â· Position: PC Â· Offer Given To",
+                    "name": "PC — Offer Given To",
+                    "sub": "Recruiter: Madhu · Position: PC · Offer Given To",
                     "unit": "",
                     "dir": "higher",
                     "total": false,
@@ -875,8 +917,8 @@
                 },
                 {
                     "id": "pos_madhu_pc_final",
-                    "name": "PC â€” Final Rounds",
-                    "sub": "Recruiter: Madhu Â· Position: PC Â· Final Rounds",
+                    "name": "PC — Final Rounds",
+                    "sub": "Recruiter: Madhu · Position: PC · Final Rounds",
                     "unit": "",
                     "dir": "higher",
                     "total": false,
@@ -895,8 +937,8 @@
                 },
                 {
                     "id": "pos_madhu_crmsales_apps",
-                    "name": "CRM/Sales â€” Applications",
-                    "sub": "Recruiter: Madhu Â· Position: CRM/Sales Â· Applications",
+                    "name": "CRM/Sales — Applications",
+                    "sub": "Recruiter: Madhu · Position: CRM/Sales · Applications",
                     "unit": "",
                     "dir": "higher",
                     "total": false,
@@ -915,8 +957,8 @@
                 },
                 {
                     "id": "pos_madhu_crmsales_offer",
-                    "name": "CRM/Sales â€” Offer Given To",
-                    "sub": "Recruiter: Madhu Â· Position: CRM/Sales Â· Offer Given To",
+                    "name": "CRM/Sales — Offer Given To",
+                    "sub": "Recruiter: Madhu · Position: CRM/Sales · Offer Given To",
                     "unit": "",
                     "dir": "higher",
                     "total": false,
@@ -935,8 +977,8 @@
                 },
                 {
                     "id": "pos_madhu_crmsales_final",
-                    "name": "CRM/Sales â€” Final Rounds",
-                    "sub": "Recruiter: Madhu Â· Position: CRM/Sales Â· Final Rounds",
+                    "name": "CRM/Sales — Final Rounds",
+                    "sub": "Recruiter: Madhu · Position: CRM/Sales · Final Rounds",
                     "unit": "",
                     "dir": "higher",
                     "total": false,
@@ -955,8 +997,8 @@
                 },
                 {
                     "id": "pos_madhu_senioraccountant_apps",
-                    "name": "Senior Accountant â€” Applications",
-                    "sub": "Recruiter: Madhu Â· Position: Senior Accountant Â· Applications",
+                    "name": "Senior Accountant — Applications",
+                    "sub": "Recruiter: Madhu · Position: Senior Accountant · Applications",
                     "unit": "",
                     "dir": "higher",
                     "total": false,
@@ -975,8 +1017,8 @@
                 },
                 {
                     "id": "pos_madhu_senioraccountant_offer",
-                    "name": "Senior Accountant â€” Offer Given To",
-                    "sub": "Recruiter: Madhu Â· Position: Senior Accountant Â· Offer Given To",
+                    "name": "Senior Accountant — Offer Given To",
+                    "sub": "Recruiter: Madhu · Position: Senior Accountant · Offer Given To",
                     "unit": "",
                     "dir": "higher",
                     "total": false,
@@ -995,8 +1037,8 @@
                 },
                 {
                     "id": "pos_madhu_senioraccountant_final",
-                    "name": "Senior Accountant â€” Final Rounds",
-                    "sub": "Recruiter: Madhu Â· Position: Senior Accountant Â· Final Rounds",
+                    "name": "Senior Accountant — Final Rounds",
+                    "sub": "Recruiter: Madhu · Position: Senior Accountant · Final Rounds",
                     "unit": "",
                     "dir": "higher",
                     "total": false,
@@ -1015,8 +1057,8 @@
                 },
                 {
                     "id": "pos_dipesh_accountantdausa_apps",
-                    "name": "Accountant -Dausa â€” Applications",
-                    "sub": "Recruiter: Dipesh Â· Position: Accountant -Dausa Â· Applications",
+                    "name": "Accountant -Dausa — Applications",
+                    "sub": "Recruiter: Dipesh · Position: Accountant -Dausa · Applications",
                     "unit": "",
                     "dir": "higher",
                     "total": false,
@@ -1035,8 +1077,8 @@
                 },
                 {
                     "id": "pos_dipesh_accountantdausa_offer",
-                    "name": "Accountant -Dausa â€” Offer Given To",
-                    "sub": "Recruiter: Dipesh Â· Position: Accountant -Dausa Â· Offer Given To",
+                    "name": "Accountant -Dausa — Offer Given To",
+                    "sub": "Recruiter: Dipesh · Position: Accountant -Dausa · Offer Given To",
                     "unit": "",
                     "dir": "higher",
                     "total": false,
@@ -1055,8 +1097,8 @@
                 },
                 {
                     "id": "pos_dipesh_accountantdausa_final",
-                    "name": "Accountant -Dausa â€” Final Rounds",
-                    "sub": "Recruiter: Dipesh Â· Position: Accountant -Dausa Â· Final Rounds",
+                    "name": "Accountant -Dausa — Final Rounds",
+                    "sub": "Recruiter: Dipesh · Position: Accountant -Dausa · Final Rounds",
                     "unit": "",
                     "dir": "higher",
                     "total": false,

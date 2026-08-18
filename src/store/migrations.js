@@ -172,6 +172,8 @@ function _ensureHiringRoleStages(model) {
 function _legacySplitCrmDispatchPayment(data) {
   const crm = data.departments.find(d => d.id === 'crm');
   if (!crm) return;
+  // Already in new format — otd and otd_ontime are separate metrics
+  if (crm.metrics.some(m => m.id === 'otd_ontime' || m.id === 'paycoll_ontime')) return;
   if (!crm.metrics.some(m => m.id === 'otd' || m.id === 'paycoll')) return;
 
   const newMetrics = [];

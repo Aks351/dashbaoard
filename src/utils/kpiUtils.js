@@ -153,7 +153,7 @@ export function mtd(metric, weeks) {
     if (a !== null) { act += a; actCount++; }
   });
 
-  const isAverage = metric.id === 'avg_closing_days' || metric.id === 'oilmt' || metric.id === 'oilpermt' || metric.id === 'gasmt';
+  const isAverage = metric.id === 'avg_closing_days' || metric.id === 'oilmt' || metric.id === 'oilpermt';
 
   return {
     plan:   planCount > 0 ? (isAverage ? plan / planCount : plan) : null,
