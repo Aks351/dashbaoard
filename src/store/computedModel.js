@@ -389,7 +389,9 @@ function _extractMetricStockInfo(metricId, monthItems) {
 }
 
 function _overridePurchaseStockMetrics(model, stockData) {
-  if (!model || !stockData || !stockData.months) return;
+  if (!model || !stockData) return;
+  const stockMonths = stockData.months || stockData.archieve?.months || stockData.archive?.months;
+  if (!stockMonths) return;
 
   const purchaseDept = model.departments.find(d => d.id === 'purchase');
   if (!purchaseDept) return;
@@ -400,13 +402,11 @@ function _overridePurchaseStockMetrics(model, stockData) {
 
   const defaultPeriod = model.meta?.period || '';
   const parsedDefaultPeriod = parsePeriod(defaultPeriod);
-  const stockMonths = stockData.months;
 
   targetMetrics.forEach(metric => {
     if (!metric.actual) metric.actual = {};
 
     model.weeks.forEach(w => {
-      const end = parseWeekEndMonth(w.range, parsedDefaultPeriod?.year || new Date().getFullYear());
       const pInfo = parsedDefaultPeriod || { month: new Date().getMonth(), year: new Date().getFullYear() };
       const weekDates = _getWeekDates(w.range, pInfo.year, pInfo.month);
 
@@ -427,10 +427,23 @@ function _overridePurchaseStockMetrics(model, stockData) {
         const dayNum = date.getDate();
         const dayIdx = dayNum - 1;
 
-        if (dayIdx >= 0 && dayIdx < info.days.length) {
-          hasValidData = true;
-          const val = Number(info.days[dayIdx]);
-          const normalThreshold = info.maxLevel * 0.65;
+        let dayVal;
+        if (Array.isArray(info.days)) {
+          if (dayIdx >= 0 && dayIdx < info.days.length) {
+            hasValidData = true;
+            dayVal = info.days[dayIdx];
+          }
+        } else if (typeof info.days === 'object' && info.days !== null) {
+          const val = info.days[dayNum] ?? info.days[String(dayNum)] ?? info.days[dayIdx] ?? info.days[String(dayIdx)];
+          if (val !== undefined) {
+            hasValidData = true;
+            dayVal = val;
+          }
+        }
+
+        if (dayVal !== undefined) {
+          const val = Number(dayVal);
+          const normalThreshold = info.maxLevel * 0.33;
           if (!isNaN(val) && val >= normalThreshold) {
             countNormalDays += 1;
           }

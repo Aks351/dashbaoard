@@ -79,7 +79,8 @@ export function KpiProvider({ children }) {
     try {
       const r = await fetch(`${PURCHASE_STOCK_URL}?t=${Date.now()}`);
       const j = await r.json();
-      if (j && j.months) {
+      const stockMonths = j && (j.months || j.archieve?.months || j.archive?.months);
+      if (j && stockMonths) {
         setPurchaseStockData(j);
         try { localStorage.setItem('ve_purchase_stock_data', JSON.stringify(j)); } catch {}
       }
