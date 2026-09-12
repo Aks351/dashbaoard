@@ -113,3 +113,42 @@ export function getAvailableMonths(weeks, fallbackPeriod = '') {
     .sort((a, b) => a[1].year - b[1].year || a[1].month - b[1].month)
     .map(([key]) => key);
 }
+
+/**
+ * Group weeks into month buckets based on their anchor dates.
+ * Returns array of { monthKey, monthLabel, monthShort, weeks }.
+ */
+export function groupWeeksByMonth(weeks) {
+  if (!weeks || !weeks.length) return [];
+
+  const groups = [];
+  const map = new Map();
+
+  weeks.forEach(w => {
+    const end = parseWeekEndMonth(w.range, new Date().getFullYear());
+    const anchor = getWeekAnchorDate(end);
+
+    let key, label, short;
+    if (anchor) {
+      const mon = anchor.getMonth();
+      const yr = anchor.getFullYear();
+      label = `${FULL_MONTHS[mon]} ${yr}`;
+      short = MONTHS[mon];
+      key = label;
+    } else {
+      key = 'Other';
+      label = 'Other';
+      short = 'Other';
+    }
+
+    if (!map.has(key)) {
+      const groupObj = { monthKey: key, monthLabel: label, monthShort: short, weeks: [] };
+      map.set(key, groupObj);
+      groups.push(groupObj);
+    }
+    map.get(key).weeks.push(w);
+  });
+
+  return groups;
+}
+

@@ -1,25 +1,17 @@
 import React, { useRef, useLayoutEffect } from 'react';
 import { mtd, calculateScore, formatVal, ZERO_PLAN_IDS } from '../../store/kpiStore';
-import { weeksInMonth } from '../../utils/dateUtils';
+import { groupWeeksByMonth } from '../../utils/dateUtils';
 
-
-const WEEK_COLORS = [
-  { head: '#fef9ec', body: '#fffdf5' },
-  { head: '#f0f4ff', body: '#f5f8ff' },
-  { head: '#eef9f1', body: '#f3fbf6' },
-  { head: '#fdf0f6', body: '#fdf4f9' },
-  { head: '#f8f9fa', body: '#fdfdfd' },
-];
 
 // These CRM metrics always display green — they represent positive counts (higher = better, no penalty)
 const ALWAYS_GREEN_IDS = new Set(['otd', 'otd_ontime', 'paycoll', 'paycoll_ontime']);
 const applyGreen = (id, sc) => ALWAYS_GREEN_IDS.has(id) && sc.color !== 'gray' ? { ...sc, color: 'green' } : sc;
 
 const B = '1px solid var(--border)'; // shorthand border
+const WEEK_SEP_BORDER = '2px solid #cbd5e1'; // distinct week separator border
 
 export default function DepartmentMetricsTable({ department: d, weeks, baseMetrics, period }) {
-  const showPromised = ['purchase', 'production', 'crm'].includes(d.id);
-  const isHiring = d.id === 'hiring';
+  const showPromised = d.id === 'crm';
   const isProduction = d.id === 'production';
   const scoreOpts = isProduction ? { strict: true } : {};
 
@@ -31,10 +23,13 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
     }
   }, [d.id, weeks, period]);
 
+  const monthGroups = groupWeeksByMonth(weeks);
   // All rows share this SINGLE gridTemplateColumns string on ONE container grid.
   // This guarantees fr units compute identically for every row — no shifting.
   const colsPerWeek = showPromised ? `0.65fr 0.8fr 0.65fr 0.65fr` : `0.65fr 0.8fr 0.65fr`;
-  const cols = `1.9fr ` + weeks.map(() => colsPerWeek).join(' ') + ` 1.1fr`;
+  const cols =
+    `minmax(240px, 2fr) ` +
+    monthGroups.map(mg => mg.weeks.map(() => colsPerWeek).join(' ') + ` 1.1fr`).join(' ');
 
   return (
     <div className="metric-table" ref={tableRef}>
@@ -43,51 +38,79 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
         of this single grid. fr units compute once, columns lock perfectly.
       */}
       <div style={{ display: 'grid', gridTemplateColumns: cols, minWidth: 'max-content', width: '100%' }}>
-
         {/* ── HEADER CELLS ── */}
         <div
           className="d-cell head"
           style={{
             position: 'sticky', left: 0, zIndex: 3,
-            background: 'rgba(241, 245, 249, 0.85)',
-            backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+            background: '#f1f5f9',
             boxShadow: '2px 0 4px -2px rgba(0,0,0,0.10)',
+            fontSize: '11px',
+            fontWeight: 700,
+            textTransform: 'uppercase',
+            letterSpacing: '0.06em',
+            color: '#334155',
+            padding: '10px 14px',
           }}
         >Metric</div>
-        {weeks.map((w, idx) => {
-          const bg = isHiring ? WEEK_COLORS[idx % WEEK_COLORS.length].head : '#f1f5f9';
-          return (
-            <React.Fragment key={w.id}>
-              <div className="d-cell head center" style={{ background: bg, borderLeft: B }}>
-                <div>{w.label.replace('Week', 'W')} Plan</div>
-                {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#64748b', fontWeight: 400, marginTop: '1px' }}>{w.range}</div>}
-              </div>
-              <div className="d-cell head center" style={{ background: bg }}>
-                <div>{w.label.replace('Week', 'W')} Act</div>
-                {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#64748b', fontWeight: 400, marginTop: '1px' }}>{w.range}</div>}
-              </div>
-              <div className="d-cell head center" style={{ background: bg }}>
-                <div>Score</div>
-                {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#64748b', fontWeight: 400, marginTop: '1px' }}>{w.range}</div>}
-              </div>
-              {showPromised && (
-                <div className="d-cell head center" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', fontSize: 9 }}>
-                  <div>Promised</div>
-                  {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#3b82f6', opacity: 0.8, fontWeight: 400, marginTop: '1px' }}>{w.range}</div>}
-                </div>
-              )}
-            </React.Fragment>
-          );
-        })}
-        <div className="d-cell head center" style={{ background: isHiring ? '#f0faf4' : '#f1f5f9', borderLeft: B }}>MTD</div>
+
+
+        {monthGroups.map((mg) => (
+          <React.Fragment key={mg.monthKey}>
+            {mg.weeks.map((w, idx) => {
+              const isAltWeek = idx % 2 === 1;
+              const bg = isAltWeek ? '#e2e8f0' : '#f1f5f9';
+              return (
+                <React.Fragment key={w.id}>
+                  <div className="d-cell head center" style={{ background: bg, borderLeft: WEEK_SEP_BORDER }}>
+                    <div>{w.label.replace('Week', 'W')} Plan</div>
+                    {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#475569', fontWeight: 500, marginTop: '1px' }}>{w.range}</div>}
+                  </div>
+                  <div className="d-cell head center" style={{ background: bg }}>
+                    <div>{w.label.replace('Week', 'W')} Act</div>
+                    {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#475569', fontWeight: 500, marginTop: '1px' }}>{w.range}</div>}
+                  </div>
+                  <div className="d-cell head center" style={{ background: bg }}>
+                    <div>Score</div>
+                    {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#475569', fontWeight: 500, marginTop: '1px' }}>{w.range}</div>}
+                  </div>
+                  {showPromised && (
+                    <div className="d-cell head center" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', fontSize: 9 }}>
+                      <div>Promised</div>
+                      {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#3b82f6', opacity: 0.8, fontWeight: 400, marginTop: '1px' }}>{w.range}</div>}
+                    </div>
+                  )}
+                </React.Fragment>
+              );
+            })}
+            <div
+              className="d-cell head center"
+              style={{
+                background: '#ecfdf5',
+                borderLeft: 'none',
+                borderRight: 'none',
+              }}
+            >
+              <span style={{
+                background: 'rgba(16, 185, 129, 0.14)',
+                color: '#065f46',
+                padding: '3px 8px',
+                borderRadius: '5px',
+                fontSize: '11px',
+                fontWeight: 600,
+                letterSpacing: '0.02em',
+                display: 'inline-block'
+              }}>
+                {monthGroups.length > 1 ? `${mg.monthShort} MTD` : 'MTD'}
+              </span>
+            </div>
+          </React.Fragment>
+        ))}
 
         {/* ── DATA CELLS — React.Fragment keeps them flat in the grid ── */}
         {baseMetrics.map((m, mIdx) => {
-          const mt  = mtd(m, weeksInMonth(weeks, period));
           const isZeroPlan = ZERO_PLAN_IDS.has(m.id);
           const scoreDir = isZeroPlan ? 'zero' : m.dir;
-          // For zero-plan metrics, pass null as plan so calculateScore uses only the 'zero' direction logic
-          const msc = applyGreen(m.id, calculateScore(isZeroPlan ? null : mt.plan, mt.actual, scoreDir, scoreOpts));
           const isLast = mIdx === baseMetrics.length - 1;
           const rowBg = m.total ? 'rgba(248,250,252,0.85)' : 'transparent';
           const bb = isLast ? 'none' : B; // border-bottom
@@ -98,8 +121,7 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
               <div
                 className="d-cell"
                 style={{
-                  background: m.total ? 'rgba(248, 250, 252, 0.9)' : 'rgba(255, 255, 255, 0.75)',
-                  backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)',
+                  background: m.total ? '#f8fafc' : '#ffffff',
                   borderBottom: bb,
                   position: 'sticky',
                   left: 0,
@@ -113,52 +135,72 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
                 </div>
               </div>
 
-              {/* Per-week cells */}
-              {weeks.map((w, idx) => {
-                const p = m.plan[w.id];
-                const a = m.actual[w.id];
-                const sc = applyGreen(m.id, calculateScore(p, a, m.dir, scoreOpts));
-                const prom = m.promised ? m.promised[w.id] : null;
-                const wkBg = m.total ? rowBg : (isHiring ? WEEK_COLORS[idx % WEEK_COLORS.length].body : 'transparent');
+              {monthGroups.map((mg) => {
+                const mt = mtd(m, mg.weeks);
+                const msc = applyGreen(m.id, calculateScore(isZeroPlan ? null : mt.plan, mt.actual, scoreDir, scoreOpts));
 
                 return (
-                  <React.Fragment key={w.id}>
-                    <div className="d-cell center" style={{ background: wkBg, borderLeft: B, borderBottom: bb }}>
-                      <span className="plan-num">{p === '' || p == null ? '—' : formatVal(p, m.unit, m.id)}</span>
-                    </div>
-                    <div className="d-cell center" style={{ background: wkBg, borderBottom: bb }}>
-                      <span className={`val-actual ${sc.color}`}>{a === '' || a == null ? '—' : formatVal(a, m.unit, m.id)}</span>
-                    </div>
-                    <div className="d-cell center" style={{ background: wkBg, borderBottom: bb }}>
-                      <span className={`score-pill ${sc.color === 'gray' ? 'muted' : sc.color}`}>{sc.label}</span>
-                    </div>
-                    {showPromised && (
-                      <div className="d-cell center" style={{ background: m.total ? rowBg : 'rgba(59, 130, 246, 0.05)', borderBottom: bb }}>
-                        {m.dir === 'zero' ? (
-                          <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
-                        ) : prom !== '' && prom != null ? (
-                          <span className="score-pill" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' }}>
-                            {`${Number(prom) > 0 ? '+' : ''}${Number(prom)}%`}
-                          </span>
-                        ) : (
-                          <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
+                  <React.Fragment key={mg.monthKey}>
+                    {/* Per-week cells */}
+                    {mg.weeks.map((w, idx) => {
+                      const p = m.plan[w.id];
+                      const a = m.actual[w.id];
+                      const sc = applyGreen(m.id, calculateScore(p, a, m.dir, scoreOpts));
+                      const prom = m.promised ? m.promised[w.id] : null;
+                      const isAltWeek = idx % 2 === 1;
+                      const wkBg = m.total ? rowBg : (isAltWeek ? 'rgba(248, 250, 252, 0.75)' : 'transparent');
+
+                      return (
+                        <React.Fragment key={w.id}>
+                          <div className="d-cell center" style={{ background: wkBg, borderLeft: WEEK_SEP_BORDER, borderBottom: bb }}>
+                            <span className="plan-num">{p === '' || p == null ? '—' : formatVal(p, m.unit, m.id)}</span>
+                          </div>
+                          <div className="d-cell center" style={{ background: wkBg, borderBottom: bb }}>
+                            <span className={`val-actual ${sc.color}`}>{a === '' || a == null ? '—' : formatVal(a, m.unit, m.id)}</span>
+                          </div>
+                          <div className="d-cell center" style={{ background: wkBg, borderBottom: bb }}>
+                            <span className={`score-pill ${sc.color === 'gray' ? 'muted' : sc.color}`}>{sc.label}</span>
+                          </div>
+                          {showPromised && (
+                            <div className="d-cell center" style={{ background: m.total ? rowBg : 'rgba(59, 130, 246, 0.05)', borderBottom: bb }}>
+                              {m.dir === 'zero' ? (
+                                <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
+                              ) : prom !== '' && prom != null ? (
+                                <span className="score-pill" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' }}>
+                                  {`${Number(prom) > 0 ? '+' : ''}${Number(prom)}%`}
+                                </span>
+                              ) : (
+                                <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
+                              )}
+                            </div>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+
+
+                    {/* MTD */}
+                    <div
+                      className="d-cell center"
+                      style={{
+                        borderLeft: 'none',
+                        borderRight: 'none',
+                        borderBottom: bb,
+                        background: 'rgba(236, 253, 245, 0.55)',
+                      }}
+                    >
+                      <div className="mtd-cell">
+                        <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatVal(mt.actual, m.unit, m.id)}</span>
+                        {m.dir === 'zero' ? null : (
+                          <span style={{ fontSize: 10, color: '#475569', fontWeight: 500 }}>Plan: {mt.plan === null ? '—' : formatVal(mt.plan, m.unit, m.id)}</span>
                         )}
+                        <span className={`score-pill ${msc.color === 'gray' ? 'muted' : msc.color}`}>{msc.label}</span>
                       </div>
-                    )}
+                    </div>
                   </React.Fragment>
                 );
               })}
 
-              {/* MTD */}
-              <div className="d-cell center" style={{ borderLeft: B, borderBottom: bb, background: isHiring ? '#f5fff8' : 'rgba(240,253,244,0.3)' }}>
-                <div className="mtd-cell">
-                  <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatVal(mt.actual, m.unit, m.id)}</span>
-                  {m.dir === 'zero' ? null : (
-                    <span style={{ fontSize: 10, color: 'var(--muted)' }}>Plan: {mt.plan === null ? '—' : formatVal(mt.plan, m.unit, m.id)}</span>
-                  )}
-                  <span className={`score-pill ${msc.color === 'gray' ? 'muted' : msc.color}`}>{msc.label}</span>
-                </div>
-              </div>
             </React.Fragment>
           );
         })}

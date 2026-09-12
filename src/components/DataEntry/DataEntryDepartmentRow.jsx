@@ -8,7 +8,7 @@ export default function DataEntryDepartmentRow({
   updateValue,
   baseMetrics
 }) {
-  const showPromised = ['purchase', 'production', 'crm'].includes(d.id);
+  const showPromised = d.id === 'crm';
   const gridCols = showPromised ? '2fr 1fr 1fr 1fr 1fr' : '2fr 1fr 1fr 1fr';
 
   return (
@@ -16,10 +16,15 @@ export default function DataEntryDepartmentRow({
       <div className="table-row head-row" style={{ gridTemplateColumns: gridCols }}>
         <div className="t-cell head">Metric</div>
         <div className="t-cell head center">Plan</div>
-        {showPromised && <div className="t-cell head center" style={{ color: '#3b82f6' }}>Promised Score %</div>}
+        {showPromised && (
+          <div className="t-cell head center" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', fontSize: 9 }}>
+            Promised
+          </div>
+        )}
         <div className="t-cell head center">Actual</div>
         <div className="t-cell head center">Score</div>
       </div>
+
 
       {baseMetrics.map(m => {
         const p  = m.plan[wk.id] ?? '';
