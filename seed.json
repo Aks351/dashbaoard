@@ -453,7 +453,7 @@
                     "promised": {}
                 },
                 {
-                    "id": "complaints",
+                    "id": "open_complaints",
                     "name": "Open Complaints",
                     "sub": "",
                     "unit": "",

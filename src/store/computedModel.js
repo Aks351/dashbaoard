@@ -185,7 +185,7 @@ const CRM_ORDER = [
   'paycoll',          // Total Payment collection
   'paycoll_ontime',   // On-time Payment
   'total_crm_complaints', // Total CRM Complaints
-  'complaints',       // Open Complaints
+  'open_complaints',  // Open Complaints
   'closed_complaints',// Closed Complaints
   'avg_closing_days', // Avg. Closing Days
   'matret',           // Material Returns
