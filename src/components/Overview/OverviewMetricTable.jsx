@@ -1,25 +1,30 @@
 import React, { useRef, useLayoutEffect } from 'react';
 import { mtd, calculateScore, formatVal, ZERO_PLAN_IDS } from '../../store/kpiStore';
-import { weeksInMonth } from '../../utils/dateUtils';
+import { groupWeeksByMonth } from '../../utils/dateUtils';
 
-const PROMISED_DEPTS = ['purchase', 'production', 'crm'];
+const PROMISED_DEPTS = ['crm'];
 const B = '1px solid var(--border)';
+const WEEK_SEP_BORDER = '2px solid #cbd5e1';
 
 // Sticky styles for the frozen first column
 const STICKY_HEAD = {
   position: 'sticky', left: 0, zIndex: 3,
-  background: 'rgba(241, 245, 249, 0.85)',
-  backdropFilter: 'blur(16px)',
-  WebkitBackdropFilter: 'blur(16px)',
+  background: '#f1f5f9',
   boxShadow: '2px 0 4px -2px rgba(0,0,0,0.10)',
+  fontSize: '11px',
+  fontWeight: 700,
+  textTransform: 'uppercase',
+  letterSpacing: '0.06em',
+  color: '#334155',
+  padding: '10px 14px',
 };
 const stickyData = (isTotal) => ({
   position: 'sticky', left: 0, zIndex: 1,
-  background: isTotal ? 'rgba(248, 250, 252, 0.9)' : 'rgba(255, 255, 255, 0.75)',
-  backdropFilter: 'blur(16px)',
-  WebkitBackdropFilter: 'blur(16px)',
+  background: isTotal ? '#f8fafc' : '#ffffff',
   boxShadow: '2px 0 4px -2px rgba(0,0,0,0.08)',
+  padding: '11px 14px',
 });
+
 
 export default function OverviewMetricTable({ departments, weeks, period }) {
   const tableRef = useRef(null);
@@ -30,15 +35,19 @@ export default function OverviewMetricTable({ departments, weeks, period }) {
     }
   }, [weeks, period]);
 
+  const monthGroups = groupWeeksByMonth(weeks);
+
   // Per-week: Plan | Act | Promised  (3 cols per week)
-  // End: MTD Plan | MTD Act | Score  (3 fixed cols)
+  // End of each month: MTD Plan | MTD Act | Score  (3 fixed cols per month)
   const cols =
-    `minmax(220px, 2fr) ` +
-    weeks.map(() => `minmax(62px, 0.62fr) minmax(72px, 0.72fr) minmax(68px, 0.68fr)`).join(' ') +
-    ` minmax(65px, 0.65fr) minmax(75px, 0.75fr) minmax(75px, 0.75fr)`;
+    `minmax(240px, 2fr) ` +
+    monthGroups.map(mg =>
+      mg.weeks.map(() => `minmax(62px, 0.62fr) minmax(72px, 0.72fr) minmax(68px, 0.68fr)`).join(' ') +
+      ` minmax(65px, 0.65fr) minmax(75px, 0.75fr) minmax(75px, 0.75fr)`
+    ).join(' ');
 
   // Total column count for dept separator spanning
-  const totalCols = 1 + weeks.length * 3 + 3;
+  const totalCols = 1 + monthGroups.reduce((acc, mg) => acc + mg.weeks.length * 3 + 3, 0);
 
   // Flatten all rows
   const rows = [];
@@ -64,28 +73,74 @@ export default function OverviewMetricTable({ departments, weeks, period }) {
               <React.Fragment key="header">
                 {/* Sticky header first cell */}
                 <div className="t-cell head" style={STICKY_HEAD}>Metric</div>
-                {weeks.map(w => (
-                  <React.Fragment key={w.id}>
-                    <div className="t-cell head center" style={{ background: '#f1f5f9', borderLeft: B }}>
-                      <div>{w.label.replace('Week', 'W')} Plan</div>
-                      {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#64748b', fontWeight: 400, marginTop: '1px' }}>{w.range}</div>}
+                {monthGroups.map(mg => (
+                  <React.Fragment key={mg.monthKey}>
+                    {mg.weeks.map((w, idx) => {
+                      const isAltWeek = idx % 2 === 1;
+                      const headBg = isAltWeek ? '#e2e8f0' : '#f1f5f9';
+                      return (
+                        <React.Fragment key={w.id}>
+                          <div className="t-cell head center" style={{ background: headBg, borderLeft: WEEK_SEP_BORDER }}>
+                            <div>{w.label.replace('Week', 'W')} Plan</div>
+                            {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#475569', fontWeight: 500, marginTop: '1px' }}>{w.range}</div>}
+                          </div>
+                          <div className="t-cell head center" style={{ background: headBg }}>
+                            <div>{w.label.replace('Week', 'W')} Act</div>
+                            {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#475569', fontWeight: 500, marginTop: '1px' }}>{w.range}</div>}
+                          </div>
+                          <div className="t-cell head center" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', fontSize: 9 }}>
+                            <div>Promised</div>
+                            {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#3b82f6', opacity: 0.8, fontWeight: 400, marginTop: '1px' }}>{w.range}</div>}
+                          </div>
+                        </React.Fragment>
+                      );
+                    })}
+                    <div className="t-cell head center" style={{ background: '#ecfdf5', borderLeft: 'none', borderRight: 'none' }}>
+                      <span style={{
+                        background: 'rgba(16, 185, 129, 0.14)',
+                        color: '#065f46',
+                        padding: '3px 8px',
+                        borderRadius: '5px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        letterSpacing: '0.02em',
+                        display: 'inline-block'
+                      }}>
+                        {monthGroups.length > 1 ? `${mg.monthShort} MTD Plan` : 'MTD Plan'}
+                      </span>
                     </div>
-                    <div className="t-cell head center" style={{ background: '#f1f5f9' }}>
-                      <div>{w.label.replace('Week', 'W')} Act</div>
-                      {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#64748b', fontWeight: 400, marginTop: '1px' }}>{w.range}</div>}
+                    <div className="t-cell head center" style={{ background: '#ecfdf5', borderLeft: 'none', borderRight: 'none' }}>
+                      <span style={{
+                        background: 'rgba(16, 185, 129, 0.14)',
+                        color: '#065f46',
+                        padding: '3px 8px',
+                        borderRadius: '5px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        letterSpacing: '0.02em',
+                        display: 'inline-block'
+                      }}>
+                        {monthGroups.length > 1 ? `${mg.monthShort} MTD Act` : 'MTD Act'}
+                      </span>
                     </div>
-                    <div className="t-cell head center" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', fontSize: 9 }}>
-                      <div>Promised</div>
-                      {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#3b82f6', opacity: 0.8, fontWeight: 400, marginTop: '1px' }}>{w.range}</div>}
+                    <div className="t-cell head center" style={{ background: '#ecfdf5', borderLeft: 'none', borderRight: 'none' }}>
+                      <span style={{
+                        background: 'rgba(16, 185, 129, 0.14)',
+                        color: '#065f46',
+                        padding: '3px 8px',
+                        borderRadius: '5px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        letterSpacing: '0.02em',
+                        display: 'inline-block'
+                      }}>Score</span>
                     </div>
                   </React.Fragment>
                 ))}
-                <div className="t-cell head center" style={{ background: 'rgba(220,252,231,0.5)', borderLeft: B }}>MTD Plan</div>
-                <div className="t-cell head center" style={{ background: 'rgba(220,252,231,0.5)' }}>MTD Act</div>
-                <div className="t-cell head center" style={{ background: 'rgba(220,252,231,0.5)' }}>Score</div>
               </React.Fragment>
             );
           }
+
 
           /* ── DEPT SEPARATOR — spans all cols, also sticky so label stays visible ── */
           if (row.type === 'dept-sep') {
@@ -107,8 +162,6 @@ export default function OverviewMetricTable({ departments, weeks, period }) {
 
           /* ── METRIC ROW ── */
           const { d, m, showProm, isLast } = row;
-          const mt = mtd(m, weeksInMonth(weeks, period));
-          const msc = calculateScore(mt.plan, mt.actual, m.dir);
           const rowBg = m.total ? 'rgba(248,250,252,0.85)' : 'transparent';
           const bb = isLast ? 'none' : B;
 
@@ -125,48 +178,61 @@ export default function OverviewMetricTable({ departments, weeks, period }) {
                 </div>
               </div>
 
-              {/* Per-week: Plan | Act | Promised */}
-              {weeks.map(w => {
-                const p = m.plan[w.id];
-                const a = m.actual[w.id];
-                const sc = calculateScore(p, a, m.dir);
-                const prom = showProm && m.promised ? m.promised[w.id] : null;
+              {monthGroups.map(mg => {
+                const mt = mtd(m, mg.weeks);
+                const msc = calculateScore(mt.plan, mt.actual, m.dir);
 
                 return (
-                  <React.Fragment key={w.id}>
-                    <div className="t-cell center" style={{ background: rowBg, borderLeft: B, borderBottom: bb }}>
-                      <span className="plan-num">{p == null || p === '' ? '—' : formatVal(p, m.unit, m.id)}</span>
+                  <React.Fragment key={mg.monthKey}>
+                    {/* Per-week: Plan | Act | Promised */}
+                    {mg.weeks.map((w, idx) => {
+                      const p = m.plan[w.id];
+                      const a = m.actual[w.id];
+                      const sc = calculateScore(p, a, m.dir);
+                      const prom = showProm && m.promised ? m.promised[w.id] : null;
+                      const isAltWeek = idx % 2 === 1;
+                      const wkBg = m.total ? rowBg : (isAltWeek ? 'rgba(248, 250, 252, 0.75)' : rowBg);
+
+                      return (
+                        <React.Fragment key={w.id}>
+                          <div className="t-cell center" style={{ background: wkBg, borderLeft: WEEK_SEP_BORDER, borderBottom: bb }}>
+                            <span className="plan-num">{p == null || p === '' ? '—' : formatVal(p, m.unit, m.id)}</span>
+                          </div>
+                          <div className="t-cell center" style={{ background: wkBg, borderBottom: bb }}>
+                            <span className={`val-actual ${sc.color}`}>{a == null || a === '' ? '—' : formatVal(a, m.unit, m.id)}</span>
+                          </div>
+                          <div className="t-cell center" style={{ background: rowBg === 'transparent' ? 'rgba(59, 130, 246, 0.05)' : rowBg, borderBottom: bb }}>
+                            {m.dir === 'zero' ? (
+                              <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
+                            ) : prom != null && prom !== '' ? (
+                              <span className="score-pill" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' }}>
+                                {`${Number(prom) > 0 ? '+' : ''}${Number(prom)}%`}
+                              </span>
+                            ) : (
+                              <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
+                            )}
+                          </div>
+                        </React.Fragment>
+                      );
+                    })}
+
+
+                    {/* MTD Plan */}
+                    <div className="t-cell center" style={{ background: 'rgba(236, 253, 245, 0.55)', borderLeft: 'none', borderRight: 'none', borderBottom: bb }}>
+                      <span className="plan-num" style={{ fontWeight: 600, color: '#334155' }}>{mt.plan === null ? '—' : formatVal(mt.plan, m.unit, m.id)}</span>
                     </div>
-                    <div className="t-cell center" style={{ background: rowBg, borderBottom: bb }}>
-                      <span className={`val-actual ${sc.color}`}>{a == null || a === '' ? '—' : formatVal(a, m.unit, m.id)}</span>
+                    {/* MTD Act */}
+                    <div className="t-cell center" style={{ background: 'rgba(236, 253, 245, 0.55)', borderLeft: 'none', borderRight: 'none', borderBottom: bb }}>
+                      <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatVal(mt.actual, m.unit, m.id)}</span>
                     </div>
-                    <div className="t-cell center" style={{ background: rowBg === 'transparent' ? 'rgba(59, 130, 246, 0.05)' : rowBg, borderBottom: bb }}>
-                      {m.dir === 'zero' ? (
-                        <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
-                      ) : prom != null && prom !== '' ? (
-                        <span className="score-pill" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6' }}>
-                          {`${Number(prom) > 0 ? '+' : ''}${Number(prom)}%`}
-                        </span>
-                      ) : (
-                        <span style={{ color: 'var(--muted)', fontSize: 12 }}>—</span>
-                      )}
+                    {/* Score */}
+                    <div className="t-cell center" style={{ background: 'rgba(236, 253, 245, 0.55)', borderLeft: 'none', borderRight: 'none', borderBottom: bb }}>
+                      <span className={`score-pill ${msc.color === 'gray' ? 'muted' : msc.color}`}>{msc.label}</span>
                     </div>
                   </React.Fragment>
                 );
               })}
 
-              {/* MTD Plan */}
-              <div className="t-cell center" style={{ background: 'rgba(240,253,244,0.3)', borderLeft: B, borderBottom: bb }}>
-                <span className="plan-num">{mt.plan === null ? '—' : formatVal(mt.plan, m.unit, m.id)}</span>
-              </div>
-              {/* MTD Act */}
-              <div className="t-cell center" style={{ background: 'rgba(240,253,244,0.3)', borderBottom: bb }}>
-                <span className={`val-actual ${msc.color}`}>{mt.actual === null ? '—' : formatVal(mt.actual, m.unit, m.id)}</span>
-              </div>
-              {/* Score */}
-              <div className="t-cell center" style={{ background: 'rgba(240,253,244,0.3)', borderBottom: bb }}>
-                <span className={`score-pill ${msc.color === 'gray' ? 'muted' : msc.color}`}>{msc.label}</span>
-              </div>
             </React.Fragment>
           );
         })}
@@ -174,3 +240,4 @@ export default function OverviewMetricTable({ departments, weeks, period }) {
     </div>
   );
 }
+
