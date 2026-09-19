@@ -12,11 +12,11 @@
 import { createContext, useContext, useState, useEffect, useMemo, useRef } from 'react';
 import SEED from '../../seed.json';
 
-import { STORAGE_KEY, BACKEND_URL, PURCHASE_STOCK_URL, EDIT_KEY, FIXED_PLAN_VALUES } from '../constants/kpiConstants';
+import { STORAGE_KEY, FREEZE_STORAGE_KEY, BACKEND_URL, PURCHASE_STOCK_URL, EDIT_KEY, FIXED_PLAN_VALUES } from '../constants/kpiConstants';
 import { applyInitialMigrations, applyStorageMigrations } from './migrations';
 import { buildComputedModel } from './computedModel';
 
-import { getAvailableMonths } from '../utils/dateUtils';
+import { getAvailableMonths, getFreezeBoundaryInfo, getCurrentWeek } from '../utils/dateUtils';
 
 // ─── Re-exports (keeps all existing component imports working) ────────────────
 export * from '../constants/kpiConstants';
@@ -44,7 +44,10 @@ export function KpiProvider({ children }) {
 
   const [connState, setConnState] = useState('offline'); // offline | online | syncing | error
   const [canEdit,   setCanEdit]   = useState(false);
-  const [activeWeek, setActiveWeek] = useState(model.weeks[0]?.id || null);
+  const [activeWeek, setActiveWeek] = useState(() => {
+    const cur = getCurrentWeek(model.weeks);
+    return cur ? cur.id : (model.weeks[0]?.id || null);
+  });
   const [selectedPeriod, setSelectedPeriod] = useState(null);
   const [purchaseStockData, setPurchaseStockData] = useState(() => {
     try {
@@ -52,6 +55,120 @@ export function KpiProvider({ children }) {
       return stored ? JSON.parse(stored) : null;
     } catch { return null; }
   });
+
+  // ── Data Freezing State ───────────────────────────────────────────────────
+  const [freezeState, setFreezeState] = useState(() => {
+    try {
+      const stored = localStorage.getItem(FREEZE_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.isFrozen) return parsed;
+      }
+    } catch (e) {
+      console.error('Failed to load freeze config from localStorage:', e);
+    }
+    return {
+      isFrozen: false,
+      freezeUpToWeekId: null,
+      freezeUpToLabel: null,
+      frozenWeekIds: [],
+      snapshot: {},
+      frozenAt: null,
+    };
+  });
+
+  const freezeStateRef = useRef(freezeState);
+  useEffect(() => {
+    freezeStateRef.current = freezeState;
+  }, [freezeState]);
+
+  const isWeekFrozen = (weekId) => {
+    return Boolean(freezeState.isFrozen && freezeState.frozenWeekIds?.includes(weekId));
+  };
+
+  const captureFrozenSnapshot = (currentModel, targetWeekIds) => {
+    const snap = {};
+    if (!currentModel?.departments) return snap;
+    currentModel.departments.forEach(dept => {
+      snap[dept.id] = {};
+      dept.metrics.forEach(metric => {
+        snap[dept.id][metric.id] = {
+          plan: {},
+          actual: {},
+          ...(metric.promised ? { promised: {} } : {}),
+        };
+        targetWeekIds.forEach(wId => {
+          if (metric.plan && metric.plan[wId] !== undefined) {
+            snap[dept.id][metric.id].plan[wId] = metric.plan[wId];
+          }
+          if (metric.actual && metric.actual[wId] !== undefined) {
+            snap[dept.id][metric.id].actual[wId] = metric.actual[wId];
+          }
+          if (metric.promised && metric.promised[wId] !== undefined) {
+            snap[dept.id][metric.id].promised[wId] = metric.promised[wId];
+          }
+        });
+      });
+    });
+    return snap;
+  };
+
+  const freezeData = (customUpToWeekId = null) => {
+    let targetWeekIds = [];
+    let freezeUpToWeek = null;
+
+    if (customUpToWeekId) {
+      const idx = model.weeks.findIndex(w => w.id === customUpToWeekId);
+      if (idx !== -1) {
+        targetWeekIds = model.weeks.slice(0, idx + 1).map(w => w.id);
+        freezeUpToWeek = model.weeks[idx];
+      }
+    } else {
+      const boundary = getFreezeBoundaryInfo(model.weeks);
+      targetWeekIds = boundary.frozenWeekIds;
+      freezeUpToWeek = boundary.freezeUpToWeek;
+    }
+
+    if (!freezeUpToWeek || targetWeekIds.length === 0) {
+      alert('Unable to determine a previous week to freeze.');
+      return false;
+    }
+
+    const snapshot = captureFrozenSnapshot(model, targetWeekIds);
+    const newFreeze = {
+      isFrozen: true,
+      freezeUpToWeekId: freezeUpToWeek.id,
+      freezeUpToLabel: `${freezeUpToWeek.label} (${freezeUpToWeek.range || ''})`,
+      frozenWeekIds: targetWeekIds,
+      snapshot,
+      frozenAt: new Date().toISOString(),
+    };
+
+    setFreezeState(newFreeze);
+    freezeStateRef.current = newFreeze;
+    try {
+      localStorage.setItem(FREEZE_STORAGE_KEY, JSON.stringify(newFreeze));
+    } catch (e) {
+      console.error('Failed to save freeze state:', e);
+    }
+    return true;
+  };
+
+  const defreezeData = () => {
+    const cleared = {
+      isFrozen: false,
+      freezeUpToWeekId: null,
+      freezeUpToLabel: null,
+      frozenWeekIds: [],
+      snapshot: {},
+      frozenAt: null,
+    };
+    setFreezeState(cleared);
+    freezeStateRef.current = cleared;
+    try {
+      localStorage.removeItem(FREEZE_STORAGE_KEY);
+    } catch {}
+  };
 
   // ── Pending Edits (Offline-first safe merge) ──────────────────────────────
   const pendingEdits = useRef(null);
@@ -107,16 +224,48 @@ export function KpiProvider({ children }) {
           // Migrate stale cloud data to the latest schema before using it
           const migratedData = applyStorageMigrations(j.data);
 
+          // ── Data Freezing Enforcer ─────────────────────────────────────────
+          // If frozen, preserve frozen snapshot values so cloud updates do NOT
+          // overwrite them on refresh!
+          const activeFreeze = freezeStateRef.current;
+          if (activeFreeze && activeFreeze.isFrozen && activeFreeze.frozenWeekIds?.length > 0) {
+            const snap = activeFreeze.snapshot || {};
+            migratedData.departments.forEach(dept => {
+              const deptSnap = snap[dept.id] || {};
+              dept.metrics.forEach(metric => {
+                const metricSnap = deptSnap[metric.id];
+                if (metricSnap) {
+                  activeFreeze.frozenWeekIds.forEach(wId => {
+                    if (metricSnap.plan && metricSnap.plan[wId] !== undefined) {
+                      if (!metric.plan) metric.plan = {};
+                      metric.plan[wId] = metricSnap.plan[wId];
+                    }
+                    if (metricSnap.actual && metricSnap.actual[wId] !== undefined) {
+                      if (!metric.actual) metric.actual = {};
+                      metric.actual[wId] = metricSnap.actual[wId];
+                    }
+                    if (metricSnap.promised && metricSnap.promised[wId] !== undefined && metric.promised) {
+                      metric.promised[wId] = metricSnap.promised[wId];
+                    }
+                  });
+                }
+              });
+            });
+          }
+
           // Re-apply any pending local edits on top of the fresh cloud data
           Object.values(pendingEdits.current).forEach(edit => {
             const { deptId, metricId, field, weekId, value } = edit;
+            if (activeFreeze?.isFrozen && activeFreeze.frozenWeekIds?.includes(weekId)) return;
             const metric = migratedData.departments.find(d => d.id === deptId)?.metrics.find(m => m.id === metricId);
             if (metric && metric[field]) metric[field][weekId] = value;
           });
           
           saveToLocal(migratedData);
-          if (!migratedData.weeks.some(w => w.id === activeWeek))
-            setActiveWeek(migratedData.weeks[0]?.id || null);
+          if (!migratedData.weeks.some(w => w.id === activeWeek)) {
+            const cur = getCurrentWeek(migratedData.weeks);
+            setActiveWeek(cur ? cur.id : (migratedData.weeks[0]?.id || null));
+          }
 
           // ── Self-healing push ─────────────────────────────────────────────
           // If the cloud schema is missing metrics that now exist after
@@ -223,6 +372,10 @@ export function KpiProvider({ children }) {
 
   // ── Value mutations ─────────────────────────────────────────────────────────
   const updateValue = (deptId, metricId, field, weekId, value) => {
+    if (isWeekFrozen(weekId)) {
+      alert(`This week is frozen (${freezeState.freezeUpToLabel || 'locked'}). Please defreeze first to make changes.`);
+      return;
+    }
     if (BACKEND_URL && !canEdit) {
       alert('You are in view mode. Please unlock editing first.');
       return;
@@ -278,6 +431,10 @@ export function KpiProvider({ children }) {
   };
 
   const editWeek = (id, newLabel, newRange) => {
+    if (isWeekFrozen(id)) {
+      alert('Cannot edit a frozen week. Please defreeze first.');
+      return;
+    }
     const next = { ...model };
     const w    = next.weeks.find(w => w.id === id);
     if (!w) return;
@@ -288,6 +445,10 @@ export function KpiProvider({ children }) {
   };
 
   const removeWeek = (id) => {
+    if (isWeekFrozen(id)) {
+      alert('Cannot remove a frozen week. Please defreeze first.');
+      return;
+    }
     const next = { ...model };
     next.weeks = next.weeks.filter(w => w.id !== id);
     next.departments.forEach(d =>
@@ -419,6 +580,10 @@ export function KpiProvider({ children }) {
       pullFromCloud,
       resetData,
       setModel: saveToLocal,
+      freezeState,
+      freezeData,
+      defreezeData,
+      isWeekFrozen,
     }}>
       {children}
     </KpiContext.Provider>

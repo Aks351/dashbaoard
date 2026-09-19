@@ -1,5 +1,5 @@
-import React, { useRef, useLayoutEffect } from 'react';
-import { mtd, calculateScore, formatVal, ZERO_PLAN_IDS } from '../../store/kpiStore';
+import React, { useRef, useLayoutEffect, useContext } from 'react';
+import { KpiContext, mtd, calculateScore, formatVal, ZERO_PLAN_IDS } from '../../store/kpiStore';
 import { groupWeeksByMonth } from '../../utils/dateUtils';
 
 
@@ -11,6 +11,7 @@ const B = '1px solid var(--border)'; // shorthand border
 const WEEK_SEP_BORDER = '2px solid #cbd5e1'; // distinct week separator border
 
 export default function DepartmentMetricsTable({ department: d, weeks, baseMetrics, period }) {
+  const { isWeekFrozen } = useContext(KpiContext) || {};
   const showPromised = d.id === 'crm';
   const isProduction = d.id === 'production';
   const scoreOpts = isProduction ? { strict: true } : {};
@@ -59,20 +60,21 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
           <React.Fragment key={mg.monthKey}>
             {mg.weeks.map((w, idx) => {
               const isAltWeek = idx % 2 === 1;
-              const bg = isAltWeek ? '#e2e8f0' : '#f1f5f9';
+              const isFrozen = isWeekFrozen?.(w.id);
+              const bg = isFrozen ? (isAltWeek ? '#e0f2fe' : '#f0f9ff') : (isAltWeek ? '#e2e8f0' : '#f1f5f9');
               return (
                 <React.Fragment key={w.id}>
-                  <div className="d-cell head center" style={{ background: bg, borderLeft: WEEK_SEP_BORDER }}>
+                  <div className="d-cell head center" style={{ background: bg, borderLeft: WEEK_SEP_BORDER }} title={isFrozen ? 'Data for this week is frozen' : ''}>
                     <div>{w.label.replace('Week', 'W')} Plan</div>
-                    {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#475569', fontWeight: 500, marginTop: '1px' }}>{w.range}</div>}
+                    {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: isFrozen ? '#0369a1' : '#475569', fontWeight: 500, marginTop: '1px' }}>{w.range}</div>}
                   </div>
-                  <div className="d-cell head center" style={{ background: bg }}>
+                  <div className="d-cell head center" style={{ background: bg }} title={isFrozen ? 'Data for this week is frozen' : ''}>
                     <div>{w.label.replace('Week', 'W')} Act</div>
-                    {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#475569', fontWeight: 500, marginTop: '1px' }}>{w.range}</div>}
+                    {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: isFrozen ? '#0369a1' : '#475569', fontWeight: 500, marginTop: '1px' }}>{w.range}</div>}
                   </div>
-                  <div className="d-cell head center" style={{ background: bg }}>
+                  <div className="d-cell head center" style={{ background: bg }} title={isFrozen ? 'Data for this week is frozen' : ''}>
                     <div>Score</div>
-                    {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: '#475569', fontWeight: 500, marginTop: '1px' }}>{w.range}</div>}
+                    {w.range && <div style={{ fontSize: '8px', textTransform: 'none', color: isFrozen ? '#0369a1' : '#475569', fontWeight: 500, marginTop: '1px' }}>{w.range}</div>}
                   </div>
                   {showPromised && (
                     <div className="d-cell head center" style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', fontSize: 9 }}>
