@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Plus, X, Edit2, Check } from 'lucide-react';
 import { calculateNextWeekRange, parseWeekEndMonth, getWeekAnchorDate } from '../../utils/dateUtils';
 
@@ -9,11 +9,23 @@ export default function DataEntryWeekSelector({
   canEdit, 
   addWeek, 
   editWeek, 
-  removeWeek 
+  removeWeek,
+  isWeekFrozen,
 }) {
   const [editingId, setEditingId] = useState(null); // null, 'NEW', or week id
   const [editLabel, setEditLabel] = useState('');
   const [editRange, setEditRange] = useState('');
+  const activeChipRef = useRef(null);
+
+  useEffect(() => {
+    if (activeChipRef.current) {
+      activeChipRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
+    }
+  }, [activeWeek]);
 
   const handleAddWeekInit = () => {
     if (!canEdit) {
@@ -50,6 +62,10 @@ export default function DataEntryWeekSelector({
   };
 
   const handleEditWeekInit = (w) => {
+    if (isWeekFrozen?.(w.id)) {
+      alert('This week is frozen. Please defreeze first to edit it.');
+      return;
+    }
     if (!canEdit) {
       alert('You are in view mode. Click "Unlock Editing" first.');
       return;
@@ -60,10 +76,7 @@ export default function DataEntryWeekSelector({
   };
 
   const handleSaveWeek = () => {
-    if (!editLabel.trim() || !editRange.trim()) {
-      alert("Both Label and Range are required.");
-      return;
-    }
+    if (!editLabel.trim()) return;
     if (editingId === 'NEW') {
       addWeek(editLabel, editRange);
     } else {
@@ -73,6 +86,10 @@ export default function DataEntryWeekSelector({
   };
 
   const handleRemoveWeek = (id) => {
+    if (isWeekFrozen?.(id)) {
+      alert('This week is frozen. Please defreeze first to remove it.');
+      return;
+    }
     if (!canEdit) {
       alert('You are in view mode. Click "Unlock Editing" first.');
       return;
@@ -89,6 +106,8 @@ export default function DataEntryWeekSelector({
   return (
     <div className="week-bar">
       {weeks.map(w => {
+        const isFrozen = isWeekFrozen?.(w.id);
+
         if (editingId === w.id) {
           return (
             <div key={w.id} className="week-chip active" style={{ display: 'flex', gap: 6, padding: '6px 12px' }}>
@@ -122,16 +141,23 @@ export default function DataEntryWeekSelector({
         return (
           <div 
             key={w.id} 
+            ref={w.id === activeWeek ? activeChipRef : null}
             className={`week-chip ${w.id === activeWeek ? 'active' : ''}`}
             onClick={() => setActiveWeek(w.id)}
+            style={isFrozen ? { borderColor: 'rgba(56, 189, 248, 0.4)', background: w.id === activeWeek ? undefined : 'rgba(56, 189, 248, 0.05)' } : undefined}
+            title={isFrozen ? 'Data for this week is frozen' : undefined}
           >
             {w.label} · {w.range}
-            <span className="x" style={{ display: 'flex', alignItems: 'center', marginLeft: 6 }} onClick={(e) => { e.stopPropagation(); handleEditWeekInit(w); }}>
-              <Edit2 size={12} />
-            </span>
-            <span className="x" style={{ display: 'flex', alignItems: 'center', marginLeft: 4 }} onClick={(e) => { e.stopPropagation(); handleRemoveWeek(w.id); }}>
-              <X size={14} />
-            </span>
+            {!isFrozen && (
+              <>
+                <span className="x" style={{ display: 'flex', alignItems: 'center', marginLeft: 6 }} onClick={(e) => { e.stopPropagation(); handleEditWeekInit(w); }} title="Edit week">
+                  <Edit2 size={12} />
+                </span>
+                <span className="x" style={{ display: 'flex', alignItems: 'center', marginLeft: 4 }} onClick={(e) => { e.stopPropagation(); handleRemoveWeek(w.id); }} title="Remove week">
+                  <X size={14} />
+                </span>
+              </>
+            )}
           </div>
         );
       })}

@@ -152,3 +152,59 @@ export function groupWeeksByMonth(weeks) {
   return groups;
 }
 
+/**
+ * Returns the current active week matching today's date, or falls back to the latest week.
+ */
+export function getCurrentWeek(weeks) {
+  if (!weeks || weeks.length === 0) return null;
+  const now = new Date();
+  const currentYear = now.getFullYear();
+
+  for (let i = 0; i < weeks.length; i++) {
+    const end = parseWeekEndMonth(weeks[i].range, currentYear);
+    if (end) {
+      const start = new Date(end);
+      start.setDate(start.getDate() - 6);
+      start.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(end);
+      endOfDay.setHours(23, 59, 59, 999);
+      if (now >= start && now <= endOfDay) {
+        return weeks[i];
+      }
+    }
+  }
+
+  // Fallback to latest week if no week strictly matches today's date
+  return weeks[weeks.length - 1];
+}
+
+/**
+ * Identify the current week and the previous week ("last week") to freeze up to.
+ * Returns { currentWeek, freezeUpToWeek, frozenWeekIds }.
+ */
+export function getFreezeBoundaryInfo(weeks) {
+  if (!weeks || weeks.length === 0) {
+    return { currentWeek: null, freezeUpToWeek: null, frozenWeekIds: [] };
+  }
+
+  const currentWeek = getCurrentWeek(weeks);
+  const curIndex = weeks.findIndex(w => w.id === currentWeek?.id);
+  const prevIndex = curIndex - 1;
+
+  if (prevIndex < 0) {
+    return {
+      currentWeek,
+      freezeUpToWeek: null,
+      frozenWeekIds: [],
+    };
+  }
+
+  const freezeUpToWeek = weeks[prevIndex];
+  const frozenWeekIds = weeks.slice(0, prevIndex + 1).map(w => w.id);
+
+  return {
+    currentWeek,
+    freezeUpToWeek,
+    frozenWeekIds,
+  };
+}
