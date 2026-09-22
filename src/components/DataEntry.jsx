@@ -49,9 +49,16 @@ export default function DataEntry() {
   const isCurrentWeekFrozen = isWeekFrozen?.(activeWeek);
   const effectiveCanEdit = canEdit && !isCurrentWeekFrozen;
 
+  const [isFreezing, setIsFreezing] = useState(false);
+  const [isDefreezing, setIsDefreezing] = useState(false);
+
   const boundary = getFreezeBoundaryInfo(model.weeks);
 
   const openFreezeModal = () => {
+    if (!canEdit) {
+      const unlocked = unlockEditing();
+      if (!unlocked) return;
+    }
     setSelectedFreezeWeekId(
       boundary.freezeUpToWeek?.id ||
         model.weeks[model.weeks.length - 2]?.id ||
@@ -60,20 +67,38 @@ export default function DataEntry() {
     setShowFreezeModal(true);
   };
 
-  const handleConfirmFreeze = () => {
-    const success = freezeData(selectedFreezeWeekId);
-    if (success) {
-      setShowFreezeModal(false);
+  const handleConfirmFreeze = async () => {
+    if (!canEdit) {
+      const unlocked = unlockEditing();
+      if (!unlocked) return;
+    }
+    setIsFreezing(true);
+    try {
+      const success = await freezeData(selectedFreezeWeekId);
+      if (success) {
+        setShowFreezeModal(false);
+      }
+    } finally {
+      setIsFreezing(false);
     }
   };
 
-  const handleDefreeze = () => {
+  const handleDefreeze = async () => {
+    if (!canEdit) {
+      const unlocked = unlockEditing();
+      if (!unlocked) return;
+    }
     if (
       window.confirm(
-        "Defreeze dashboard data? After defreezing, clicking Refresh will update all weeks with live cloud data.",
+        "Defreeze dashboard data for all users? After defreezing, clicking Refresh will update all weeks with live cloud data.",
       )
     ) {
-      defreezeData();
+      setIsDefreezing(true);
+      try {
+        await defreezeData();
+      } finally {
+        setIsDefreezing(false);
+      }
     }
   };
 
@@ -133,34 +158,40 @@ export default function DataEntry() {
               </div>
               <button
                 onClick={handleDefreeze}
+                disabled={isDefreezing}
                 style={{
-                  background: "#ef4444",
+                  background: isDefreezing ? "#94a3b8" : canEdit ? "#ef4444" : "#64748b",
                   border: "none",
                   borderRadius: "7px",
                   padding: "5px 12px",
                   fontSize: "12px",
                   fontWeight: 600,
                   color: "#ffffff",
-                  cursor: "pointer",
-                  boxShadow: "0 2px 6px rgba(239, 68, 68, 0.25)",
+                  cursor: isDefreezing ? "wait" : "pointer",
+                  boxShadow: "0 2px 6px rgba(0, 0, 0, 0.15)",
                   transition: "all 0.15s ease",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "5px",
                 }}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = "#dc2626")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.background = "#ef4444")
-                }
-                title="Click to defreeze and re-enable live cloud syncing for all weeks"
+                onMouseEnter={(e) => {
+                  if (!isDefreezing) e.currentTarget.style.background = canEdit ? "#dc2626" : "#475569";
+                }}
+                onMouseLeave={(e) => {
+                  if (!isDefreezing) e.currentTarget.style.background = canEdit ? "#ef4444" : "#64748b";
+                }}
+                title={canEdit ? "Click to defreeze and re-enable live cloud syncing for all weeks" : "Password required to defreeze data (Click to enter password)"}
               >
-                Defreeze
+                {isDefreezing ? "Defreezing..." : canEdit ? "Defreeze" : "🔒 Defreeze"}
               </button>
             </div>
           ) : (
             <button
               onClick={openFreezeModal}
               style={{
-                background: "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)",
+                background: canEdit
+                  ? "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)"
+                  : "linear-gradient(135deg, #475569 0%, #334155 100%)",
                 color: "#ffffff",
                 border: "none",
                 borderRadius: "10px",
@@ -171,22 +202,26 @@ export default function DataEntry() {
                 display: "flex",
                 alignItems: "center",
                 gap: "7px",
-                boxShadow: "0 4px 12px rgba(2, 132, 199, 0.25)",
+                boxShadow: canEdit
+                  ? "0 4px 12px rgba(2, 132, 199, 0.25)"
+                  : "0 4px 12px rgba(51, 65, 85, 0.25)",
                 transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = "translateY(-1px)";
-                e.currentTarget.style.boxShadow =
-                  "0 6px 16px rgba(2, 132, 199, 0.35)";
+                e.currentTarget.style.boxShadow = canEdit
+                  ? "0 6px 16px rgba(2, 132, 199, 0.35)"
+                  : "0 6px 16px rgba(51, 65, 85, 0.35)";
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = "none";
-                e.currentTarget.style.boxShadow =
-                  "0 4px 12px rgba(2, 132, 199, 0.25)";
+                e.currentTarget.style.boxShadow = canEdit
+                  ? "0 4px 12px rgba(2, 132, 199, 0.25)"
+                  : "0 4px 12px rgba(51, 65, 85, 0.25)";
               }}
-              title="Freeze data up to the last week of current month"
+              title={canEdit ? "Freeze data up to selected week" : "Password required to freeze data (Click to enter password)"}
             >
-              <span>Freeze Data</span>
+              <span>{canEdit ? "❄️ Freeze Data" : "🔒 Freeze Data"}</span>
             </button>
           )}
 
@@ -545,6 +580,7 @@ export default function DataEntry() {
               </button>
               <button
                 onClick={handleConfirmFreeze}
+                disabled={isFreezing}
                 className="btn-primary"
                 style={{
                   padding: "9px 20px",
@@ -553,10 +589,11 @@ export default function DataEntry() {
                   display: "flex",
                   alignItems: "center",
                   gap: "7px",
-                  cursor: "pointer",
+                  cursor: isFreezing ? "wait" : "pointer",
+                  opacity: isFreezing ? 0.75 : 1,
                 }}
               >
-                <span>Freeze Data</span>
+                <span>{isFreezing ? "Freezing for all users..." : "Freeze Data"}</span>
               </button>
             </div>
           </div>

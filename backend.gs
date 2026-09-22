@@ -388,6 +388,14 @@ function saveDelta(body) {
                message: "Unknown metric(s): " + missingMetrics.join(", ") + ". Full save required." };
     }
 
+    // ── Reject edits to frozen weeks ──────────────────────────
+    var freezeConfig = data.meta && data.meta.freezeConfig;
+    if (freezeConfig && freezeConfig.isFrozen && Array.isArray(freezeConfig.frozenWeekIds)) {
+      var frozenSet = {};
+      freezeConfig.frozenWeekIds.forEach(function(wId) { frozenSet[wId] = true; });
+      edits = edits.filter(function(edit) { return !frozenSet[edit.weekId]; });
+    }
+
     edits.forEach(function(edit) {
       var dept = data.departments.filter(function(d) { return d.id === edit.deptId; })[0];
       if (!dept) return;
@@ -405,15 +413,43 @@ function saveDelta(body) {
   } finally { lock.releaseLock(); }
 }
 
+function saveFreeze(body) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    var metaSheet = getOrCreateSheet_(CONFIG.META_TAB);
+    var metaRange = metaSheet.getRange(1, 2);
+    var metaVal = metaRange.getValue();
+    var meta = {};
+    try { meta = metaVal ? JSON.parse(metaVal) : {}; } catch (_) {}
+
+    if (body.freezeConfig && body.freezeConfig.isFrozen) {
+      meta.freezeConfig = body.freezeConfig;
+    } else {
+      delete meta.freezeConfig;
+    }
+
+    var now = new Date();
+    metaRange.setValue(JSON.stringify(meta));
+    metaSheet.getRange("B2").setValue(now);
+    var prevVer = parseInt(metaSheet.getRange("B3").getValue(), 10) || 0;
+    var newVer = prevVer + 1;
+    metaSheet.getRange("B3").setValue(newVer);
+
+    return { ok: true, freezeConfig: meta.freezeConfig || null, savedAt: now.toISOString(), version: newVer };
+  } finally { lock.releaseLock(); }
+}
+
 function doGet(e) {
   try { return jsonResponse(readDashboard()); }
   catch (err) { return errorResponse(err.code || "SERVER_ERROR", err.message || String(err)); }
 }
 
 var POST_HANDLERS = {
-  save:      saveDashboard,
-  saveDelta: saveDelta,
-  get:       function(_body) { return readDashboard(); }
+  save:       saveDashboard,
+  saveDelta:  saveDelta,
+  saveFreeze: saveFreeze,
+  get:        function(_body) { return readDashboard(); }
 };
 
 function doPost(e) {
