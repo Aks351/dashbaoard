@@ -208,3 +208,72 @@ export function getFreezeBoundaryInfo(weeks) {
     frozenWeekIds,
   };
 }
+
+export function formatTime12(timeStr) {
+  if (!timeStr) return '';
+  const parts = String(timeStr).split(':');
+  const h = parseInt(parts[0], 10);
+  const m = parts[1] !== undefined ? parts[1].padStart(2, '0') : '00';
+  if (isNaN(h)) return timeStr;
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h % 12 || 12;
+  return `${hour12}:${m} ${period}`;
+}
+
+export function formatDateDisplay(dateStr) {
+  if (!dateStr) return '';
+  const parts = String(dateStr).split('-');
+  if (parts.length === 3) {
+    const y = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10) - 1;
+    const d = parseInt(parts[2], 10);
+    const dateObj = new Date(y, m, d);
+    if (!isNaN(dateObj.getTime())) {
+      const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'short' });
+      const month = dateObj.toLocaleDateString('en-US', { month: 'short' });
+      return `${weekday}, ${dateObj.getDate()} ${month} ${y}`;
+    }
+  }
+  return dateStr;
+}
+
+export function getPreviousWeeksUpToDate(weeks, targetDateStr) {
+  if (!weeks || weeks.length === 0) {
+    return { freezeUpToWeek: null, frozenWeekIds: [] };
+  }
+
+  const boundary = getFreezeBoundaryInfo(weeks);
+
+  if (!targetDateStr) {
+    return {
+      freezeUpToWeek: boundary.freezeUpToWeek,
+      frozenWeekIds: boundary.frozenWeekIds,
+    };
+  }
+
+  const targetDate = new Date(targetDateStr + 'T23:59:59');
+  const year = targetDate.getFullYear();
+
+  let upToIndex = -1;
+  for (let i = 0; i < weeks.length; i++) {
+    const end = parseWeekEndMonth(weeks[i].range, year);
+    if (end) {
+      const endOfDay = new Date(end);
+      endOfDay.setHours(23, 59, 59, 999);
+      if (endOfDay <= targetDate) {
+        upToIndex = i;
+      }
+    }
+  }
+
+  if (upToIndex === -1) {
+    return {
+      freezeUpToWeek: boundary.freezeUpToWeek || weeks[0],
+      frozenWeekIds: boundary.frozenWeekIds.length ? boundary.frozenWeekIds : [weeks[0].id],
+    };
+  }
+
+  const freezeUpToWeek = weeks[upToIndex];
+  const frozenWeekIds = weeks.slice(0, upToIndex + 1).map(w => w.id);
+  return { freezeUpToWeek, frozenWeekIds };
+}

@@ -12,11 +12,19 @@
 import { createContext, useContext, useState, useEffect, useMemo, useRef } from 'react';
 import SEED from '../../seed.json';
 
-import { STORAGE_KEY, FREEZE_STORAGE_KEY, BACKEND_URL, PURCHASE_STOCK_URL, EDIT_KEY, FIXED_PLAN_VALUES } from '../constants/kpiConstants';
+import { STORAGE_KEY, FREEZE_STORAGE_KEY, BACKEND_URL, PURCHASE_STOCK_URL, EDIT_KEY, FREEZE_KEY, FIXED_PLAN_VALUES } from '../constants/kpiConstants';
 import { applyInitialMigrations, applyStorageMigrations } from './migrations';
 import { buildComputedModel } from './computedModel';
+import UnlockEditingModal from '../components/UnlockEditingModal';
 
-import { getAvailableMonths, getFreezeBoundaryInfo, getCurrentWeek } from '../utils/dateUtils';
+import {
+  getAvailableMonths,
+  getFreezeBoundaryInfo,
+  getCurrentWeek,
+  formatTime12,
+  formatDateDisplay,
+  getPreviousWeeksUpToDate,
+} from '../utils/dateUtils';
 
 // ─── Re-exports (keeps all existing component imports working) ────────────────
 export * from '../constants/kpiConstants';
@@ -44,6 +52,7 @@ export function KpiProvider({ children }) {
 
   const [connState, setConnState] = useState('offline'); // offline | online | syncing | error
   const [canEdit,   setCanEdit]   = useState(false);
+  const [showUnlockModal, setShowUnlockModal] = useState(false);
   const [activeWeek, setActiveWeek] = useState(() => {
     const cur = getCurrentWeek(model.weeks);
     return cur ? cur.id : (model.weeks[0]?.id || null);
@@ -124,85 +133,80 @@ export function KpiProvider({ children }) {
   };
 
   const syncFreezeToCloud = async (freezeConfig, currentModel) => {
-    if (!BACKEND_URL || !canEdit) return false;
+    if (!BACKEND_URL) return false;
     setConnState('syncing');
     try {
-      // First try the dedicated lightweight action: 'saveFreeze'
+      // Build clean payload with meta.freezeConfig
+      const payload = JSON.parse(
+        JSON.stringify(currentModel, (k, v) => (k && k[0] === '_') ? undefined : v)
+      );
+      if (!payload.meta) payload.meta = {};
+      payload.meta.freezeConfig = freezeConfig;
+
       const r = await fetch(BACKEND_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'saveFreeze', key: EDIT_KEY, freezeConfig }),
+        body: JSON.stringify({ action: 'save', key: EDIT_KEY, data: payload }),
       });
       let j = {};
       try { j = await r.json(); } catch {}
 
-      if (r.ok && j?.ok) {
+      if (r.ok || j?.ok) {
         setConnState('online');
         return true;
       }
-
-      // If backend reports UNKNOWN_ACTION (e.g. running older Apps Script revision),
-      // seamlessly fall back to pushFullModelToCloud which writes meta.freezeConfig
-      if (j?.code === 'UNKNOWN_ACTION') {
-        console.info('[kpiStore] Falling back to full model save for freeze sync...');
-        await pushFullModelToCloud(currentModel);
-        return true;
-      }
-
-      if (j?.ok === false) {
-        if (j.code === 'AUTH_ERROR') {
-          alert('Edit key rejected by server.');
-          setCanEdit(false);
-        } else {
-          console.error('Freeze sync failed:', j.message);
-        }
-        setConnState('error');
-        return false;
-      }
+      console.error('syncFreezeToCloud failed:', j?.message);
+      setConnState('error');
+      return false;
     } catch (e) {
-      console.error('syncFreezeToCloud error, falling back to full save:', e);
-      try {
-        await pushFullModelToCloud(currentModel);
-        return true;
-      } catch (err) {
-        setConnState('error');
-        return false;
-      }
+      console.error('syncFreezeToCloud error:', e);
+      setConnState('error');
+      return false;
     }
-    return false;
   };
 
-  const freezeData = async (customUpToWeekId = null) => {
-    if (!canEdit) {
-      const unlocked = unlockEditing();
-      if (!unlocked) return false;
+  const freezeData = async (customUpToWeekId = null, options = {}) => {
+    let actualWeekId = customUpToWeekId;
+    let actualOptions = options;
+    if (customUpToWeekId && typeof customUpToWeekId === 'object') {
+      actualOptions = customUpToWeekId;
+      actualWeekId = actualOptions.customUpToWeekId || null;
     }
+
+    const { date, time = '18:00' } = actualOptions;
 
     let targetWeekIds = [];
     let freezeUpToWeek = null;
 
-    if (customUpToWeekId) {
-      const idx = model.weeks.findIndex(w => w.id === customUpToWeekId);
+    if (actualWeekId) {
+      const idx = model.weeks.findIndex(w => w.id === actualWeekId);
       if (idx !== -1) {
         targetWeekIds = model.weeks.slice(0, idx + 1).map(w => w.id);
         freezeUpToWeek = model.weeks[idx];
       }
     } else {
-      const boundary = getFreezeBoundaryInfo(model.weeks);
-      targetWeekIds = boundary.frozenWeekIds;
-      freezeUpToWeek = boundary.freezeUpToWeek;
+      const boundaryInfo = getPreviousWeeksUpToDate(model.weeks, date);
+      targetWeekIds = boundaryInfo.frozenWeekIds;
+      freezeUpToWeek = boundaryInfo.freezeUpToWeek;
     }
 
     if (!freezeUpToWeek || targetWeekIds.length === 0) {
-      alert('Unable to determine a previous week to freeze.');
+      alert('Unable to determine previous weeks to freeze.');
       return false;
     }
+
+    const timeFormatted = formatTime12(time);
+    const dateFormatted = formatDateDisplay(date);
+    const dateTimeStr = date && time ? ` · ${dateFormatted} at ${timeFormatted}` : date ? ` · ${dateFormatted}` : '';
+    const freezeUpToLabel = `${freezeUpToWeek.label} (${freezeUpToWeek.range || ''})${dateTimeStr}`;
 
     const snapshot = captureFrozenSnapshot(model, targetWeekIds);
     const newFreeze = {
       isFrozen: true,
       freezeUpToWeekId: freezeUpToWeek.id,
-      freezeUpToLabel: `${freezeUpToWeek.label} (${freezeUpToWeek.range || ''})`,
+      freezeUpToLabel,
+      freezeDate: date,
+      freezeTime: time,
       frozenWeekIds: targetWeekIds,
       snapshot,
       frozenAt: new Date().toISOString(),
@@ -232,15 +236,12 @@ export function KpiProvider({ children }) {
   };
 
   const defreezeData = async () => {
-    if (!canEdit) {
-      const unlocked = unlockEditing();
-      if (!unlocked) return false;
-    }
-
     const cleared = {
       isFrozen: false,
       freezeUpToWeekId: null,
       freezeUpToLabel: null,
+      freezeDate: null,
+      freezeTime: null,
       frozenWeekIds: [],
       snapshot: {},
       frozenAt: null,
@@ -262,6 +263,7 @@ export function KpiProvider({ children }) {
 
     // Push defreeze to cloud so all devices/users are unlocked
     await syncFreezeToCloud(cleared, nextModel);
+    return true;
   };
 
   // ── Pending Edits (Offline-first safe merge) ──────────────────────────────
@@ -278,14 +280,6 @@ export function KpiProvider({ children }) {
   // ── Boot: pull latest data from cloud ──────────────────────────────────────
   useEffect(() => { pullFromCloud(); }, []);
 
-  // ── Window focus: re-sync to get freeze/data updates from other laptops ──
-  useEffect(() => {
-    const handleFocus = () => {
-      pullFromCloud();
-    };
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, []);
 
   // ── Persist + migrate on every model change ────────────────────────────────
   const saveToLocal = (modelData) => {
@@ -336,12 +330,14 @@ export function KpiProvider({ children }) {
             freezeStateRef.current = cloudFreeze;
             activeFreeze = cloudFreeze;
             try { localStorage.setItem(FREEZE_STORAGE_KEY, JSON.stringify(cloudFreeze)); } catch {}
-          } else if (activeFreeze?.isFrozen) {
-            // Cloud indicates dashboard is defrozen
+          } else if (cloudFreeze && cloudFreeze.isFrozen === false && activeFreeze?.isFrozen) {
+            // Cloud explicitly indicates dashboard was defrozen
             const cleared = {
               isFrozen: false,
               freezeUpToWeekId: null,
               freezeUpToLabel: null,
+              freezeDate: null,
+              freezeTime: null,
               frozenWeekIds: [],
               snapshot: {},
               frozenAt: null,
@@ -350,6 +346,9 @@ export function KpiProvider({ children }) {
             freezeStateRef.current = cleared;
             activeFreeze = cleared;
             try { localStorage.removeItem(FREEZE_STORAGE_KEY); } catch {}
+          } else if (activeFreeze?.isFrozen && (!cloudFreeze || !cloudFreeze.isFrozen)) {
+            // Local state is frozen but cloud doesn't have it yet; ensure cloud receives it
+            syncFreezeToCloud(activeFreeze, migratedData);
           }
 
           // ── Data Freezing Enforcer ─────────────────────────────────────────
@@ -534,16 +533,7 @@ export function KpiProvider({ children }) {
   };
 
   const unlockEditing = () => {
-    const k = prompt('Enter the editor passphrase to enable editing:');
-    if (k === null) return false;
-    if (k === EDIT_KEY) { 
-      setCanEdit(true); 
-      alert('Editing unlocked on this device.'); 
-      return true;
-    } else {
-      alert('Wrong passphrase. You can still view, but not edit.');
-      return false;
-    }
+    setShowUnlockModal(true);
   };
 
   // ── Week management ─────────────────────────────────────────────────────────
@@ -717,8 +707,19 @@ export function KpiProvider({ children }) {
       freezeData,
       defreezeData,
       isWeekFrozen,
+      showUnlockModal,
+      setShowUnlockModal,
     }}>
       {children}
+      {showUnlockModal && (
+        <UnlockEditingModal
+          onClose={() => setShowUnlockModal(false)}
+          onSuccess={() => {
+            setCanEdit(true);
+            setShowUnlockModal(false);
+          }}
+        />
+      )}
     </KpiContext.Provider>
   );
 }

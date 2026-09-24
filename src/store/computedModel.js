@@ -2,14 +2,22 @@
 // Transforms the raw stored model into a display-ready computed model.
 // Pure function — takes the raw model, returns a new object (deep copy).
 
-import { ZERO_PLAN_IDS, HIDDEN_METRIC_IDS, RECRUITERS } from '../constants/kpiConstants';
-import { parsePeriod, parseWeekEndMonth, getWeekAnchorDate } from '../utils/dateUtils';
+import {
+  ZERO_PLAN_IDS,
+  HIDDEN_METRIC_IDS,
+  RECRUITERS,
+} from "../constants/kpiConstants";
+import {
+  parsePeriod,
+  parseWeekEndMonth,
+  getWeekAnchorDate,
+} from "../utils/dateUtils";
 
 const CORE_HIRING_STAGES = [
-  { id: 'apps', name: 'Applications' },
-  { id: 'rono', name: 'Interview with Rono' },
-  { id: 'final', name: 'Final Round Interviews' },
-  { id: 'offer', name: 'Offer Given To' },
+  { id: "apps", name: "Applications" },
+  { id: "rono", name: "Interview with Rono" },
+  { id: "final", name: "Final Round Interviews" },
+  { id: "offer", name: "Offer Given To" },
 ];
 
 /**
@@ -41,49 +49,61 @@ export function buildComputedModel(rawModel, purchaseStockData = null) {
 // ─── Hiring aggregate rollup ──────────────────────────────────────────────────
 
 function _computeHiringAggregates(model) {
-  const hiring = model.departments.find(d => d.id === 'hiring');
+  const hiring = model.departments.find((d) => d.id === "hiring");
   if (!hiring) return;
 
-  const posMetrics = hiring.metrics.filter(m => m.id.startsWith('pos_'));
+  const posMetrics = hiring.metrics.filter((m) => m.id.startsWith("pos_"));
 
   // Ensure core top-level stage metrics exist
-  CORE_HIRING_STAGES.forEach(stg => {
-    if (!hiring.metrics.some(m => m.id === stg.id)) {
+  CORE_HIRING_STAGES.forEach((stg) => {
+    if (!hiring.metrics.some((m) => m.id === stg.id)) {
       hiring.metrics.unshift({
-        id: stg.id, name: stg.name, sub: 'All positions',
-        unit: '', dir: 'higher', total: false,
-        plan: {}, actual: {}, promised: {},
+        id: stg.id,
+        name: stg.name,
+        sub: "All positions",
+        unit: "",
+        dir: "higher",
+        total: false,
+        plan: {},
+        actual: {},
+        promised: {},
       });
     }
   });
 
   // Ensure per-recruiter stage metrics exist
-  RECRUITERS.forEach(rec => {
-    CORE_HIRING_STAGES.forEach(stg => {
+  RECRUITERS.forEach((rec) => {
+    CORE_HIRING_STAGES.forEach((stg) => {
       const rId = `rec_${rec.toLowerCase()}_${stg.id}`;
-      if (!hiring.metrics.some(m => m.id === rId)) {
+      if (!hiring.metrics.some((m) => m.id === rId)) {
         hiring.metrics.push({
           id: rId,
-          name: `${rec} — ${stg.name === 'Final Round Interviews' ? 'Final Rounds' : stg.name}`,
+          name: `${rec} — ${stg.name === "Final Round Interviews" ? "Final Rounds" : stg.name}`,
           sub: `Recruiter: ${rec}`,
-          unit: '', dir: 'higher', total: false,
-          plan: {}, actual: {}, promised: {},
+          unit: "",
+          dir: "higher",
+          total: false,
+          plan: {},
+          actual: {},
+          promised: {},
         });
       }
     });
   });
 
   // Clear aggregate metrics before recomputing
-  hiring.metrics.filter(m => !m.id.startsWith('pos_')).forEach(m => {
-    m.plan = {};
-    m.actual = {};
-  });
+  hiring.metrics
+    .filter((m) => !m.id.startsWith("pos_"))
+    .forEach((m) => {
+      m.plan = {};
+      m.actual = {};
+    });
 
   // Roll up position metrics into recruiter + top totals
-  model.weeks.forEach(w => {
+  model.weeks.forEach((w) => {
     const wid = w.id;
-    posMetrics.forEach(pm => {
-      const parts = pm.id.split('_');
+    posMetrics.forEach((pm) => {
+      const parts = pm.id.split("_");
       if (parts.length < 4) return;
 
       const rec = parts[1];
@@ -91,30 +111,38 @@ function _computeHiringAggregates(model) {
       const pVal = pm.plan[wid];
       const aVal = pm.actual[wid];
 
-      const recM = hiring.metrics.find(m => m.id === `rec_${rec.toLowerCase()}_${stageId}`);
-      const topM = hiring.metrics.find(m => m.id === stageId);
+      const recM = hiring.metrics.find(
+        (m) => m.id === `rec_${rec.toLowerCase()}_${stageId}`,
+      );
+      const topM = hiring.metrics.find((m) => m.id === stageId);
 
       const addVal = (metric, field, val) => {
-        if (val !== '' && val != null && !isNaN(val))
+        if (val !== "" && val != null && !isNaN(val))
           metric[field][wid] = (metric[field][wid] || 0) + Number(val);
       };
 
-      if (recM) { addVal(recM, 'plan', pVal); addVal(recM, 'actual', aVal); }
-      if (topM) { addVal(topM, 'plan', pVal); addVal(topM, 'actual', aVal); }
+      if (recM) {
+        addVal(recM, "plan", pVal);
+        addVal(recM, "actual", aVal);
+      }
+      if (topM) {
+        addVal(topM, "plan", pVal);
+        addVal(topM, "actual", aVal);
+      }
     });
   });
 
   // ─── Enforce strict display order for Hiring ──────────────────────────────
   const getStageIdx = (id) => {
-    const parts = id.split('_');
+    const parts = id.split("_");
     const stageId = parts.length === 1 ? id : parts[parts.length - 1];
-    const idx = CORE_HIRING_STAGES.findIndex(s => s.id === stageId);
+    const idx = CORE_HIRING_STAGES.findIndex((s) => s.id === stageId);
     return idx === -1 ? 99 : idx;
   };
 
   const getMetricType = (id) => {
-    if (id.startsWith('pos_')) return 3;
-    if (id.startsWith('rec_')) return 2;
+    if (id.startsWith("pos_")) return 3;
+    if (id.startsWith("rec_")) return 2;
     return 1;
   };
 
@@ -126,15 +154,15 @@ function _computeHiringAggregates(model) {
     if (tA === 1) return getStageIdx(a.id) - getStageIdx(b.id);
 
     if (tA === 2) {
-      const recA = a.id.split('_')[1] || '';
-      const recB = b.id.split('_')[1] || '';
+      const recA = a.id.split("_")[1] || "";
+      const recB = b.id.split("_")[1] || "";
       if (recA !== recB) return recA.localeCompare(recB);
       return getStageIdx(a.id) - getStageIdx(b.id);
     }
 
     if (tA === 3) {
-      const baseA = a.id.substring(0, a.id.lastIndexOf('_'));
-      const baseB = b.id.substring(0, b.id.lastIndexOf('_'));
+      const baseA = a.id.substring(0, a.id.lastIndexOf("_"));
+      const baseB = b.id.substring(0, b.id.lastIndexOf("_"));
       if (baseA !== baseB) return baseA.localeCompare(baseB);
       return getStageIdx(a.id) - getStageIdx(b.id);
     }
@@ -146,19 +174,21 @@ function _computeHiringAggregates(model) {
 // ─── Hide metrics flagged as hidden ──────────────────────────────────────────
 
 function _hideHiddenMetrics(model) {
-  model.departments.forEach(dept => {
-    dept.metrics = dept.metrics.filter(m => !HIDDEN_METRIC_IDS.has(m.id));
+  model.departments.forEach((dept) => {
+    dept.metrics = dept.metrics.filter((m) => !HIDDEN_METRIC_IDS.has(m.id));
   });
 }
 
 // ─── Force plan = 0 for zero-target metrics ───────────────────────────────────
 
 function _applyZeroPlanOverrides(model) {
-  model.departments.forEach(dept => {
-    dept.metrics.forEach(m => {
+  model.departments.forEach((dept) => {
+    dept.metrics.forEach((m) => {
       if (ZERO_PLAN_IDS.has(m.id)) {
-        model.weeks.forEach(w => { m.plan[w.id] = 0; });
-        m.dir = 'zero'; // Enforce zero-direction for scoring
+        model.weeks.forEach((w) => {
+          m.plan[w.id] = 0;
+        });
+        m.dir = "zero"; // Enforce zero-direction for scoring
       }
     });
   });
@@ -167,29 +197,29 @@ function _applyZeroPlanOverrides(model) {
 // ─── CRM name normalisations ─────────────────────────────────────────────────
 
 function _normalizeCrmNames(model) {
-  const crm = model.departments.find(d => d.id === 'crm');
+  const crm = model.departments.find((d) => d.id === "crm");
   if (!crm) return;
-  crm.metrics.forEach(m => {
-    if (m.id === 'otd') m.name = 'Total dispatch';
-    if (m.id === 'paycoll') m.name = 'Total Payement collection';
+  crm.metrics.forEach((m) => {
+    if (m.id === "otd") m.name = "Total dispatch";
+    if (m.id === "paycoll") m.name = "Total Payement collection";
   });
 }
 
 // ─── CRM display order ────────────────────────────────────────────────────────
 
 const CRM_ORDER = [
-  'otd',              // Total dispatch
-  'otd_ontime',       // On-time Dispatch
-  'delclient',        // Delayed Dispatch — Client
-  'delfactory',       // Delayed Dispatch — Factory
-  'paycoll',          // Total Payment collection
-  'paycoll_ontime',   // On-time Payment
-  'total_crm_complaints', // Total CRM Complaints
-  'open_complaints',  // Open Complaints
-  'closed_complaints',// Closed Complaints
-  'avg_closing_days', // Avg. Closing Days
-  'matret',           // Material Returns
-  'qty_replaced',     // Qty Replaced (mirrored from Production)
+  "otd", // Total dispatch
+  "otd_ontime", // On-time Dispatch
+  "delclient", // Delayed Dispatch — Client
+  "delfactory", // Delayed Dispatch — Factory
+  "paycoll", // Total Payment collection
+  "paycoll_ontime", // On-time Payment
+  "total_crm_complaints", // Total CRM Complaints
+  "open_complaints", // Open Complaints
+  "closed_complaints", // Closed Complaints
+  "avg_closing_days", // Avg. Closing Days
+  "matret", // Material Returns
+  "qty_replaced", // Qty Replaced (mirrored from Production)
 ];
 
 /**
@@ -198,7 +228,7 @@ const CRM_ORDER = [
  * so future additions don't break silently.
  */
 function _reorderCrmMetrics(model) {
-  const crm = model.departments.find(d => d.id === 'crm');
+  const crm = model.departments.find((d) => d.id === "crm");
   if (!crm) return;
 
   crm.metrics.sort((a, b) => {
@@ -214,16 +244,16 @@ function _reorderCrmMetrics(model) {
 // ─── Production name normalisations ──────────────────────────────────────────
 
 function _normalizeProductionNames(model) {
-  const prod = model.departments.find(d => d.id === 'production');
+  const prod = model.departments.find((d) => d.id === "production");
   if (!prod) return;
-  prod.metrics.forEach(m => {
-    if (m.id === 'oilmt') {
-      m.name = 'Melting cost per ton';
-      m.sub = 'lower is better';
-      m.unit = '';
+  prod.metrics.forEach((m) => {
+    if (m.id === "oilmt") {
+      m.name = "Melting cost per ton";
+      m.sub = "lower is better";
+      m.unit = "";
     }
-    if (m.id === 'qty_replaced') {
-      m.dir = 'zero';
+    if (m.id === "qty_replaced") {
+      m.dir = "zero";
     }
   });
 }
@@ -231,14 +261,14 @@ function _normalizeProductionNames(model) {
 // ─── Production display order ───────────────────────────────────────────────────
 
 const PRODUCTION_ORDER = [
-  'fg',                // Finished Goods
-  'hrslost',           // Hours Lost
-  'total_cuts',        // Total Cuts
-  'oilpermt',          // Oil / MT
-  'oilmt',             // Melting cost per ton
-  'total_crm_complaints', // Total Complaints (mirrored from CRM)
-  'matret',            // Material Returns (mirrored from CRM)
-  'qty_replaced',      // Qty Replaced
+  "fg", // Finished Goods
+  "hrslost", // Hours Lost
+  "total_cuts", // Total Cuts
+  "oilpermt", // Oil / MT
+  "oilmt", // Melting cost per ton
+  "total_crm_complaints", // Total Complaints (mirrored from CRM)
+  "matret", // Material Returns (mirrored from CRM)
+  "qty_replaced", // Qty Replaced
 ];
 
 /**
@@ -247,7 +277,7 @@ const PRODUCTION_ORDER = [
  * Any metrics not in PRODUCTION_ORDER are appended at the end.
  */
 function _reorderProductionMetrics(model) {
-  const prod = model.departments.find(d => d.id === 'production');
+  const prod = model.departments.find((d) => d.id === "production");
   if (!prod) return;
 
   prod.metrics.sort((a, b) => {
@@ -266,20 +296,20 @@ function _reorderProductionMetrics(model) {
  * in both department views. The data is shared — not duplicated in storage.
  */
 function _mirrorCrmMetricsToProduction(model) {
-  const prod = model.departments.find(d => d.id === 'production');
-  const crm = model.departments.find(d => d.id === 'crm');
+  const prod = model.departments.find((d) => d.id === "production");
+  const crm = model.departments.find((d) => d.id === "crm");
   if (!prod || !crm) return;
 
   const IDS_TO_MIRROR = [
-    { id: 'total_crm_complaints', name: 'Total Complaints' },
-    { id: 'matret', name: 'Material Returns' },
+    { id: "total_crm_complaints", name: "Total Complaints" },
+    { id: "matret", name: "Material Returns" },
   ];
 
   IDS_TO_MIRROR.forEach(({ id, name }) => {
-    const source = crm.metrics.find(m => m.id === id);
+    const source = crm.metrics.find((m) => m.id === id);
     if (!source) return;
 
-    const existingIdx = prod.metrics.findIndex(m => m.id === id);
+    const existingIdx = prod.metrics.findIndex((m) => m.id === id);
     if (existingIdx !== -1) {
       prod.metrics[existingIdx] = { ...source, name };
     } else {
@@ -288,9 +318,13 @@ function _mirrorCrmMetricsToProduction(model) {
   });
 
   // Move qty_replaced to immediately after matret
-  const matretIdx = prod.metrics.findIndex(m => m.id === 'matret');
-  const qtyReplacedIdx = prod.metrics.findIndex(m => m.id === 'qty_replaced');
-  if (matretIdx !== -1 && qtyReplacedIdx !== -1 && qtyReplacedIdx !== matretIdx + 1) {
+  const matretIdx = prod.metrics.findIndex((m) => m.id === "matret");
+  const qtyReplacedIdx = prod.metrics.findIndex((m) => m.id === "qty_replaced");
+  if (
+    matretIdx !== -1 &&
+    qtyReplacedIdx !== -1 &&
+    qtyReplacedIdx !== matretIdx + 1
+  ) {
     const [qtyMetric] = prod.metrics.splice(qtyReplacedIdx, 1);
     prod.metrics.splice(matretIdx + 1, 0, qtyMetric);
   }
@@ -302,19 +336,17 @@ function _mirrorCrmMetricsToProduction(model) {
  * Copy 'qty_replaced' from Production into CRM so it appears in both views.
  */
 function _mirrorProductionMetricsToCrm(model) {
-  const prod = model.departments.find(d => d.id === 'production');
-  const crm = model.departments.find(d => d.id === 'crm');
+  const prod = model.departments.find((d) => d.id === "production");
+  const crm = model.departments.find((d) => d.id === "crm");
   if (!prod || !crm) return;
 
-  const IDS_TO_MIRROR = [
-    { id: 'qty_replaced', name: 'Qty Replaced' },
-  ];
+  const IDS_TO_MIRROR = [{ id: "qty_replaced", name: "Qty Replaced" }];
 
   IDS_TO_MIRROR.forEach(({ id, name }) => {
-    const source = prod.metrics.find(m => m.id === id);
+    const source = prod.metrics.find((m) => m.id === id);
     if (!source) return;
 
-    const existingIdx = crm.metrics.findIndex(m => m.id === id);
+    const existingIdx = crm.metrics.findIndex((m) => m.id === id);
     if (existingIdx !== -1) {
       crm.metrics[existingIdx] = { ...source, name };
     } else {
@@ -325,7 +357,20 @@ function _mirrorProductionMetricsToCrm(model) {
 
 // ─── Purchase Stock Data Overrides ──────────────────────────────────────────
 
-const FULL_MONTHS_LIST = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const FULL_MONTHS_LIST = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 function _getWeekDates(range, fallbackYear, fallbackMonth) {
   let endDate = parseWeekEndMonth(range, fallbackYear);
@@ -352,34 +397,40 @@ function _extractMetricStockInfo(metricId, monthItems) {
 
   for (const item of monthItems) {
     if (!item.days) continue;
-    const itemDesc = String(item.description || '').trim();
+    const itemDesc = String(item.description || "").trim();
     const itemMaxLevel = Number(item.maxLevel || 0);
 
-    if (metricId === 'ing97') {
-      if ((itemDesc.includes('97') || itemDesc.includes('Ingot - 97')) && !itemDesc.includes('97.5')) {
+    if (metricId === "ing97") {
+      if (
+        (itemDesc.includes("97") || itemDesc.includes("Ingot - 97")) &&
+        !itemDesc.includes("97.5")
+      ) {
         return { days: item.days, maxLevel: itemMaxLevel };
       }
-    } else if (metricId === 'ing975') {
-      if (itemDesc.includes('97.5')) {
+    } else if (metricId === "ing975") {
+      if (itemDesc.includes("97.5")) {
         return { days: item.days, maxLevel: itemMaxLevel };
       }
-    } else if (metricId === 'ing98') {
-      if ((itemDesc.includes('0.98') || itemDesc.includes('98')) && !itemDesc.includes('98.5')) {
+    } else if (metricId === "ing98") {
+      if (
+        (itemDesc.includes("0.98") || itemDesc.includes("98")) &&
+        !itemDesc.includes("98.5")
+      ) {
         return { days: item.days, maxLevel: itemMaxLevel };
       }
-    } else if (metricId === 'ing985') {
-      if (itemDesc.includes('98.5')) {
+    } else if (metricId === "ing985") {
+      if (itemDesc.includes("98.5")) {
         return { days: item.days, maxLevel: itemMaxLevel };
       }
     }
   }
 
   // Fallback for ing975 if 97.5% is part of a combined 97% category in a month
-  if (metricId === 'ing975') {
+  if (metricId === "ing975") {
     for (const item of monthItems) {
       if (!item.days) continue;
-      const itemDesc = String(item.description || '').trim();
-      if (itemDesc.includes('97')) {
+      const itemDesc = String(item.description || "").trim();
+      if (itemDesc.includes("97")) {
         return { days: item.days, maxLevel: Number(item.maxLevel || 0) };
       }
     }
@@ -390,35 +441,42 @@ function _extractMetricStockInfo(metricId, monthItems) {
 
 function _overridePurchaseStockMetrics(model, stockData) {
   if (!model || !stockData) return;
-  const stockMonths = stockData.months || stockData.archieve?.months || stockData.archive?.months;
+  const stockMonths =
+    stockData.months || stockData.archieve?.months || stockData.archive?.months;
   if (!stockMonths) return;
 
-  const purchaseDept = model.departments.find(d => d.id === 'purchase');
+  const purchaseDept = model.departments.find((d) => d.id === "purchase");
   if (!purchaseDept) return;
 
-  const targetMetricIds = ['ing97', 'ing975', 'ing98', 'ing985'];
-  const targetMetrics = purchaseDept.metrics.filter(m => targetMetricIds.includes(m.id));
+  const targetMetricIds = ["ing97", "ing975", "ing98", "ing985"];
+  const targetMetrics = purchaseDept.metrics.filter((m) =>
+    targetMetricIds.includes(m.id),
+  );
   if (targetMetrics.length === 0) return;
 
-  const defaultPeriod = model.meta?.period || '';
+  const defaultPeriod = model.meta?.period || "";
   const parsedDefaultPeriod = parsePeriod(defaultPeriod);
 
-  targetMetrics.forEach(metric => {
+  targetMetrics.forEach((metric) => {
     if (!metric.actual) metric.actual = {};
 
-    model.weeks.forEach(w => {
-      const pInfo = parsedDefaultPeriod || { month: new Date().getMonth(), year: new Date().getFullYear() };
+    model.weeks.forEach((w) => {
+      const pInfo = parsedDefaultPeriod || {
+        month: new Date().getMonth(),
+        year: new Date().getFullYear(),
+      };
       const weekDates = _getWeekDates(w.range, pInfo.year, pInfo.month);
 
       let countNormalDays = 0;
       let hasValidData = false;
 
-      weekDates.forEach(date => {
+      weekDates.forEach((date) => {
         const dMonthName = FULL_MONTHS_LIST[date.getMonth()];
         const dYear = date.getFullYear();
         const dPeriodKey = `${dMonthName} ${dYear}`;
 
-        const monthItems = stockMonths[dPeriodKey] || stockMonths[defaultPeriod];
+        const monthItems =
+          stockMonths[dPeriodKey] || stockMonths[defaultPeriod];
         if (!monthItems) return;
 
         const info = _extractMetricStockInfo(metric.id, monthItems);
@@ -433,8 +491,12 @@ function _overridePurchaseStockMetrics(model, stockData) {
             hasValidData = true;
             dayVal = info.days[dayIdx];
           }
-        } else if (typeof info.days === 'object' && info.days !== null) {
-          const val = info.days[dayNum] ?? info.days[String(dayNum)] ?? info.days[dayIdx] ?? info.days[String(dayIdx)];
+        } else if (typeof info.days === "object" && info.days !== null) {
+          const val =
+            info.days[dayNum] ??
+            info.days[String(dayNum)] ??
+            info.days[dayIdx] ??
+            info.days[String(dayIdx)];
           if (val !== undefined) {
             hasValidData = true;
             dayVal = val;
