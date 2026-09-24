@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, X, Edit2, Check } from 'lucide-react';
+import { Plus, X, Edit2, Check, Lock } from 'lucide-react';
 import { calculateNextWeekRange, parseWeekEndMonth, getWeekAnchorDate } from '../../utils/dateUtils';
 
 export default function DataEntryWeekSelector({ 
@@ -144,9 +144,25 @@ export default function DataEntryWeekSelector({
             ref={w.id === activeWeek ? activeChipRef : null}
             className={`week-chip ${w.id === activeWeek ? 'active' : ''}`}
             onClick={() => setActiveWeek(w.id)}
-            style={isFrozen ? { borderColor: 'rgba(56, 189, 248, 0.4)', background: w.id === activeWeek ? undefined : 'rgba(56, 189, 248, 0.05)' } : undefined}
-            title={isFrozen ? 'Data for this week is frozen' : undefined}
+            style={isFrozen ? {
+              borderColor: '#0284c7',
+              background: w.id === activeWeek ? 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)' : '#e0f2fe',
+              color: w.id === activeWeek ? '#ffffff' : '#0369a1',
+              fontWeight: 600,
+              boxShadow: '0 1px 4px rgba(2, 132, 199, 0.2)',
+            } : undefined}
+            title={isFrozen ? '🔒 Data for this week is frozen (locked)' : undefined}
           >
+            {isFrozen && (
+              <Lock 
+                size={12} 
+                style={{ 
+                  marginRight: 5, 
+                  color: w.id === activeWeek ? '#ffffff' : '#0284c7', 
+                  flexShrink: 0 
+                }} 
+              />
+            )}
             {w.label} · {w.range}
             {!isFrozen && (
               <>
