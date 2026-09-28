@@ -207,7 +207,7 @@ export default function UnlockEditingModal({ onClose, onSuccess }) {
                     color: "#dc2626",
                     fontSize: "12px",
                     marginTop: "4px",
-                    fontWeight: 500,
+                    fontWeight: 400,
                   }}
                 >
                   {error}
