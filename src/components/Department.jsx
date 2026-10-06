@@ -6,7 +6,7 @@ import DepartmentHiringMatrix from "./Department/DepartmentHiringMatrix";
 import { getAvailableMonths } from "../utils/dateUtils";
 
 export default function Department({ department: d }) {
-  const { model, selectedPeriod, setSelectedPeriod, activePeriod } =
+  const { model, setSelectedPeriod, activePeriod } =
     useContext(KpiContext);
   const { weeks, meta } = model;
   const defaultPeriod = meta?.period || "";

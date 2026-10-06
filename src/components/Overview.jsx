@@ -7,7 +7,7 @@ import { getAvailableMonths } from '../utils/dateUtils';
 import { Calendar } from 'lucide-react';
 
 export default function Overview() {
-  const { model, selectedPeriod, setSelectedPeriod, activePeriod } = useContext(KpiContext);
+  const { model, setSelectedPeriod, activePeriod } = useContext(KpiContext);
   const { weeks, departments, meta } = model;
   const defaultPeriod = meta?.period || '';
 
