@@ -1,5 +1,5 @@
-import React, { useRef, useLayoutEffect } from 'react';
-import { mtd, calculateScore, formatVal, ZERO_PLAN_IDS } from '../../store/kpiStore';
+import React, { useRef, useLayoutEffect, useContext } from 'react';
+import {KpiContext, mtd, calculateScore, formatVal, ZERO_PLAN_IDS } from '../../store/kpiStore';
 import { groupWeeksByMonth } from '../../utils/dateUtils';
 
 const PROMISED_DEPTS = ['crm'];
@@ -27,6 +27,7 @@ const stickyData = (isTotal) => ({
 
 
 export default function OverviewMetricTable({ departments, weeks, period }) {
+    const { monthlyReport } = useContext(KpiContext) || {};
   const tableRef = useRef(null);
 
   useLayoutEffect(() => {
@@ -179,7 +180,8 @@ export default function OverviewMetricTable({ departments, weeks, period }) {
               </div>
 
               {monthGroups.map(mg => {
-                const mt = mtd(m, mg.weeks);
+                // const mt = mtd(m, mg.weeks);
+                const mt = mtd(m, mg.weeks, d.id, mg.monthKey, monthlyReport);
                 const msc = calculateScore(mt.plan, mt.actual, m.dir);
 
                 return (

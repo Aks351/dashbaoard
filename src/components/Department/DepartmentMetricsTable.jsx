@@ -11,7 +11,7 @@ const B = '1px solid var(--border)'; // shorthand border
 const WEEK_SEP_BORDER = '2px solid #cbd5e1'; // distinct week separator border
 
 export default function DepartmentMetricsTable({ department: d, weeks, baseMetrics, period }) {
-  const { isWeekFrozen } = useContext(KpiContext) || {};
+  const { isWeekFrozen, monthlyReport } = useContext(KpiContext) || {};
   const showPromised = d.id === 'crm';
   const isProduction = d.id === 'production';
   const scoreOpts = isProduction ? { strict: true } : {};
@@ -138,7 +138,7 @@ export default function DepartmentMetricsTable({ department: d, weeks, baseMetri
               </div>
 
               {monthGroups.map((mg) => {
-                const mt = mtd(m, mg.weeks);
+                const mt = mtd(m, mg.weeks, d.id, mg.monthKey, monthlyReport);
                 const msc = applyGreen(m.id, calculateScore(isZeroPlan ? null : mt.plan, mt.actual, scoreDir, scoreOpts));
 
                 return (

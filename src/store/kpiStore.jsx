@@ -50,6 +50,9 @@ export function KpiProvider({ children }) {
     return applyInitialMigrations(data);
   });
 
+
+  const [monthlyReport, setMonthlyReport] = useState(null);
+
   const [connState, setConnState] = useState('offline'); // offline | online | syncing | error
   const [canEdit,   setCanEdit]   = useState(false);
   const [showUnlockModal, setShowUnlockModal] = useState(false);
@@ -311,6 +314,8 @@ export function KpiProvider({ children }) {
     try {
       const r = await fetch(`${BACKEND_URL}?action=get&t=${Date.now()}`);
       const j = await r.json();
+setMonthlyReport(j.monthly || null);
+
       if (j.ok) {
         if (j.data?.departments) {
           // Collect all metric IDs present in cloud before migration
@@ -709,6 +714,7 @@ export function KpiProvider({ children }) {
       isWeekFrozen,
       showUnlockModal,
       setShowUnlockModal,
+      monthlyReport,
     }}>
       {children}
       {showUnlockModal && (
