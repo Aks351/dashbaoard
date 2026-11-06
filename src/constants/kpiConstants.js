@@ -5,7 +5,8 @@ export const FREEZE_STORAGE_KEY = "ve_freeze_config";
 // export const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbxP94sCqfEJof4Qc2-svCt3Bcs5UJNQlaSQn9aXqMDp52oRcwuJUoqhqhYlAdg1vZXj/exec';
 export const BACKEND_URL =
   // "https://script.google.com/macros/s/AKfycbwLiG1lCXwzjjSDgP5P2rLEYAyY4i4mWwCOEblkuOuxuy4oDm3YXumlL74CEr8GSwX-/exec";
-  "https://script.google.com/macros/s/AKfycbwLiG1lCXwzjjSDgP5P2rLEYAyY4i4mWwCOEblkuOuxuy4oDm3YXumlL74CEr8GSwX-/exec";
+  // "https://script.google.com/macros/s/AKfycbwLiG1lCXwzjjSDgP5P2rLEYAyY4i4mWwCOEblkuOuxuy4oDm3YXumlL74CEr8GSwX-/exec";
+  "https://script.google.com/macros/s/AKfycbwDzYGWJ-vooBJ7Fb9g-0VRTzmtJXg-f9sl6cPuAJfa8B8FMQMuYNhI51p_ER6kd0dg/exec";
 export const PURCHASE_STOCK_URL =
   "https://script.google.com/macros/s/AKfycbxNBMLIik2OYz8Z9d_st75cPf5MY_2U1li5g9pWqxyyu6NFQfKwZY6eRGZ4GYoeAQNL/exec";
 export const EDIT_KEY = "vinayak2026";

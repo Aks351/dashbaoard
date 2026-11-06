@@ -1,6 +1,7 @@
 // ─── Pure utility functions for KPI calculations ─────────────────────────────
 // No React, no side-effects. Safe to import anywhere and easy to unit-test.
-import { MONTHLY_OVERRIDE_IDS, ZERO_PLAN_IDS } from '../constants/kpiConstants';
+// import { MONTHLY_OVERRIDE_IDS, ZERO_PLAN_IDS } from '../constants/kpiConstants';
+import { ZERO_PLAN_IDS } from '../constants/kpiConstants';
 
 // ─── Time / number parsing ────────────────────────────────────────────────────
 
@@ -133,30 +134,144 @@ export function calculateScore(plan, actual, dir = 'higher', options = {}) {
  *
  * @returns {{ plan: number|null, actual: number|null }}
  */
-export function mtd(metric, weeks) {
-  // 1. Use backend-supplied values from the monthly sheet if they exist for this metric AND it is in the whitelist
-  if (metric.is_monthly_override && MONTHLY_OVERRIDE_IDS.has(metric.id)) {
-    return {
-      plan:   metric.mtd_plan   !== undefined && metric.mtd_plan   !== "" ? num(metric.mtd_plan)   : null,
-      actual: metric.mtd_actual !== undefined && metric.mtd_actual !== "" ? num(metric.mtd_actual) : null,
-    };
-  }
 
-  // 2. REGULAR METRICS (and Averages)
-  let plan = 0, act = 0, planCount = 0, actCount = 0;
+const MONTHLY_FIELDS = {
+  purchase: {
+  totdel: ["H2", "Planned Delivery", "Actual Delivery"],
+  // ontime: ["H2", null, "On time delivery"],
+  ontime: ["H2",  "Actual Delivery", "On time delivery",],
+},
+  production: {
+    fg: ["H1", "Planned Finished Goods", "Actual Finished Goods"],
+    hrslost: ["H1", null, "Production Hour Lost"],
+    total_cuts: ["H1", null, "Totals Cuts"],
+    // casting_fault_count: ["H1", null, "Casting Fault Count"],
+    casting_fault: ["H1", null, "Casting Fault Count"],
+// casting_fault_hr_lost: ["H1", null, "Casting Fault Hr Lost"],
+casting_fault_lost: ["H1", null, "Casting Fault Hr Lost"],
+    oilpermt: ["H1", null, "Avg. Oil Consumed Per Ton"],
+    oilmt: ["H1", null, "Avg Fuel Cost per Ton"],
+    matret: ["H7", null, "Material Change"],
+qty_replaced: ["H7", null, "Return Qty"],
+total_crm_complaints: ["H7", null, "Total CRM Complaints"],
+  },
+  crm: {
+    otd: ["H3", "Total Dispatch planned", "Actual Dispatch"],
+// otd_ontime: ["H3", "Total Dispatch planned", "On time dispatch"],
+otd_ontime: ["H3", "Actual Dispatch", "On time dispatch"],
+paycoll: ["H4", "Total Payments Planned", "Actual Payments"],
+paycoll_ontime: ["H4", "Actual Payments", "Payments on time"],
+// paycoll_ontime: ["H4", "Total Payments Planned", "Payments on time"],
+    delclient: ["H3", null, "Client Delay"],
+    delfactory: ["H3", null, "Factory Delay"],
+    total_crm_complaints: ["H7", null, "Total CRM Complaints"],
+    open_complaints: ["H7", null, "Total Open Complaints"],
+    closed_complaints: ["H7", null, "Complains Closed"],
+    avg_closing_days: ["H7", null, "Avg Closing Date"],
+    matret: ["H7", null, "Material Change"],
+qty_replaced: ["H7", null, "Return Qty"],
+  },
+  hiring: {
+    apps: ["H5", null, "Appilcations"],
+    final: ["H5", null, "Final round"],
+  },
+};
 
-  weeks.forEach(w => {
-    const p = num(metric.plan[w.id]);
-    if (p !== null) { plan += p; planCount++; }
+
+// export function mtd(metric, weeks) {
+//   // 1. Use backend-supplied values from the monthly sheet if they exist for this metric AND it is in the whitelist
+//   if (metric.is_monthly_override && MONTHLY_OVERRIDE_IDS.has(metric.id)) {
+//     return {
+//       plan:   metric.mtd_plan   !== undefined && metric.mtd_plan   !== "" ? num(metric.mtd_plan)   : null,
+//       actual: metric.mtd_actual !== undefined && metric.mtd_actual !== "" ? num(metric.mtd_actual) : null,
+//     };
+//   }
+
+//   // 2. REGULAR METRICS (and Averages)
+//   let plan = 0, act = 0, planCount = 0, actCount = 0;
+
+//   weeks.forEach(w => {
+//     const p = num(metric.plan[w.id]);
+//     if (p !== null) { plan += p; planCount++; }
     
-    const a = num(metric.actual[w.id]);
-    if (a !== null) { act += a; actCount++; }
+//     const a = num(metric.actual[w.id]);
+//     if (a !== null) { act += a; actCount++; }
+//   });
+
+//   const isAverage = metric.id === 'avg_closing_days' || metric.id === 'oilmt' || metric.id === 'oilpermt';
+
+//   return {
+//     plan:   planCount > 0 ? (isAverage ? plan / planCount : plan) : null,
+//     actual: actCount  > 0 ? (isAverage ? act / actCount : act)  : null,
+//   };
+// }
+
+export function mtd(metric, weeks, departmentId, monthKey, monthlyReport) {
+  let weeklyPlan = 0;
+  let weeklyActual = 0;
+  let planCount = 0;
+  let actualCount = 0;
+
+  weeks.forEach((week) => {
+    const plan = num(metric.plan[week.id]);
+    if (plan !== null) {
+      weeklyPlan += plan;
+      planCount++;
+    }
+
+    const actual = num(metric.actual[week.id]);
+    if (actual !== null) {
+      weeklyActual += actual;
+      actualCount++;
+    }
   });
 
-  const isAverage = metric.id === 'avg_closing_days' || metric.id === 'oilmt' || metric.id === 'oilpermt';
+  const isAverage =
+    metric.id === "avg_closing_days" ||
+    metric.id === "oilmt" ||
+    metric.id === "oilpermt";
 
-  return {
-    plan:   planCount > 0 ? (isAverage ? plan / planCount : plan) : null,
-    actual: actCount  > 0 ? (isAverage ? act / actCount : act)  : null,
+  const weeklyValues = {
+    plan: planCount ? (isAverage ? weeklyPlan / planCount : weeklyPlan) : null,
+    actual: actualCount
+      ? (isAverage ? weeklyActual / actualCount : weeklyActual)
+      : null,
   };
+
+  // const apiMonth = monthKey?.replace(/^([A-Za-z]{3})[A-Za-z]*/, "$1");
+  const apiMonth = monthKey?.replace(
+  /^([A-Za-z]+)\s+(\d{4})$/,
+  (_, month, year) => `${month.slice(0, 3)} ${year}`
+);
+  const fieldMap = MONTHLY_FIELDS[departmentId]?.[metric.id];
+
+  // Metric API mapping mein nahi hai ya is month ka API data nahi mila:
+  // pehle ki weekly MTD calculation ko rehne do.
+  if (!fieldMap || !monthlyReport || !apiMonth) return weeklyValues;
+
+  const [section, planField, actualField] = fieldMap;
+  const monthData = monthlyReport[section]?.months?.[apiMonth];
+
+  if (!monthData) return weeklyValues;
+
+  let plan = ZERO_PLAN_IDS.has(metric.id) ? null : weeklyValues.plan;
+  let actual = weeklyValues.actual;
+
+  // API field mila ho to monthly value use karo; warna weekly value fallback.
+  if (
+    planField &&
+    Object.prototype.hasOwnProperty.call(monthData, planField)
+  ) {
+    plan = num(monthData[planField]);
+  }
+
+  if (
+    actualField &&
+    Object.prototype.hasOwnProperty.call(monthData, actualField)
+  ) {
+    actual = num(monthData[actualField]);
+  }
+
+  return { plan, actual };
 }
+

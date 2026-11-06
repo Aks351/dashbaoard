@@ -267,6 +267,28 @@
                     },
                     "promised": {}
                 },
+                  {
+  "id": "casting_fault",
+  "name": "Casting Fault Count",
+  "sub": "",
+  "unit": "",
+  "dir": "lower",
+  "total": false,
+  "plan": {},
+  "actual": {},
+  "promised": {}
+},
+{
+  "id": "casting_fault_lost",
+  "name": "Casting Fault Hr Lost",
+  "sub": "hrs · lower is better",
+  "unit": "hrs",
+  "dir": "lower",
+  "total": false,
+  "plan": {},
+  "actual": {},
+  "promised": {}
+},
                 {
                     "id": "oilmt",
                     "name": "Melting cost per ton",
