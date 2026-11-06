@@ -264,6 +264,10 @@ const PRODUCTION_ORDER = [
   "fg", // Finished Goods
   "hrslost", // Hours Lost
   "total_cuts", // Total Cuts
+  //  "casting_fault_count", // Casting Fault Count
+  "casting_fault",
+  // "casting_fault_hr_lost", // Casting Fault Hr Lost
+  "casting_fault_lost",
   "oilpermt", // Oil / MT
   "oilmt", // Melting cost per ton
   "total_crm_complaints", // Total Complaints (mirrored from CRM)
