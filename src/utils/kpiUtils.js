@@ -68,14 +68,33 @@ export function formatTime(v) {
 }
 
 /** Smart formatter — uses HH:MM for 'hrs' unit, plain number otherwise. */
+// export function formatVal(v, unit, metricId = null) {
+//   if (unit === 'hrs') return formatTime(v);
+//   if (metricId && ZERO_PLAN_IDS.has(metricId)) return formatNum(v, 0);
+//   if (metricId === 'fg') return formatNum(v, 0);
+//   return formatNum(v, 2);
+// }
+
+// ─── Scoring ──────────────────────────────────────────────────────────────────
+
 export function formatVal(v, unit, metricId = null) {
-  if (unit === 'hrs') return formatTime(v);
+  if (unit === 'hrs') {
+    // This metric can arrive from the weekly API as a Sheets day-fraction.
+    if (metricId === 'casting_fault_lost' && typeof v === 'number' && v >= 0 && v < 1) {
+      const totalMinutes = Math.round(v * 24 * 60);
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      return `${hours}:${String(minutes).padStart(2, '0')}`;
+    }
+
+    return formatTime(v);
+  }
+
   if (metricId && ZERO_PLAN_IDS.has(metricId)) return formatNum(v, 0);
   if (metricId === 'fg') return formatNum(v, 0);
   return formatNum(v, 2);
 }
 
-// ─── Scoring ──────────────────────────────────────────────────────────────────
 
 /**
  * Calculate a score colour + label for a plan/actual pair.
