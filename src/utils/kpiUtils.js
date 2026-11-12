@@ -80,12 +80,21 @@ export function formatTime(v) {
 export function formatVal(v, unit, metricId = null) {
   if (unit === 'hrs') {
     // This metric can arrive from the weekly API as a Sheets day-fraction.
-    if (metricId === 'casting_fault_lost' && typeof v === 'number' && v >= 0 && v < 1) {
-      const totalMinutes = Math.round(v * 24 * 60);
-      const hours = Math.floor(totalMinutes / 60);
-      const minutes = totalMinutes % 60;
-      return `${hours}:${String(minutes).padStart(2, '0')}`;
-    }
+    // if (metricId === 'casting_fault_lost' && typeof v === 'number' && v >= 0 && v < 1) {
+    //   const totalMinutes = Math.round(v * 24 * 60);
+    //   const hours = Math.floor(totalMinutes / 60);
+    //   const minutes = totalMinutes % 60;
+    //   return `${hours}:${String(minutes).padStart(2, '0')}`;
+    // }
+
+    if (metricId === 'casting_fault_lost' && typeof v === 'number' && v >= 0) {
+  // Weekly API values are day-fractions; monthly duration strings
+  // become decimal hours after num() parses them.
+  const totalMinutes = Math.round(v * (v < 1 ? 24 * 60 : 60));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${hours}:${String(minutes).padStart(2, '0')}`;
+}
 
     return formatTime(v);
   }
