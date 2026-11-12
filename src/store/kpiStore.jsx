@@ -135,38 +135,72 @@ export function KpiProvider({ children }) {
     return snap;
   };
 
-  const syncFreezeToCloud = async (freezeConfig, currentModel) => {
-    if (!BACKEND_URL) return false;
-    setConnState('syncing');
-    try {
-      // Build clean payload with meta.freezeConfig
-      const payload = JSON.parse(
-        JSON.stringify(currentModel, (k, v) => (k && k[0] === '_') ? undefined : v)
-      );
-      if (!payload.meta) payload.meta = {};
-      payload.meta.freezeConfig = freezeConfig;
+  // const syncFreezeToCloud = async (freezeConfig, currentModel) => {
+  //   if (!BACKEND_URL) return false;
+  //   setConnState('syncing');
+  //   try {
+  //     // Build clean payload with meta.freezeConfig
+  //     const payload = JSON.parse(
+  //       JSON.stringify(currentModel, (k, v) => (k && k[0] === '_') ? undefined : v)
+  //     );
+  //     if (!payload.meta) payload.meta = {};
+  //     payload.meta.freezeConfig = freezeConfig;
 
-      const r = await fetch(BACKEND_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'save', key: EDIT_KEY, data: payload }),
-      });
-      let j = {};
-      try { j = await r.json(); } catch {}
+  //     const r = await fetch(BACKEND_URL, {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+  //       body: JSON.stringify({ action: 'save', key: EDIT_KEY, data: payload }),
+  //     });
+  //     let j = {};
+  //     try { j = await r.json(); } catch {}
 
-      if (r.ok || j?.ok) {
-        setConnState('online');
-        return true;
-      }
-      console.error('syncFreezeToCloud failed:', j?.message);
-      setConnState('error');
-      return false;
-    } catch (e) {
-      console.error('syncFreezeToCloud error:', e);
-      setConnState('error');
-      return false;
+  //     if (r.ok || j?.ok) {
+  //       setConnState('online');
+  //       return true;
+  //     }
+  //     console.error('syncFreezeToCloud failed:', j?.message);
+  //     setConnState('error');
+  //     return false;
+  //   } catch (e) {
+  //     console.error('syncFreezeToCloud error:', e);
+  //     setConnState('error');
+  //     return false;
+  //   }
+  // };
+
+const syncFreezeToCloud = async (freezeConfig) => {
+  if (!BACKEND_URL) return false;
+
+  setConnState('syncing');
+
+  try {
+    const r = await fetch(BACKEND_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        action: 'saveFreeze',
+        key: EDIT_KEY,
+        freezeConfig,
+      }),
+    });
+
+    const j = await r.json();
+
+    if (r.ok && j?.ok) {
+      setConnState('online');
+      return true;
     }
-  };
+
+    console.error('syncFreezeToCloud failed:', j?.message);
+    setConnState('error');
+    return false;
+  } catch (e) {
+    console.error('syncFreezeToCloud error:', e);
+    setConnState('error');
+    return false;
+  }
+};
+
 
   const freezeData = async (customUpToWeekId = null, options = {}) => {
     let actualWeekId = customUpToWeekId;
@@ -203,6 +237,17 @@ export function KpiProvider({ children }) {
     const dateTimeStr = date && time ? ` · ${dateFormatted} at ${timeFormatted}` : date ? ` · ${dateFormatted}` : '';
     const freezeUpToLabel = `${freezeUpToWeek.label} (${freezeUpToWeek.range || ''})${dateTimeStr}`;
 
+if (window._pushTimer) {
+  clearTimeout(window._pushTimer);
+  window._pushTimer = null;
+}
+
+const editsSaved = await pushDeltaToCloud({ allowFullSaveFallback: false });
+if (!editsSaved) {
+  alert('Pending entries cloud par save nahi hui. Freeze dobara try karein.');
+  return false;
+}
+
     const snapshot = captureFrozenSnapshot(model, targetWeekIds);
     const newFreeze = {
       isFrozen: true,
@@ -214,6 +259,22 @@ export function KpiProvider({ children }) {
       snapshot,
       frozenAt: new Date().toISOString(),
     };
+
+const cloudFreezeConfig = {
+  isFrozen: newFreeze.isFrozen,
+  freezeUpToWeekId: newFreeze.freezeUpToWeekId,
+  freezeUpToLabel: newFreeze.freezeUpToLabel,
+  freezeDate: newFreeze.freezeDate,
+  freezeTime: newFreeze.freezeTime,
+  frozenWeekIds: newFreeze.frozenWeekIds,
+  frozenAt: newFreeze.frozenAt,
+};
+
+    const cloudSaved = await syncFreezeToCloud(cloudFreezeConfig);
+if (!cloudSaved) {
+  alert('Freeze cloud par save nahi hua. Data abhi freeze nahi kiya gaya.');
+  return false;
+}
 
     setFreezeState(newFreeze);
     freezeStateRef.current = newFreeze;
@@ -228,13 +289,14 @@ export function KpiProvider({ children }) {
       ...model,
       meta: {
         ...model.meta,
-        freezeConfig: newFreeze,
+        // freezeConfig: newFreeze,
+        freezeConfig: cloudFreezeConfig,
       },
     };
     saveToLocal(nextModel);
 
     // Push to cloud so all devices/users get the frozen state!
-    await syncFreezeToCloud(newFreeze, nextModel);
+    // await syncFreezeToCloud(newFreeze, nextModel);
     return true;
   };
 
@@ -249,6 +311,13 @@ export function KpiProvider({ children }) {
       snapshot: {},
       frozenAt: null,
     };
+
+const cloudSaved = await syncFreezeToCloud(cleared);
+if (!cloudSaved) {
+  alert('Defreeze cloud par save nahi hua.');
+  return false;
+}
+
     setFreezeState(cleared);
     freezeStateRef.current = cleared;
     try {
@@ -459,11 +528,16 @@ setMonthlyReport(j.monthly || null);
     }
   };
 
-  const pushDeltaToCloud = async () => {
-    if (!BACKEND_URL || !canEdit) return;
-    
+  const pushDeltaToCloud = async ({ allowFullSaveFallback = true } = {}) => {
+    // if (!BACKEND_URL || !canEdit) return;
+    if (!BACKEND_URL || !canEdit) return false;
+
     const keysBeingPushed = Object.keys(pendingEdits.current);
-    if (keysBeingPushed.length === 0) return;
+    // if (keysBeingPushed.length === 0) return;
+
+    if (keysBeingPushed.length === 0) return true;
+
+
     
     setConnState('syncing');
     const editsToPush = keysBeingPushed.map(k => pendingEdits.current[k]);
@@ -481,7 +555,10 @@ setMonthlyReport(j.monthly || null);
         setConnState('online');
         keysBeingPushed.forEach(k => delete pendingEdits.current[k]);
         try { localStorage.setItem('ve_pending_edits', JSON.stringify(pendingEdits.current)); } catch {}
+        return true;
       } else if (j?.code === 'SCHEMA_MISMATCH') {
+
+         if (!allowFullSaveFallback) return false;
         // Cloud sheet is missing a metric (e.g. total_cuts newly added).
         // Fall back to full save — this writes the entire schema + all data.
         // Pending edits are kept so the full push includes the new values.
